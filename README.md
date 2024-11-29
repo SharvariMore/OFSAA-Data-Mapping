@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # OFSAADataMapping
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.7.
@@ -25,3 +26,7 @@ Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To u
 ## Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+=======
+# OFSAA-Data-Mapping
+Developed OFSAA Data Mapping with Angular CLI and Oracle Database
+>>>>>>> 8d10389373ef5809d8afb3cfc40255cd9d7058ac
