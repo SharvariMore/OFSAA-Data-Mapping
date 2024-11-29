@@ -1,2 +1,9 @@
 <app-navbar></app-navbar>
-<p>index works!</p>
+
+<div class="index">
+  <h2>Index</h2>
+  <div *ngIf="isAdmin()" class="admin-control">
+    <button (click)="addData()">Add</button>
+    <button (click)="editData()">Edit</button>
+  </div>
+</div>

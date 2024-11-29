@@ -1,22 +1,24 @@
+import { RoleService } from './role.service';
 import { Component } from '@angular/core';
-import { Router, RouterOutlet } from '@angular/router';
+import { Router, RouterModule, RouterOutlet } from '@angular/router';
 // import { NavbarComponent } from './navbar/navbar.component';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule],
+  imports: [RouterOutlet, CommonModule, RouterModule],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
   title = 'OFSAA_Data_Mapping';
 
-  public router: Router;
+  role: 'user' | 'admin' | undefined;
 
-  constructor(router: Router) {
-    this.router = router;
+  constructor(private roleService: RoleService, private router: Router) {
+    // this.router = router;
+    this.role = this.roleService.getRole();
   }
 
   goToIndex() {

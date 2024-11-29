@@ -1,0 +1,30 @@
+.index {
+  padding: 2rem;
+  text-align: center;
+}
+
+button {
+  margin: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.admin-control {
+  margin-top: 2rem;
+}
+
+.admin-control button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #071975;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.admin-control button:hover {
+  background-color: #035493;
+}
