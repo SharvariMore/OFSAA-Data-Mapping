@@ -1,13 +1,33 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
+// import { NavbarComponent } from './navbar/navbar.component';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, CommonModule],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrls: ['./app.component.css']
 })
 export class AppComponent {
   title = 'OFSAA_Data_Mapping';
+
+  public router: Router;
+
+  constructor(router: Router) {
+    this.router = router;
+  }
+
+  goToIndex() {
+    this.router.navigate(['/index']);
+  }
+
+  goToChangeLog() {
+    this.router.navigate(['/changelog']);
+  }
+
+  goToDataMappingRule() {
+    this.router.navigate(['/data-mapping-rule']);
+  }
 }

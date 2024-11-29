@@ -1,0 +1,13 @@
+<nav class="navbar">
+  <div class="hamburger" (click)="toggleNavbar()">
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+  </div>
+
+  <ul class="nav-links" [class.active]="isNavbarOpen">
+    <li><a routerLink="/index" routerLinkActive="active">Index</a></li>
+    <li><a routerLink="/changelog" routerLinkActive="active">Change Log</a></li>
+    <li><a routerLink="/data-mapping-rule" routerLinkActive="active">Data Mapping Rule</a></li>
+  </ul>
+</nav>
