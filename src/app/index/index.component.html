@@ -2,8 +2,132 @@
 
 <div class="index">
   <h2>Index</h2>
-  <div *ngIf="isAdmin()" class="admin-control">
-    <button (click)="addData()">Add</button>
-    <button (click)="editData()">Edit</button>
+
+  <div class="search-content">
+    <label for="search">Search </label>
+    <input type="text" id="search" [(ngModel)]="searchText" placeholder="Search any column..." />
   </div>
+
+  <div *ngIf="filteredData().length === 0">
+    <p class="nodata">No Data Found for Entered Search!</p>
+  </div>
+
+  <div *ngIf="isAdmin()" class="admin-control">
+    <button (click)="addData()">Add New Row</button>
+
+
+  <div *ngIf="isAdmin()" class="admin-column">
+    <button (click)="addColumn()">Add New Column</button>
+    <input type="text" class="input-column" [(ngModel)]="newColumnName" placeholder=" Enter New Column Name" />
+  </div>
+</div>
+
+  <table *ngIf="filteredData().length > 0">
+    <thead>
+      <tr>
+        <th>Sr. No.</th>
+        <th>TFS Req.</th>
+        <th>Release</th>
+        <th>OFSAA Physical Names</th>
+        <th>OFSAA Logical Entity Name</th>
+        <th>Source</th>
+        <th>Type of Data</th>
+        <th>Frequency</th>
+        <th>Load Mode</th>
+        <th>Load Type</th>
+        <th>Expected Volume</th>
+        <th>Mapping Status</th>
+        <th>ODI Build Status</th>
+        <th>Review Status</th>
+        <th>Used in EFRA</th>
+        <th>Used in CECL</th>
+        <th>Used in AML</th>
+        <th>Used in OneStream</th>
+        <th>Used in CCAR</th>
+        <th>Used in AXIOM</th>
+        <th *ngIf="isAdmin()">Actions</th>
+        <!-- <th *ngFor="let column of tableColumns">{{ column.header }}</th> -->
+        <th *ngFor="let column of tableColumns; let i = index" [hidden]="i < 20">{{ column.header }}</th>
+      </tr>
+    </thead>
+    <tbody *ngFor="let row of filteredData()">
+      <tr>
+        <td>{{ row.srNo }}</td>
+        <td>{{ row.tfsReq }}</td>
+        <td>{{ row.release }}</td>
+        <td>{{ row.ofsaaPhysicalNames }}</td>
+        <td>{{ row.ofsaaLogicalEntityName }}</td>
+        <td>{{ row.source }}</td>
+        <td>{{ row.typeOfData }}</td>
+        <td>{{ row.frequency }}</td>
+        <td>{{ row.loadMode }}</td>
+        <td>{{ row.loadType }}</td>
+        <td>{{ row.expectedVolume }}</td>
+        <!-- <td>{{ row.mappingStatus }}</td>
+        <td>{{ row.odiBuildStatus }}</td>
+        <td>{{ row.reviewStatus }}</td> -->
+        <td>
+          <select [(ngModel)]="row.mappingStatus" [disabled]="!isAdmin()">
+            <option *ngFor="let option of statusOptions" [value]="option" [selected]="row.mappingStatus === option">{{option}}</option>
+          </select>
+        </td>
+        <td>
+          <select [(ngModel)]="row.odiBuildStatus" [disabled]="!isAdmin()">
+            <option *ngFor="let option of statusOptions" [value]="option" [selected]="row.odiBuildStatus === option">{{option}}</option>
+          </select>
+        </td>
+        <td>
+          <select [(ngModel)]="row.reviewStatus" [disabled]="!isAdmin()">
+            <option *ngFor="let option of statusOptions" [value]="option" [selected]="row.reviewStatus === option">{{option}}</option>
+          </select>
+        </td>
+        <!-- <td>{{ row.usedInEFRA }}</td>
+        <td>{{ row.usedInCECL }}</td>
+        <td>{{ row.usedInAML }}</td>
+        <td>{{row.usedInOnestream}}</td>
+        <td>{{row.usedInCCAR}}</td>
+        <td>{{row.usedInAXIOM}}</td> -->
+        <td>
+          <select [(ngModel)]="row.usedInEFRA" [disabled]="!isAdmin()">
+            <option *ngFor="let option of usedInOptions" [value]="option" [selected]="row.usedInEFRA === option">{{option}}</option>
+          </select>
+        </td>
+        <td>
+          <select [(ngModel)]="row.usedInCECL" [disabled]="!isAdmin()">
+            <option *ngFor="let option of usedInOptions" [value]="option" [selected]="row.usedInCECL === option">{{option}}</option>
+          </select>
+        </td>
+        <td>
+          <select [(ngModel)]="row.usedInAML" [disabled]="!isAdmin()">
+            <option *ngFor="let option of usedInOptions" [value]="option" [selected]="row.usedInAML === option">{{option}}</option>
+          </select>
+        </td>
+        <td>
+          <select [(ngModel)]="row.usedInOnestream" [disabled]="!isAdmin()">
+            <option *ngFor="let option of usedInOptions" [value]="option" [selected]="row.usedInOnestream === option">{{option}}</option>
+          </select>
+        </td>
+        <td>
+          <select [(ngModel)]="row.usedInCCAR" [disabled]="!isAdmin()">
+            <option *ngFor="let option of usedInOptions" [value]="option" [selected]="row.usedInCCAR === option">{{option}}</option>
+          </select>
+        </td>
+        <td>
+          <select [(ngModel)]="row.usedInAXIOM" [disabled]="!isAdmin()">
+            <option *ngFor="let option of usedInOptions" [value]="option" [selected]="row.usedInAXIOM === option">{{option}}</option>
+          </select>
+        </td>
+        <!-- <td *ngFor="let column of tableColumns">{{ row[column.field] }}</td> -->
+        <td *ngIf="isAdmin()">
+          <button (click)="editData(row)">Edit</button>
+          <!-- <button (click)="deleteRow(row)">Delete</button> -->
+        </td>
+        <td *ngFor="let column of tableColumns; let i = index" [hidden]="i < 20">
+          <!-- <input [(ngModel)]="row[column.field]" [disabled]="!isAdmin()" /> -->
+          <span *ngIf="!isAdmin()">{{ row[column.field] }}</span>
+          <input class="input-column" *ngIf="isAdmin()" [(ngModel)]="row[column.field]" placeholder="Enter Data"/>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </div>
