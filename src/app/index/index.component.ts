@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 export interface TableRow {
-  [key: string]: string | number; // Allow dynamic keys
+  [key: string]: string | number | boolean; // Allow dynamic keys
   srNo: number;
   tfsReq: string;
   release: string;
@@ -38,6 +38,7 @@ export interface TableRow {
 export class IndexComponent {
   searchText: string = '';
   newColumnName: string = '';
+  editingRow: TableRow | null = null;  // Keeps track of the currently edited row
 
   statusOptions: string[] = ['Not Started', 'In Progress', 'Complete'];
   usedInOptions = ['Y', 'N'];
@@ -56,14 +57,15 @@ export class IndexComponent {
       loadType: 'Full Load',
       expectedVolume: '100K',
       mappingStatus: 'Not Started',
-      odiBuildStatus: 'Not Started',
+      odiBuildStatus: 'Complete',
       reviewStatus: 'Not Started',
       usedInEFRA: 'Y',
       usedInCECL: 'N',
       usedInAML: 'Y',
       usedInOnestream: 'Y',
       usedInCCAR: 'N',
-      usedInAXIOM: 'Y'
+      usedInAXIOM: 'Y',
+
     },
     {
       srNo: 2,
@@ -79,13 +81,14 @@ export class IndexComponent {
       expectedVolume: '200K',
       mappingStatus: 'In Progress',
       odiBuildStatus: 'In Progress',
-      reviewStatus: 'Not Started',
+      reviewStatus: 'Complete',
       usedInEFRA: 'N',
       usedInCECL: 'Y',
       usedInAML: 'N',
       usedInOnestream: 'N',
       usedInCCAR: 'Y',
-      usedInAXIOM: 'Y'
+      usedInAXIOM: 'Y',
+
     },
   ];
 
@@ -111,6 +114,7 @@ export class IndexComponent {
     { header: 'Used in CCAR', field: 'usedInCCAR' },
     { header: 'Used in AXIOM', field: 'usedInAXIOM' }
   ];
+
 
   constructor(private roleService: RoleService, private cdr: ChangeDetectorRef) {}
 
@@ -181,9 +185,17 @@ export class IndexComponent {
     }
   }
 
-  editData(row: any) {
+  editData(row: TableRow): void {
     if(!this.isAdmin()) return;
-    alert(`Edit functionality for ${row.tfsReq}`);
-  }
 
+    if (this.editingRow === row) {
+      //save changes and exit
+      this.editingRow = null;
+      alert(`Edited Data Sucessfully!`);
+    } else {
+      //enable edit mode
+      this.editingRow = row;
+    }
+
+  }
 }

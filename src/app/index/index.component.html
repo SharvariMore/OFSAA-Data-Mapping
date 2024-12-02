@@ -53,33 +53,102 @@
     <tbody *ngFor="let row of filteredData()">
       <tr>
         <td>{{ row.srNo }}</td>
-        <td>{{ row.tfsReq }}</td>
-        <td>{{ row.release }}</td>
-        <td>{{ row.ofsaaPhysicalNames }}</td>
-        <td>{{ row.ofsaaLogicalEntityName }}</td>
-        <td>{{ row.source }}</td>
-        <td>{{ row.typeOfData }}</td>
-        <td>{{ row.frequency }}</td>
-        <td>{{ row.loadMode }}</td>
-        <td>{{ row.loadType }}</td>
-        <td>{{ row.expectedVolume }}</td>
+        <!-- <td>{{ row.tfsReq }}</td> -->
+        <td *ngIf="editingRow === row">
+          <input [(ngModel)]="row.tfsReq" />
+        </td>
+        <td *ngIf="editingRow !== row">
+          {{ row.tfsReq }}
+        </td>
+        <!-- <td>{{ row.release }}</td> -->
+        <td *ngIf="editingRow === row">
+          <input [(ngModel)]="row.release" />
+        </td>
+        <td *ngIf="editingRow !== row">
+          {{ row.release }}
+        </td>
+        <!-- <td>{{ row.ofsaaPhysicalNames }}</td> -->
+        <td *ngIf="editingRow === row">
+          <input [(ngModel)]="row.ofsaaPhysicalNames" />
+        </td>
+        <td *ngIf="editingRow !== row">
+          {{ row.ofsaaPhysicalNames }}
+        </td>
+        <!-- <td>{{ row.ofsaaLogicalEntityName }}</td> -->
+        <td *ngIf="editingRow === row">
+          <input [(ngModel)]="row.ofsaaLogicalEntityName" />
+        </td>
+        <td *ngIf="editingRow !== row">
+          {{ row.ofsaaLogicalEntityName }}
+        </td>
+        <!-- <td>{{ row.source }}</td> -->
+        <td *ngIf="editingRow === row">
+          <input [(ngModel)]="row.source" />
+        </td>
+        <td *ngIf="editingRow !== row">
+          {{ row.source }}
+        </td>
+        <!-- <td>{{ row.typeOfData }}</td> -->
+        <td *ngIf="editingRow === row">
+          <input [(ngModel)]="row.typeOfData" />
+        </td>
+        <td *ngIf="editingRow !== row">
+          {{ row.typeOfData }}
+        </td>
+        <!-- <td>{{ row.frequency }}</td> -->
+        <td *ngIf="editingRow === row">
+          <input [(ngModel)]="row.frequency" />
+        </td>
+        <td *ngIf="editingRow !== row">
+          {{ row.frequency }}
+        </td>
+        <!-- <td>{{ row.loadMode }}</td> -->
+        <td *ngIf="editingRow === row">
+          <input [(ngModel)]="row.loadMode" />
+        </td>
+        <td *ngIf="editingRow !== row">
+          {{ row.loadMode }}
+        </td>
+        <!-- <td>{{ row.loadType }}</td> -->
+        <td *ngIf="editingRow === row">
+          <input [(ngModel)]="row.loadType" />
+        </td>
+        <td *ngIf="editingRow !== row">
+          {{ row.loadType }}
+        </td>
+        <!-- <td>{{ row.expectedVolume }}</td> -->
+        <td *ngIf="editingRow === row">
+          <input [(ngModel)]="row.expectedVolume" />
+        </td>
+        <td *ngIf="editingRow !== row">
+          {{ row.expectedVolume }}
+        </td>
         <!-- <td>{{ row.mappingStatus }}</td>
         <td>{{ row.odiBuildStatus }}</td>
         <td>{{ row.reviewStatus }}</td> -->
-        <td>
+        <td *ngIf="editingRow === row && isAdmin()">
           <select [(ngModel)]="row.mappingStatus" [disabled]="!isAdmin()">
             <option *ngFor="let option of statusOptions" [value]="option" [selected]="row.mappingStatus === option">{{option}}</option>
           </select>
         </td>
-        <td>
+        <td *ngIf="editingRow !== row || !isAdmin()">
+          {{ row.mappingStatus }}
+        </td>
+        <td *ngIf="editingRow === row && isAdmin()">
           <select [(ngModel)]="row.odiBuildStatus" [disabled]="!isAdmin()">
             <option *ngFor="let option of statusOptions" [value]="option" [selected]="row.odiBuildStatus === option">{{option}}</option>
           </select>
         </td>
-        <td>
+        <td *ngIf="editingRow !== row || !isAdmin()">
+          {{ row.odiBuildStatus }}
+        </td>
+        <td *ngIf="editingRow === row && isAdmin()">
           <select [(ngModel)]="row.reviewStatus" [disabled]="!isAdmin()">
             <option *ngFor="let option of statusOptions" [value]="option" [selected]="row.reviewStatus === option">{{option}}</option>
           </select>
+        </td>
+        <td *ngIf="editingRow !== row || !isAdmin()">
+          {{ row.reviewStatus }}
         </td>
         <!-- <td>{{ row.usedInEFRA }}</td>
         <td>{{ row.usedInCECL }}</td>
@@ -87,39 +156,58 @@
         <td>{{row.usedInOnestream}}</td>
         <td>{{row.usedInCCAR}}</td>
         <td>{{row.usedInAXIOM}}</td> -->
-        <td>
+        <td *ngIf="editingRow === row && isAdmin()">
           <select [(ngModel)]="row.usedInEFRA" [disabled]="!isAdmin()">
             <option *ngFor="let option of usedInOptions" [value]="option" [selected]="row.usedInEFRA === option">{{option}}</option>
           </select>
         </td>
-        <td>
+        <td *ngIf="editingRow !== row || !isAdmin()">
+          {{ row.usedInEFRA }}
+        </td>
+        <td *ngIf="editingRow === row && isAdmin()">
           <select [(ngModel)]="row.usedInCECL" [disabled]="!isAdmin()">
             <option *ngFor="let option of usedInOptions" [value]="option" [selected]="row.usedInCECL === option">{{option}}</option>
           </select>
         </td>
-        <td>
+        <td *ngIf="editingRow !== row || !isAdmin()">
+          {{ row.usedInCECL }}
+        </td>
+        <td *ngIf="editingRow === row && isAdmin()">
           <select [(ngModel)]="row.usedInAML" [disabled]="!isAdmin()">
             <option *ngFor="let option of usedInOptions" [value]="option" [selected]="row.usedInAML === option">{{option}}</option>
           </select>
         </td>
-        <td>
+        <td *ngIf="editingRow !== row || !isAdmin()">
+          {{ row.usedInAML }}
+        </td>
+        <td *ngIf="editingRow === row && isAdmin()">
           <select [(ngModel)]="row.usedInOnestream" [disabled]="!isAdmin()">
             <option *ngFor="let option of usedInOptions" [value]="option" [selected]="row.usedInOnestream === option">{{option}}</option>
           </select>
         </td>
-        <td>
+        <td *ngIf="editingRow !== row || !isAdmin()">
+          {{ row.usedInOnestream }}
+        </td>
+        <td *ngIf="editingRow === row && isAdmin()">
           <select [(ngModel)]="row.usedInCCAR" [disabled]="!isAdmin()">
             <option *ngFor="let option of usedInOptions" [value]="option" [selected]="row.usedInCCAR === option">{{option}}</option>
           </select>
         </td>
-        <td>
+        <td *ngIf="editingRow !== row || !isAdmin()">
+          {{ row.usedInCCAR }}
+        </td>
+        <td *ngIf="editingRow === row && isAdmin()">
           <select [(ngModel)]="row.usedInAXIOM" [disabled]="!isAdmin()">
             <option *ngFor="let option of usedInOptions" [value]="option" [selected]="row.usedInAXIOM === option">{{option}}</option>
           </select>
         </td>
+        <td *ngIf="editingRow !== row || !isAdmin()">
+          {{ row.usedInAXIOM }}
+        </td>
         <!-- <td *ngFor="let column of tableColumns">{{ row[column.field] }}</td> -->
         <td *ngIf="isAdmin()">
-          <button (click)="editData(row)">Edit</button>
+          <button (click)="editData(row)">{{ editingRow === row ? 'Save' : 'Edit' }}</button>
+
           <!-- <button (click)="deleteRow(row)">Delete</button> -->
         </td>
         <td *ngFor="let column of tableColumns; let i = index" [hidden]="i < 20">
