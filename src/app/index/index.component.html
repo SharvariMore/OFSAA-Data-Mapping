@@ -57,70 +57,70 @@
         <td *ngIf="editingRow === row">
           <input [(ngModel)]="row.tfsReq" />
         </td>
-        <td *ngIf="editingRow !== row">
+        <td class="td-overflow" [title]="row.tfsReq" *ngIf="editingRow !== row">
           {{ row.tfsReq }}
         </td>
         <!-- <td>{{ row.release }}</td> -->
         <td *ngIf="editingRow === row">
           <input [(ngModel)]="row.release" />
         </td>
-        <td *ngIf="editingRow !== row">
+        <td class="td-overflow" [title]="row.release" *ngIf="editingRow !== row">
           {{ row.release }}
         </td>
         <!-- <td>{{ row.ofsaaPhysicalNames }}</td> -->
         <td *ngIf="editingRow === row">
           <input [(ngModel)]="row.ofsaaPhysicalNames" />
         </td>
-        <td *ngIf="editingRow !== row">
+        <td class="td-overflow" [title]="row.ofsaaPhysicalNames" *ngIf="editingRow !== row">
           {{ row.ofsaaPhysicalNames }}
         </td>
         <!-- <td>{{ row.ofsaaLogicalEntityName }}</td> -->
         <td *ngIf="editingRow === row">
           <input [(ngModel)]="row.ofsaaLogicalEntityName" />
         </td>
-        <td *ngIf="editingRow !== row">
+        <td class="td-overflow" [title]="row.ofsaaLogicalEntityName" *ngIf="editingRow !== row">
           {{ row.ofsaaLogicalEntityName }}
         </td>
         <!-- <td>{{ row.source }}</td> -->
         <td *ngIf="editingRow === row">
           <input [(ngModel)]="row.source" />
         </td>
-        <td *ngIf="editingRow !== row">
+        <td class="td-overflow" [title]="row.source" *ngIf="editingRow !== row">
           {{ row.source }}
         </td>
         <!-- <td>{{ row.typeOfData }}</td> -->
         <td *ngIf="editingRow === row">
           <input [(ngModel)]="row.typeOfData" />
         </td>
-        <td *ngIf="editingRow !== row">
+        <td class="td-overflow" [title]="row.typeOfData" *ngIf="editingRow !== row">
           {{ row.typeOfData }}
         </td>
         <!-- <td>{{ row.frequency }}</td> -->
         <td *ngIf="editingRow === row">
           <input [(ngModel)]="row.frequency" />
         </td>
-        <td *ngIf="editingRow !== row">
+        <td class="td-overflow" [title]="row.frequency" *ngIf="editingRow !== row">
           {{ row.frequency }}
         </td>
         <!-- <td>{{ row.loadMode }}</td> -->
         <td *ngIf="editingRow === row">
           <input [(ngModel)]="row.loadMode" />
         </td>
-        <td *ngIf="editingRow !== row">
+        <td class="td-overflow" [title]="row.loadMode" *ngIf="editingRow !== row">
           {{ row.loadMode }}
         </td>
         <!-- <td>{{ row.loadType }}</td> -->
         <td *ngIf="editingRow === row">
           <input [(ngModel)]="row.loadType" />
         </td>
-        <td *ngIf="editingRow !== row">
+        <td class="td-overflow" [title]="row.loadType" *ngIf="editingRow !== row">
           {{ row.loadType }}
         </td>
         <!-- <td>{{ row.expectedVolume }}</td> -->
         <td *ngIf="editingRow === row">
           <input [(ngModel)]="row.expectedVolume" />
         </td>
-        <td *ngIf="editingRow !== row">
+        <td class="td-overflow" [title]="row.expectedVolume" *ngIf="editingRow !== row">
           {{ row.expectedVolume }}
         </td>
         <!-- <td>{{ row.mappingStatus }}</td>

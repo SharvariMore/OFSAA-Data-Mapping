@@ -36,6 +36,7 @@ export interface TableRow {
   styleUrl: './index.component.css'
 })
 export class IndexComponent {
+[x: string]: any;
   searchText: string = '';
   newColumnName: string = '';
   editingRow: TableRow | null = null;  // Keeps track of the currently edited row
@@ -196,6 +197,10 @@ export class IndexComponent {
       //enable edit mode
       this.editingRow = row;
     }
+  }
 
+  isEllipsisActive(element: HTMLElement): boolean {
+    if (!element) return false;
+    return element.offsetWidth < element.scrollWidth;
   }
 }

@@ -67,6 +67,19 @@ th, td {
   padding: 8px;
 }
 
+.td-overflow {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.td-overflow:hover {
+  background-color: #f9f9f9;
+  z-index: 1;
+}
+
+
 th {
   background-color: #071975;
   color: white;
