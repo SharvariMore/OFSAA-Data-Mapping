@@ -213,7 +213,11 @@
         <td *ngFor="let column of tableColumns; let i = index" [hidden]="i < 20">
           <!-- <input [(ngModel)]="row[column.field]" [disabled]="!isAdmin()" /> -->
           <span *ngIf="!isAdmin()">{{ row[column.field] }}</span>
-          <input class="input-column" *ngIf="isAdmin()" [(ngModel)]="row[column.field]" placeholder="Enter Data"/>
+          <input type="text" [value]="row[column.field]" *ngIf="isAdmin()" [(ngModel)]="row[column.field]" placeholder="Enter Data" (change)="saveColumnData(row, column, $event)"
+          [ngClass]="{
+            'no-border': row[column.field + '_dirty'],
+            'input-default': !row[column.field + '_dirty']
+          }"/>
         </td>
       </tr>
     </tbody>

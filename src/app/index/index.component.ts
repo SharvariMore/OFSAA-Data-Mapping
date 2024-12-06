@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 export interface TableRow {
-  [key: string]: string | number | boolean; // Allow dynamic keys
+  [key: string]: string | number | boolean | any; // Allow dynamic keys
   srNo: number;
   tfsReq: string;
   release: string;
@@ -36,9 +36,10 @@ export interface TableRow {
   styleUrl: './index.component.css'
 })
 export class IndexComponent {
-[x: string]: any;
+  [x: string]: any;
   searchText: string = '';
   newColumnName: string = '';
+  // newColumnAdded: boolean = false;
   editingRow: TableRow | null = null;  // Keeps track of the currently edited row
 
   statusOptions: string[] = ['Not Started', 'In Progress', 'Complete'];
@@ -167,24 +168,59 @@ export class IndexComponent {
     console.log("New Column Name: ", this.newColumnName);
 
     if (this.newColumnName.trim() !== '') {
+      const newField = this.newColumnName.replace(/\s+/g, '').toLowerCase();
+
       const newColumn = {
         header: this.newColumnName,
-        field: this.newColumnName.replace(/\s+/g, '').toLowerCase()
-      };
+        field: newField,
+      }
+
+      if (this.tableColumns.some((colm) => colm.field === newField || colm.header === this.newColumnName)) {
+        alert(`Column "${this.newColumnName}" Already exists!`);
+        return;
+      }
+
       this.tableColumns.push(newColumn);
 
       //add new column to table with empty value
       this.tableData.forEach(row => {
-        row[newColumn.field] = '';
+        row[newField] = '';
       });
 
+      //trigger change detection to update table
       this.cdr.detectChanges();
 
       this.newColumnName = '';
+      // this.newColumnAdded = true;
+      alert(`New Column Added: "${newColumn.header}"!`);
     } else {
-      alert('Please Enter Column Name!')
+      alert('Please Enter Column Name!');
     }
   }
+
+  saveColumnData(row: TableRow, column: any, event: Event) {
+    if (!row || !column || !column.field) {
+      alert('Invalid row or column data');
+      return;
+    }
+
+    const inputElement = event.target as HTMLInputElement;
+    if (!inputElement || inputElement.value === undefined) {
+      alert('Invalid input element');
+      return;
+    }
+
+    const newValue = inputElement.value;
+
+    row[column.field] = newValue;
+
+    // this.newColumnAdded = false;
+    row[column.field + '_dirty'] = newValue !== '';
+
+    console.log(`Updated column '${column.field}' with value: ${newValue}`);
+    alert(`Data for column '${column.header}' Added with value: ${newValue}!`);
+  }
+
 
   editData(row: TableRow): void {
     if(!this.isAdmin()) return;
@@ -199,7 +235,7 @@ export class IndexComponent {
     }
   }
 
-  isEllipsisActive(element: HTMLElement): boolean {
+  isEllipsisActive(element: HTMLElement | null): boolean {
     if (!element) return false;
     return element.offsetWidth < element.scrollWidth;
   }
