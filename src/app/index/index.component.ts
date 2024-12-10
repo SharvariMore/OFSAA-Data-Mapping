@@ -33,14 +33,15 @@ export interface TableRow {
   standalone: true,
   imports: [NavbarComponent, CommonModule, FormsModule],
   templateUrl: './index.component.html',
-  styleUrl: './index.component.css'
+  styleUrl: './index.component.css',
 })
 export class IndexComponent {
   [x: string]: any;
   searchText: string = '';
+  searchColumn: string = '';
   newColumnName: string = '';
   // newColumnAdded: boolean = false;
-  editingRow: TableRow | null = null;  // Keeps track of the currently edited row
+  editingRow: TableRow | null = null; // Keeps track of the currently edited row
 
   statusOptions: string[] = ['Not Started', 'In Progress', 'Complete'];
   usedInOptions = ['Y', 'N'];
@@ -67,7 +68,6 @@ export class IndexComponent {
       usedInOnestream: 'Y',
       usedInCCAR: 'N',
       usedInAXIOM: 'Y',
-
     },
     {
       srNo: 2,
@@ -90,7 +90,6 @@ export class IndexComponent {
       usedInOnestream: 'N',
       usedInCCAR: 'Y',
       usedInAXIOM: 'Y',
-
     },
   ];
 
@@ -114,28 +113,45 @@ export class IndexComponent {
     { header: 'Used in AML', field: 'usedInAML' },
     { header: 'Used in Onestream', field: 'usedInOnestream' },
     { header: 'Used in CCAR', field: 'usedInCCAR' },
-    { header: 'Used in AXIOM', field: 'usedInAXIOM' }
+    { header: 'Used in AXIOM', field: 'usedInAXIOM' },
   ];
 
-
-  constructor(private roleService: RoleService, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private roleService: RoleService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   isAdmin(): boolean {
     return this.roleService.getRole() === 'admin';
   }
 
   filteredData() {
-    if(!this.searchText) return this.tableData;
+    if (!this.searchText) return this.tableData;
 
-    return this.tableData.filter((row) =>
-      Object.values(row).some((val) =>
-        val.toString().toLowerCase().includes(this.searchText.toLowerCase())
-      )
-    );
+    return this.tableData.filter((row) => {
+      if (this.searchColumn) {
+        const value = row[this.searchColumn];
+        return this.matchText(value);
+
+      } else {
+        return Object.values(row).some((val) =>
+          this.matchText(val)
+        );
+      }
+    });
   }
 
+  matchText(value: any): boolean {
+    if (value && this.searchText.trim() !== '') {
+      return value.toString().toLowerCase().includes(this.searchText.toLowerCase());
+    }
+    return false;
+  }
+
+
+
   addData() {
-    if(!this.isAdmin()) return;
+    if (!this.isAdmin()) return;
 
     const newRow: TableRow = {
       srNo: this.tableData.length + 1,
@@ -157,15 +173,15 @@ export class IndexComponent {
       usedInAML: 'N',
       usedInOnestream: 'Y',
       usedInCCAR: 'N',
-      usedInAXIOM: 'N'
+      usedInAXIOM: 'N',
     };
     this.tableData.push(newRow);
   }
 
   addColumn() {
-    if(!this.isAdmin()) return;
+    if (!this.isAdmin()) return;
 
-    console.log("New Column Name: ", this.newColumnName);
+    console.log('New Column Name: ', this.newColumnName);
 
     if (this.newColumnName.trim() !== '') {
       const newField = this.newColumnName.replace(/\s+/g, '').toLowerCase();
@@ -173,9 +189,14 @@ export class IndexComponent {
       const newColumn = {
         header: this.newColumnName,
         field: newField,
-      }
+      };
 
-      if (this.tableColumns.some((colm) => colm.field === newField || colm.header === this.newColumnName)) {
+      if (
+        this.tableColumns.some(
+          (colm) =>
+            colm.field === newField || colm.header === this.newColumnName
+        )
+      ) {
         alert(`Column "${this.newColumnName}" Already exists!`);
         return;
       }
@@ -183,7 +204,7 @@ export class IndexComponent {
       this.tableColumns.push(newColumn);
 
       //add new column to table with empty value
-      this.tableData.forEach(row => {
+      this.tableData.forEach((row) => {
         row[newField] = '';
       });
 
@@ -221,9 +242,8 @@ export class IndexComponent {
     alert(`Data for column '${column.header}' Added with value: ${newValue}!`);
   }
 
-
   editData(row: TableRow): void {
-    if(!this.isAdmin()) return;
+    if (!this.isAdmin()) return;
 
     if (this.editingRow === row) {
       //save changes and exit
