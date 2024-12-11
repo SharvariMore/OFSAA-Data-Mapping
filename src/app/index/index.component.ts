@@ -40,7 +40,7 @@ export class IndexComponent {
   searchText: string = '';
   searchColumn: string = '';
   newColumnName: string = '';
-  // newColumnAdded: boolean = false;
+  editingMode: boolean = false;
   editingRow: TableRow | null = null; // Keeps track of the currently edited row
 
   statusOptions: string[] = ['Not Started', 'In Progress', 'Complete'];
@@ -148,8 +148,6 @@ export class IndexComponent {
     return false;
   }
 
-
-
   addData() {
     if (!this.isAdmin()) return;
 
@@ -176,6 +174,35 @@ export class IndexComponent {
       usedInAXIOM: 'N',
     };
     this.tableData.push(newRow);
+    this.cdr.detectChanges();
+    alert('New Row Added! You can now Edit it.');
+  }
+
+  saveNewRow() {
+    if (!this.isAdmin()) return;
+
+    if (this.editingMode) {
+      const requiredFields =
+        this.tableColumns.map(column => column.field);
+
+
+      const inValidRows = this.tableData.filter((row) => {
+        return requiredFields.some((field) => !row[field] || row[field].toString().trim() === '');
+      });
+
+      if (inValidRows.length > 0) {
+        alert('Please Fill All Missing Fields!');
+        return;
+      }
+
+      this.editingMode = false;
+      this.editingRow = null;
+      this.cdr.detectChanges();
+      alert("All Rows Saved Successfully!");
+    } else {
+      this.editingMode = true;
+      alert('You can edit rows now. Click "Save" again to finalize changes.')
+    }
   }
 
   addColumn() {

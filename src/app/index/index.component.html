@@ -23,8 +23,10 @@
   </div>
 
   <div *ngIf="isAdmin()" class="admin-control">
+    <div>
     <button (click)="addData()">Add New Row</button>
-
+    <button (click)="saveNewRow()">Save All Rows</button>
+  </div>
 
   <div *ngIf="isAdmin()" class="admin-column">
     <button (click)="addColumn()">Add New Column</button>
@@ -55,9 +57,9 @@
         <th>Used in OneStream</th>
         <th>Used in CCAR</th>
         <th>Used in AXIOM</th>
+        <th *ngFor="let column of tableColumns; let i = index" [hidden]="i < 20">{{ column.header }}</th>
         <th *ngIf="isAdmin()">Actions</th>
         <!-- <th *ngFor="let column of tableColumns">{{ column.header }}</th> -->
-        <th *ngFor="let column of tableColumns; let i = index" [hidden]="i < 20">{{ column.header }}</th>
       </tr>
     </thead>
     <tbody *ngFor="let row of filteredData()">
@@ -215,11 +217,6 @@
           {{ row.usedInAXIOM }}
         </td>
         <!-- <td *ngFor="let column of tableColumns">{{ row[column.field] }}</td> -->
-        <td *ngIf="isAdmin()">
-          <button (click)="editData(row)">{{ editingRow === row ? 'Save' : 'Edit' }}</button>
-
-          <!-- <button (click)="deleteRow(row)">Delete</button> -->
-        </td>
         <td *ngFor="let column of tableColumns; let i = index" [hidden]="i < 20">
           <!-- <input [(ngModel)]="row[column.field]" [disabled]="!isAdmin()" /> -->
           <span *ngIf="!isAdmin()">{{ row[column.field] }}</span>
@@ -228,6 +225,12 @@
             'no-border': row[column.field + '_dirty'],
             'input-default': !row[column.field + '_dirty']
           }"/>
+        </td>
+        <td *ngIf="isAdmin()">
+          <div>
+          <button (click)="editData(row)">{{ editingRow === row ? 'Save' : 'Edit' }}</button>
+          <!-- <button>Delete</button> -->
+        </div>
         </td>
       </tr>
     </tbody>
