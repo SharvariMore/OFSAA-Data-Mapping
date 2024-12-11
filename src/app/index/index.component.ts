@@ -132,18 +132,18 @@ export class IndexComponent {
       if (this.searchColumn) {
         const value = row[this.searchColumn];
         return this.matchText(value);
-
       } else {
-        return Object.values(row).some((val) =>
-          this.matchText(val)
-        );
+        return Object.values(row).some((val) => this.matchText(val));
       }
     });
   }
 
   matchText(value: any): boolean {
     if (value && this.searchText.trim() !== '') {
-      return value.toString().toLowerCase().includes(this.searchText.toLowerCase());
+      return value
+        .toString()
+        .toLowerCase()
+        .includes(this.searchText.toLowerCase());
     }
     return false;
   }
@@ -182,12 +182,12 @@ export class IndexComponent {
     if (!this.isAdmin()) return;
 
     if (this.editingMode) {
-      const requiredFields =
-        this.tableColumns.map(column => column.field);
-
+      const requiredFields = this.tableColumns.map((column) => column.field);
 
       const inValidRows = this.tableData.filter((row) => {
-        return requiredFields.some((field) => !row[field] || row[field].toString().trim() === '');
+        return requiredFields.some(
+          (field) => !row[field] || row[field].toString().trim() === ''
+        );
       });
 
       if (inValidRows.length > 0) {
@@ -198,10 +198,10 @@ export class IndexComponent {
       this.editingMode = false;
       this.editingRow = null;
       this.cdr.detectChanges();
-      alert("All Rows Saved Successfully!");
+      alert('All Rows Saved Successfully!');
     } else {
       this.editingMode = true;
-      alert('You can edit rows now. Click "Save" again to finalize changes.')
+      alert('You can edit rows now. Click "Save" again to finalize changes.');
     }
   }
 
@@ -279,6 +279,74 @@ export class IndexComponent {
     } else {
       //enable edit mode
       this.editingRow = row;
+    }
+  }
+
+  deleteRow() {
+    if (!this.isAdmin()) return;
+
+    const deleteOption = prompt(
+      'Choose an option for deletion:\n1. Delete a specific row\n2. Delete a range of rows\n3. Delete all rows\nEnter the number (1, 2, or 3):'
+    );
+
+    if (!deleteOption) return;
+
+    switch (deleteOption.trim()) {
+      case '1': {
+        const rowNum = prompt('Enter the row number you wnat to delete: ');
+        if (rowNum) {
+          const rowIndex = this.tableData.findIndex(
+            (row) => row.srNo === Number(rowNum)
+          );
+
+          if (rowIndex !== -1) {
+            this.tableData.splice(rowIndex, 1);
+            this.cdr.detectChanges();
+            alert(`Row ${rowNum} Deleted Successfully!`);
+          } else {
+            alert('Row Number Not Found!');
+          }
+        }
+        break;
+      }
+
+      case '2': {
+        // const startRowNum = prompt('Enter the starting row number: ');
+        // const endRowNum = prompt('Enter the ending row number: ');
+        const rangeInput = prompt('Enter the starting and ending row numbers (separated by hyphen [-] ):')
+        if (rangeInput) {
+          const[startRowNum, endRowNum] = rangeInput.split('-').map(num => num.trim());
+          const startIndex = this.tableData.findIndex(
+            (row) => row.srNo === Number(startRowNum)
+          );
+          const endIndex = this.tableData.findIndex(
+            (row) => row.srNo === Number(endRowNum)
+          );
+
+          if (startIndex !== -1 && endIndex !== -1 && startIndex <= endIndex) {
+            this.tableData.splice(startIndex, endIndex - startIndex + 1);
+            this.cdr.detectChanges();
+            alert(`Rows ${startRowNum} to ${endRowNum} Deleted SuccessFully!`);
+          } else {
+            alert('Inavlid Series of Row Numbers!');
+          }
+        }
+        break;
+      }
+
+      case '3': {
+        const rowAllDelete = confirm('Are you sure you want to delete all rows? This action cannot be undone.');
+        if (rowAllDelete) {
+          this.tableData = [];
+          this.cdr.detectChanges();
+          alert('All Rows Deleted Successfully!')
+        }
+        break;
+      }
+
+      default:
+        alert('Invalid option! Please enter 1, 2, or 3.');
+        break;
     }
   }
 
