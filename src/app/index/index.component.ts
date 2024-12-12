@@ -160,6 +160,12 @@ export class IndexComponent {
   addData() {
     if (!this.isAdmin()) return;
 
+    const insertOption = prompt(
+      'Where do you want to insert the new row?\n1. At the beginning\n2. At the end\n3. In between\nEnter the number (1, 2, or 3):'
+    );
+
+    if(!insertOption) return;
+
     const newRow: TableRow = {
       srNo: this.tableData.length + 1,
       tfsReq: 'NEW-REQ',
@@ -182,11 +188,50 @@ export class IndexComponent {
       usedInCCAR: 'N',
       usedInAXIOM: 'N',
     };
-    this.tableData.push(newRow);
+
+    switch (insertOption.trim()) {
+      case '1': {
+        this.tableData.unshift(newRow);
+        alert('New Row Added At Beginning! You can now Edit it.');
+        break;
+      }
+
+      case '2': {
+        this.tableData.push(newRow);
+        alert('New Row Added At End! You can now Edit it.');
+        break;
+      }
+
+      case '3': {
+        const position = prompt(
+          `Enter the position (1 to ${this.tableData.length}) where you want to insert the new row:`
+        );
+
+        if (position) {
+          const index = Number(position) - 1;
+          if (index >= 0 && index <= this.tableData.length) {
+            this.tableData.splice(index, 0, newRow);
+            alert(`New Row Added at ${index + 1}! You can now Edit it.`);
+          } else {
+            alert('Invalid Position!');
+          }
+        } else {
+          return;
+        }
+        break;
+      }
+
+      default:
+        alert('Invalid option! Please enter 1, 2, or 3.');
+        break;
+    }
+
+    this.tableData.forEach((row, index) => {
+      row.srNo = index + 1;
+    });
+
     this.updatePaginatedData();
     this.cdr.detectChanges();
-    alert('New Row Added! You can now Edit it.');
-
   }
 
   saveNewRow() {
