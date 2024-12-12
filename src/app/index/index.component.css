@@ -167,3 +167,8 @@ input.input-default {
   font-weight: bold;
 }
 
+.column-button {
+  display: flex;
+  justify-content: flex-end;
+}
+

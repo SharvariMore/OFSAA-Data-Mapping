@@ -421,4 +421,87 @@ export class IndexComponent {
     const endPage = startPage + this.itemsPerPage;
     this.paginatedData = this.tableData.slice(startPage, endPage);
   }
+
+  editColumnData() {
+    if (!this.isAdmin()) return;
+
+    const colmnToEdit = prompt(`Select a column to Edit by Entering it's Header Name:\n`);
+    // ${this.tableColumns.map((col) => col.header).join(', ')}`);
+
+    if (!colmnToEdit) return;
+
+    const selectedColumn = this.tableColumns.find((colm) => colm.header.toLowerCase() === colmnToEdit.toLowerCase());
+
+    if (!selectedColumn) {
+      alert('Invalid Column Name! Please Try Again.');
+      return;
+    }
+
+    const editOption = prompt(
+      `Choose an option for Editing "${selectedColumn.header}":\n1. Edit all rows\n2. Edit a series of rows\nEnter the number (1 or 2):`
+    );
+
+    if (!editOption) return;
+
+    switch (editOption.trim()) {
+      case '1': {
+        const newValue = prompt(
+          `Enter the new value for all rows in the "${selectedColumn.header}" column:`
+        );
+
+        if (newValue != null) {
+          this.tableData.forEach((row) => {
+            row[selectedColumn.field] = newValue;
+          });
+
+          alert(`All rows in the "${selectedColumn.header}" column updated with value: ${newValue}!`);
+          this.updatePaginatedData();
+          this.cdr.detectChanges();
+        }
+        break;
+      }
+
+      case '2': {
+        const rangeInput = prompt(
+          `Enter the starting and ending row numbers (separated by a hyphen [-]) to edit in the "${selectedColumn.header}" column:`
+        );
+
+        if (rangeInput) {
+          const[startRowNum, endRowNum] = rangeInput.split('-').map(num => num.trim());
+          const startIndex = this.tableData.findIndex(
+            (row) => row.srNo === Number(startRowNum)
+          );
+          const endIndex = this.tableData.findIndex(
+            (row) => row.srNo === Number(endRowNum)
+          );
+
+          if (startIndex !== -1 && endIndex !== -1 && startIndex <= endIndex) {
+            const newValue = prompt(
+              `Enter the new value for rows ${startRowNum} to ${endRowNum} in the "${selectedColumn.header}" column:`
+            );
+
+            if (newValue !== null) {
+              for (let i = startIndex; i <= endIndex; i++) {
+                this.tableData[i][selectedColumn.field] = newValue;
+              }
+
+              alert(
+                `Rows ${startRowNum} to ${endRowNum} in the "${selectedColumn.header}" column updated with value: ${newValue}!`
+              );
+              this.updatePaginatedData();
+              this.cdr.detectChanges();
+            }
+          }
+        } else {
+          alert('Invalid series of row numbers!');
+        }
+        break;
+      }
+
+      default:
+        alert('Invalid option! Please enter 1 or 2.');
+        break;
+    }
+  }
+
 }
