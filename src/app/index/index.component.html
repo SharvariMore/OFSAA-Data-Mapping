@@ -5,14 +5,29 @@
 
   <div class="search-content">
     <label for="search">Search </label>
-    <input type="text" id="search" [(ngModel)]="searchText" placeholder="Search any column data globally..." />
+    <input
+      type="text"
+      id="search"
+      [(ngModel)]="searchText"
+      placeholder="Search any column data globally..."
+    />
 
-    <br/>
-    <br/>
-    <label for="searchColumn">  Filter Column </label>
-    <select id="searchColumn" [(ngModel)]="searchColumn" class="search-column-dropdown">
-      <option value="" [class.highlighted]="searchColumn === ''">All Columns</option>
-      <option *ngFor="let column of tableColumns" [value]="column.field" [class.highlighted]="searchColumn === column.field">
+    <br />
+    <br />
+    <label for="searchColumn"> Filter Column </label>
+    <select
+      id="searchColumn"
+      [(ngModel)]="searchColumn"
+      class="search-column-dropdown"
+    >
+      <option value="" [class.highlighted]="searchColumn === ''">
+        All Columns
+      </option>
+      <option
+        *ngFor="let column of tableColumns"
+        [value]="column.field"
+        [class.highlighted]="searchColumn === column.field"
+      >
         {{ column.header }}
       </option>
     </select>
@@ -24,216 +39,416 @@
 
   <div *ngIf="isAdmin()" class="admin-control">
     <div>
-    <button (click)="addData()">Add New Row</button>
-    <button (click)="saveNewRow()">Save All Rows</button>
-    <button (click)="deleteRow()">Delete Row</button>
+      <button (click)="addData()">Add New Row</button>
+      <button (click)="saveNewRow()">Save All Rows</button>
+      <button (click)="deleteRow()">Delete Row</button>
+    </div>
+
+    <div *ngIf="isAdmin()" class="admin-column">
+      <button (click)="addColumn()">Add New Column</button>
+      <input
+        type="text"
+        class="input-column"
+        [(ngModel)]="newColumnName"
+        placeholder=" Enter New Column Name"
+      />
+    </div>
   </div>
 
-  <div *ngIf="isAdmin()" class="admin-column">
-    <button (click)="addColumn()">Add New Column</button>
-    <input type="text" class="input-column" [(ngModel)]="newColumnName" placeholder=" Enter New Column Name" />
-  </div>
-</div>
-
-  <table *ngIf="filteredData().length > 0">
-    <thead>
-      <tr>
-        <th>Sr. No.</th>
-        <th>TFS Req.</th>
-        <th>Release</th>
-        <th>OFSAA Physical Names</th>
-        <th>OFSAA Logical Entity Name</th>
-        <th>Source</th>
-        <th>Type of Data</th>
-        <th>Frequency</th>
-        <th>Load Mode</th>
-        <th>Load Type</th>
-        <th>Expected Volume</th>
-        <th>Mapping Status</th>
-        <th>ODI Build Status</th>
-        <th>Review Status</th>
-        <th>Used in EFRA</th>
-        <th>Used in CECL</th>
-        <th>Used in AML</th>
-        <th>Used in OneStream</th>
-        <th>Used in CCAR</th>
-        <th>Used in AXIOM</th>
-        <th *ngFor="let column of tableColumns; let i = index" [hidden]="i < 20">{{ column.header }}</th>
-        <th *ngIf="isAdmin()">Actions</th>
-        <!-- <th *ngFor="let column of tableColumns">{{ column.header }}</th> -->
-      </tr>
-    </thead>
-    <tbody *ngFor="let row of filteredData()">
-      <tr>
-        <td [ngClass]="{ 'highlights': matchText(row.srNo) }">{{ row.srNo }}</td>
-        <!-- <td>{{ row.tfsReq }}</td> -->
-        <td *ngIf="editingRow === row">
-          <input [(ngModel)]="row.tfsReq" />
-        </td>
-        <td class="td-overflow" [title]="row.tfsReq" *ngIf="editingRow !== row" [ngClass]="{ 'highlights': matchText(row.tfsReq) }">
-          {{ row.tfsReq }}
-        </td>
-        <!-- <td>{{ row.release }}</td> -->
-        <td *ngIf="editingRow === row">
-          <input [(ngModel)]="row.release" />
-        </td>
-        <td class="td-overflow" [title]="row.release" *ngIf="editingRow !== row" [ngClass]="{ 'highlights': matchText(row.release) }">
-          {{ row.release }}
-        </td>
-        <!-- <td>{{ row.ofsaaPhysicalNames }}</td> -->
-        <td *ngIf="editingRow === row">
-          <input [(ngModel)]="row.ofsaaPhysicalNames" />
-        </td>
-        <td class="td-overflow" [title]="row.ofsaaPhysicalNames" *ngIf="editingRow !== row" [ngClass]="{ 'highlights': matchText(row.ofsaaPhysicalNames) }">
-          {{ row.ofsaaPhysicalNames }}
-        </td>
-        <!-- <td>{{ row.ofsaaLogicalEntityName }}</td> -->
-        <td *ngIf="editingRow === row">
-          <input [(ngModel)]="row.ofsaaLogicalEntityName" />
-        </td>
-        <td class="td-overflow" [title]="row.ofsaaLogicalEntityName" *ngIf="editingRow !== row" [ngClass]="{ 'highlights': matchText(row.ofsaaLogicalEntityName) }">
-          {{ row.ofsaaLogicalEntityName }}
-        </td>
-        <!-- <td>{{ row.source }}</td> -->
-        <td *ngIf="editingRow === row">
-          <input [(ngModel)]="row.source" />
-        </td>
-        <td class="td-overflow" [title]="row.source" *ngIf="editingRow !== row" [ngClass]="{ 'highlights': matchText(row.source) }">
-          {{ row.source }}
-        </td>
-        <!-- <td>{{ row.typeOfData }}</td> -->
-        <td *ngIf="editingRow === row">
-          <input [(ngModel)]="row.typeOfData" />
-        </td>
-        <td class="td-overflow" [title]="row.typeOfData" *ngIf="editingRow !== row" [ngClass]="{ 'highlights': matchText(row.typeOfData) }">
-          {{ row.typeOfData }}
-        </td>
-        <!-- <td>{{ row.frequency }}</td> -->
-        <td *ngIf="editingRow === row">
-          <input [(ngModel)]="row.frequency" />
-        </td>
-        <td class="td-overflow" [title]="row.frequency" *ngIf="editingRow !== row" [ngClass]="{ 'highlights': matchText(row.frequency) }">
-          {{ row.frequency }}
-        </td>
-        <!-- <td>{{ row.loadMode }}</td> -->
-        <td *ngIf="editingRow === row">
-          <input [(ngModel)]="row.loadMode" />
-        </td>
-        <td class="td-overflow" [title]="row.loadMode" *ngIf="editingRow !== row" [ngClass]="{ 'highlights': matchText(row.loadMode) }">
-          {{ row.loadMode }}
-        </td>
-        <!-- <td>{{ row.loadType }}</td> -->
-        <td *ngIf="editingRow === row">
-          <input [(ngModel)]="row.loadType" />
-        </td>
-        <td class="td-overflow" [title]="row.loadType" *ngIf="editingRow !== row" [ngClass]="{ 'highlights': matchText(row.loadType) }">
-          {{ row.loadType }}
-        </td>
-        <!-- <td>{{ row.expectedVolume }}</td> -->
-        <td *ngIf="editingRow === row">
-          <input [(ngModel)]="row.expectedVolume" />
-        </td>
-        <td class="td-overflow" [title]="row.expectedVolume" *ngIf="editingRow !== row" [ngClass]="{ 'highlights': matchText(row.expectedVolume) }">
-          {{ row.expectedVolume }}
-        </td>
-        <!-- <td>{{ row.mappingStatus }}</td>
+  <div class="table-container">
+    <table *ngIf="filteredData().length > 0">
+      <thead>
+        <tr>
+          <th>Sr. No.</th>
+          <th>TFS Req.</th>
+          <th>Release</th>
+          <th>OFSAA Physical Names</th>
+          <th>OFSAA Logical Entity Name</th>
+          <th>Source</th>
+          <th>Type of Data</th>
+          <th>Frequency</th>
+          <th>Load Mode</th>
+          <th>Load Type</th>
+          <th>Expected Volume</th>
+          <th>Mapping Status</th>
+          <th>ODI Build Status</th>
+          <th>Review Status</th>
+          <th>Used in EFRA</th>
+          <th>Used in CECL</th>
+          <th>Used in AML</th>
+          <th>Used in OneStream</th>
+          <th>Used in CCAR</th>
+          <th>Used in AXIOM</th>
+          <th
+            *ngFor="let column of tableColumns; let i = index"
+            [hidden]="i < 20"
+          >
+            {{ column.header }}
+          </th>
+          <th *ngIf="isAdmin()">Actions</th>
+          <!-- <th *ngFor="let column of tableColumns">{{ column.header }}</th> -->
+        </tr>
+      </thead>
+      <tbody *ngFor="let row of filteredData() | paginate: { id: 'table-pagination', itemsPerPage: itemsPerPage, currentPage: currentPage }">
+        <tr>
+          <td [ngClass]="{ highlights: matchText(row.srNo) }">
+            {{ row.srNo }}
+          </td>
+          <!-- <td>{{ row.tfsReq }}</td> -->
+          <td *ngIf="editingRow === row">
+            <input [(ngModel)]="row.tfsReq" />
+          </td>
+          <td
+            class="td-overflow"
+            [title]="row.tfsReq"
+            *ngIf="editingRow !== row"
+            [ngClass]="{ highlights: matchText(row.tfsReq) }"
+          >
+            {{ row.tfsReq }}
+          </td>
+          <!-- <td>{{ row.release }}</td> -->
+          <td *ngIf="editingRow === row">
+            <input [(ngModel)]="row.release" />
+          </td>
+          <td
+            class="td-overflow"
+            [title]="row.release"
+            *ngIf="editingRow !== row"
+            [ngClass]="{ highlights: matchText(row.release) }"
+          >
+            {{ row.release }}
+          </td>
+          <!-- <td>{{ row.ofsaaPhysicalNames }}</td> -->
+          <td *ngIf="editingRow === row">
+            <input [(ngModel)]="row.ofsaaPhysicalNames" />
+          </td>
+          <td
+            class="td-overflow"
+            [title]="row.ofsaaPhysicalNames"
+            *ngIf="editingRow !== row"
+            [ngClass]="{ highlights: matchText(row.ofsaaPhysicalNames) }"
+          >
+            {{ row.ofsaaPhysicalNames }}
+          </td>
+          <!-- <td>{{ row.ofsaaLogicalEntityName }}</td> -->
+          <td *ngIf="editingRow === row">
+            <input [(ngModel)]="row.ofsaaLogicalEntityName" />
+          </td>
+          <td
+            class="td-overflow"
+            [title]="row.ofsaaLogicalEntityName"
+            *ngIf="editingRow !== row"
+            [ngClass]="{ highlights: matchText(row.ofsaaLogicalEntityName) }"
+          >
+            {{ row.ofsaaLogicalEntityName }}
+          </td>
+          <!-- <td>{{ row.source }}</td> -->
+          <td *ngIf="editingRow === row">
+            <input [(ngModel)]="row.source" />
+          </td>
+          <td
+            class="td-overflow"
+            [title]="row.source"
+            *ngIf="editingRow !== row"
+            [ngClass]="{ highlights: matchText(row.source) }"
+          >
+            {{ row.source }}
+          </td>
+          <!-- <td>{{ row.typeOfData }}</td> -->
+          <td *ngIf="editingRow === row">
+            <input [(ngModel)]="row.typeOfData" />
+          </td>
+          <td
+            class="td-overflow"
+            [title]="row.typeOfData"
+            *ngIf="editingRow !== row"
+            [ngClass]="{ highlights: matchText(row.typeOfData) }"
+          >
+            {{ row.typeOfData }}
+          </td>
+          <!-- <td>{{ row.frequency }}</td> -->
+          <td *ngIf="editingRow === row">
+            <input [(ngModel)]="row.frequency" />
+          </td>
+          <td
+            class="td-overflow"
+            [title]="row.frequency"
+            *ngIf="editingRow !== row"
+            [ngClass]="{ highlights: matchText(row.frequency) }"
+          >
+            {{ row.frequency }}
+          </td>
+          <!-- <td>{{ row.loadMode }}</td> -->
+          <td *ngIf="editingRow === row">
+            <input [(ngModel)]="row.loadMode" />
+          </td>
+          <td
+            class="td-overflow"
+            [title]="row.loadMode"
+            *ngIf="editingRow !== row"
+            [ngClass]="{ highlights: matchText(row.loadMode) }"
+          >
+            {{ row.loadMode }}
+          </td>
+          <!-- <td>{{ row.loadType }}</td> -->
+          <td *ngIf="editingRow === row">
+            <input [(ngModel)]="row.loadType" />
+          </td>
+          <td
+            class="td-overflow"
+            [title]="row.loadType"
+            *ngIf="editingRow !== row"
+            [ngClass]="{ highlights: matchText(row.loadType) }"
+          >
+            {{ row.loadType }}
+          </td>
+          <!-- <td>{{ row.expectedVolume }}</td> -->
+          <td *ngIf="editingRow === row">
+            <input [(ngModel)]="row.expectedVolume" />
+          </td>
+          <td
+            class="td-overflow"
+            [title]="row.expectedVolume"
+            *ngIf="editingRow !== row"
+            [ngClass]="{ highlights: matchText(row.expectedVolume) }"
+          >
+            {{ row.expectedVolume }}
+          </td>
+          <!-- <td>{{ row.mappingStatus }}</td>
         <td>{{ row.odiBuildStatus }}</td>
         <td>{{ row.reviewStatus }}</td> -->
-        <td *ngIf="editingRow === row && isAdmin()">
-          <select class="dropdownstyle" [(ngModel)]="row.mappingStatus" [disabled]="!isAdmin()">
-            <option *ngFor="let option of statusOptions" [value]="option" [selected]="row.mappingStatus === option">{{option}}</option>
-          </select>
-        </td>
-        <td *ngIf="editingRow !== row || !isAdmin()" [ngClass]="{ 'highlights': matchText(row.mappingStatus) }">
-          {{ row.mappingStatus }}
-        </td>
-        <td *ngIf="editingRow === row && isAdmin()">
-          <select class="dropdownstyle" [(ngModel)]="row.odiBuildStatus" [disabled]="!isAdmin()">
-            <option *ngFor="let option of statusOptions" [value]="option" [selected]="row.odiBuildStatus === option">{{option}}</option>
-          </select>
-        </td>
-        <td *ngIf="editingRow !== row || !isAdmin()" [ngClass]="{ 'highlights': matchText(row.odiBuildStatus) }">
-          {{ row.odiBuildStatus }}
-        </td>
-        <td *ngIf="editingRow === row && isAdmin()">
-          <select class="dropdownstyle" [(ngModel)]="row.reviewStatus" [disabled]="!isAdmin()">
-            <option *ngFor="let option of statusOptions" [value]="option" [selected]="row.reviewStatus === option">{{option}}</option>
-          </select>
-        </td>
-        <td *ngIf="editingRow !== row || !isAdmin()" [ngClass]="{ 'highlights': matchText(row.reviewStatus) }">
-          {{ row.reviewStatus }}
-        </td>
-        <!-- <td>{{ row.usedInEFRA }}</td>
+          <td *ngIf="editingRow === row && isAdmin()">
+            <select
+              class="dropdownstyle"
+              [(ngModel)]="row.mappingStatus"
+              [disabled]="!isAdmin()"
+            >
+              <option
+                *ngFor="let option of statusOptions"
+                [value]="option"
+                [selected]="row.mappingStatus === option"
+              >
+                {{ option }}
+              </option>
+            </select>
+          </td>
+          <td
+            *ngIf="editingRow !== row || !isAdmin()"
+            [ngClass]="{ highlights: matchText(row.mappingStatus) }"
+          >
+            {{ row.mappingStatus }}
+          </td>
+          <td *ngIf="editingRow === row && isAdmin()">
+            <select
+              class="dropdownstyle"
+              [(ngModel)]="row.odiBuildStatus"
+              [disabled]="!isAdmin()"
+            >
+              <option
+                *ngFor="let option of statusOptions"
+                [value]="option"
+                [selected]="row.odiBuildStatus === option"
+              >
+                {{ option }}
+              </option>
+            </select>
+          </td>
+          <td
+            *ngIf="editingRow !== row || !isAdmin()"
+            [ngClass]="{ highlights: matchText(row.odiBuildStatus) }"
+          >
+            {{ row.odiBuildStatus }}
+          </td>
+          <td *ngIf="editingRow === row && isAdmin()">
+            <select
+              class="dropdownstyle"
+              [(ngModel)]="row.reviewStatus"
+              [disabled]="!isAdmin()"
+            >
+              <option
+                *ngFor="let option of statusOptions"
+                [value]="option"
+                [selected]="row.reviewStatus === option"
+              >
+                {{ option }}
+              </option>
+            </select>
+          </td>
+          <td
+            *ngIf="editingRow !== row || !isAdmin()"
+            [ngClass]="{ highlights: matchText(row.reviewStatus) }"
+          >
+            {{ row.reviewStatus }}
+          </td>
+          <!-- <td>{{ row.usedInEFRA }}</td>
         <td>{{ row.usedInCECL }}</td>
         <td>{{ row.usedInAML }}</td>
         <td>{{row.usedInOnestream}}</td>
         <td>{{row.usedInCCAR}}</td>
         <td>{{row.usedInAXIOM}}</td> -->
-        <td *ngIf="editingRow === row && isAdmin()">
-          <select class="dropdownstyle" [(ngModel)]="row.usedInEFRA" [disabled]="!isAdmin()">
-            <option *ngFor="let option of usedInOptions" [value]="option" [selected]="row.usedInEFRA === option">{{option}}</option>
-          </select>
-        </td>
-        <td *ngIf="editingRow !== row || !isAdmin()" [ngClass]="{ 'highlights': matchText(row.usedInEFRA) }">
-          {{ row.usedInEFRA }}
-        </td>
-        <td *ngIf="editingRow === row && isAdmin()">
-          <select class="dropdownstyle" [(ngModel)]="row.usedInCECL" [disabled]="!isAdmin()">
-            <option *ngFor="let option of usedInOptions" [value]="option" [selected]="row.usedInCECL === option">{{option}}</option>
-          </select>
-        </td>
-        <td *ngIf="editingRow !== row || !isAdmin()" [ngClass]="{ 'highlights': matchText(row.usedInCECL) }">
-          {{ row.usedInCECL }}
-        </td>
-        <td *ngIf="editingRow === row && isAdmin()">
-          <select class="dropdownstyle" [(ngModel)]="row.usedInAML" [disabled]="!isAdmin()">
-            <option *ngFor="let option of usedInOptions" [value]="option" [selected]="row.usedInAML === option">{{option}}</option>
-          </select>
-        </td>
-        <td *ngIf="editingRow !== row || !isAdmin()" [ngClass]="{ 'highlights': matchText(row.usedInAML) }">
-          {{ row.usedInAML }}
-        </td>
-        <td *ngIf="editingRow === row && isAdmin()">
-          <select class="dropdownstyle" [(ngModel)]="row.usedInOnestream" [disabled]="!isAdmin()">
-            <option *ngFor="let option of usedInOptions" [value]="option" [selected]="row.usedInOnestream === option">{{option}}</option>
-          </select>
-        </td>
-        <td *ngIf="editingRow !== row || !isAdmin()" [ngClass]="{ 'highlights': matchText(row.usedInOnestream) }">
-          {{ row.usedInOnestream }}
-        </td>
-        <td *ngIf="editingRow === row && isAdmin()">
-          <select class="dropdownstyle" [(ngModel)]="row.usedInCCAR" [disabled]="!isAdmin()">
-            <option *ngFor="let option of usedInOptions" [value]="option" [selected]="row.usedInCCAR === option">{{option}}</option>
-          </select>
-        </td>
-        <td *ngIf="editingRow !== row || !isAdmin()" [ngClass]="{ 'highlights': matchText(row.usedInCCAR) }">
-          {{ row.usedInCCAR }}
-        </td>
-        <td *ngIf="editingRow === row && isAdmin()">
-          <select class="dropdownstyle" [(ngModel)]="row.usedInAXIOM" [disabled]="!isAdmin()">
-            <option *ngFor="let option of usedInOptions" [value]="option" [selected]="row.usedInAXIOM === option">{{option}}</option>
-          </select>
-        </td>
-        <td *ngIf="editingRow !== row || !isAdmin()" [ngClass]="{ 'highlights': matchText(row.usedInAXIOM) }">
-          {{ row.usedInAXIOM }}
-        </td>
-        <!-- <td *ngFor="let column of tableColumns">{{ row[column.field] }}</td> -->
-        <td *ngFor="let column of tableColumns; let i = index" [hidden]="i < 20">
-          <!-- <input [(ngModel)]="row[column.field]" [disabled]="!isAdmin()" /> -->
-          <span *ngIf="!isAdmin()">{{ row[column.field] }}</span>
-          <input type="text" [value]="row[column.field]" *ngIf="isAdmin()" [(ngModel)]="row[column.field]" placeholder="Enter Data" (change)="saveColumnData(row, column, $event)"
-          [ngClass]="{
-            'no-border': row[column.field + '_dirty'],
-            'input-default': !row[column.field + '_dirty']
-          }"/>
-        </td>
-        <td *ngIf="isAdmin()">
-          <div>
-          <button (click)="editData(row)">{{ editingRow === row ? 'Save' : 'Edit' }}</button>
-          <!-- <button>Delete</button> -->
-        </div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+          <td *ngIf="editingRow === row && isAdmin()">
+            <select
+              class="dropdownstyle"
+              [(ngModel)]="row.usedInEFRA"
+              [disabled]="!isAdmin()"
+            >
+              <option
+                *ngFor="let option of usedInOptions"
+                [value]="option"
+                [selected]="row.usedInEFRA === option"
+              >
+                {{ option }}
+              </option>
+            </select>
+          </td>
+          <td
+            *ngIf="editingRow !== row || !isAdmin()"
+            [ngClass]="{ highlights: matchText(row.usedInEFRA) }"
+          >
+            {{ row.usedInEFRA }}
+          </td>
+          <td *ngIf="editingRow === row && isAdmin()">
+            <select
+              class="dropdownstyle"
+              [(ngModel)]="row.usedInCECL"
+              [disabled]="!isAdmin()"
+            >
+              <option
+                *ngFor="let option of usedInOptions"
+                [value]="option"
+                [selected]="row.usedInCECL === option"
+              >
+                {{ option }}
+              </option>
+            </select>
+          </td>
+          <td
+            *ngIf="editingRow !== row || !isAdmin()"
+            [ngClass]="{ highlights: matchText(row.usedInCECL) }"
+          >
+            {{ row.usedInCECL }}
+          </td>
+          <td *ngIf="editingRow === row && isAdmin()">
+            <select
+              class="dropdownstyle"
+              [(ngModel)]="row.usedInAML"
+              [disabled]="!isAdmin()"
+            >
+              <option
+                *ngFor="let option of usedInOptions"
+                [value]="option"
+                [selected]="row.usedInAML === option"
+              >
+                {{ option }}
+              </option>
+            </select>
+          </td>
+          <td
+            *ngIf="editingRow !== row || !isAdmin()"
+            [ngClass]="{ highlights: matchText(row.usedInAML) }"
+          >
+            {{ row.usedInAML }}
+          </td>
+          <td *ngIf="editingRow === row && isAdmin()">
+            <select
+              class="dropdownstyle"
+              [(ngModel)]="row.usedInOnestream"
+              [disabled]="!isAdmin()"
+            >
+              <option
+                *ngFor="let option of usedInOptions"
+                [value]="option"
+                [selected]="row.usedInOnestream === option"
+              >
+                {{ option }}
+              </option>
+            </select>
+          </td>
+          <td
+            *ngIf="editingRow !== row || !isAdmin()"
+            [ngClass]="{ highlights: matchText(row.usedInOnestream) }"
+          >
+            {{ row.usedInOnestream }}
+          </td>
+          <td *ngIf="editingRow === row && isAdmin()">
+            <select
+              class="dropdownstyle"
+              [(ngModel)]="row.usedInCCAR"
+              [disabled]="!isAdmin()"
+            >
+              <option
+                *ngFor="let option of usedInOptions"
+                [value]="option"
+                [selected]="row.usedInCCAR === option"
+              >
+                {{ option }}
+              </option>
+            </select>
+          </td>
+          <td
+            *ngIf="editingRow !== row || !isAdmin()"
+            [ngClass]="{ highlights: matchText(row.usedInCCAR) }"
+          >
+            {{ row.usedInCCAR }}
+          </td>
+          <td *ngIf="editingRow === row && isAdmin()">
+            <select
+              class="dropdownstyle"
+              [(ngModel)]="row.usedInAXIOM"
+              [disabled]="!isAdmin()"
+            >
+              <option
+                *ngFor="let option of usedInOptions"
+                [value]="option"
+                [selected]="row.usedInAXIOM === option"
+              >
+                {{ option }}
+              </option>
+            </select>
+          </td>
+          <td
+            *ngIf="editingRow !== row || !isAdmin()"
+            [ngClass]="{ highlights: matchText(row.usedInAXIOM) }"
+          >
+            {{ row.usedInAXIOM }}
+          </td>
+          <!-- <td *ngFor="let column of tableColumns">{{ row[column.field] }}</td> -->
+          <td
+            *ngFor="let column of tableColumns; let i = index"
+            [hidden]="i < 20"
+          >
+            <!-- <input [(ngModel)]="row[column.field]" [disabled]="!isAdmin()" /> -->
+            <span *ngIf="!isAdmin()">{{ row[column.field] }}</span>
+            <input
+              type="text"
+              [value]="row[column.field]"
+              *ngIf="isAdmin()"
+              [(ngModel)]="row[column.field]"
+              placeholder="Enter Data"
+              (change)="saveColumnData(row, column, $event)"
+              [ngClass]="{
+                'no-border': row[column.field + '_dirty'],
+                'input-default': !row[column.field + '_dirty']
+              }"
+            />
+          </td>
+          <td *ngIf="isAdmin()">
+            <div>
+              <button (click)="editData(row)">
+                {{ editingRow === row ? "Save" : "Edit" }}
+              </button>
+              <!-- <button>Delete</button> -->
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <pagination-controls
+    id="table-pagination"
+    [id]="'table-pagination'"
+    [autoHide]="true"
+    [maxSize]="5"
+    (pageChange)="currentPage = $event"
+    ></pagination-controls>
+  </div>
 </div>

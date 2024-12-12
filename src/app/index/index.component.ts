@@ -3,6 +3,7 @@ import { NavbarComponent } from '../navbar/navbar.component';
 import { RoleService } from '../role.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { NgxPaginationModule } from 'ngx-pagination';
 
 export interface TableRow {
   [key: string]: string | number | boolean | any; // Allow dynamic keys
@@ -31,7 +32,7 @@ export interface TableRow {
 @Component({
   selector: 'app-index',
   standalone: true,
-  imports: [NavbarComponent, CommonModule, FormsModule],
+  imports: [NavbarComponent, CommonModule, FormsModule, NgxPaginationModule],
   templateUrl: './index.component.html',
   styleUrl: './index.component.css',
 })
@@ -41,10 +42,14 @@ export class IndexComponent {
   searchColumn: string = '';
   newColumnName: string = '';
   editingMode: boolean = false;
-  editingRow: TableRow | null = null; // Keeps track of the currently edited row
+  editingRow: TableRow | null = null; // Keeps track of currently edited row
+  currentPage = 1;
+  itemsPerPage = 10;
+  paginatedData: TableRow[] = [];  // Holds current page data
 
   statusOptions: string[] = ['Not Started', 'In Progress', 'Complete'];
   usedInOptions = ['Y', 'N'];
+
 
   tableData: TableRow[] = [
     {
@@ -121,11 +126,15 @@ export class IndexComponent {
     private cdr: ChangeDetectorRef
   ) {}
 
+  ngOnInit(): void {
+    this.updatePaginatedData();
+  }
+
   isAdmin(): boolean {
     return this.roleService.getRole() === 'admin';
   }
 
-  filteredData() {
+  filteredData(): TableRow[] {
     if (!this.searchText) return this.tableData;
 
     return this.tableData.filter((row) => {
@@ -174,8 +183,10 @@ export class IndexComponent {
       usedInAXIOM: 'N',
     };
     this.tableData.push(newRow);
+    this.updatePaginatedData();
     this.cdr.detectChanges();
     alert('New Row Added! You can now Edit it.');
+
   }
 
   saveNewRow() {
@@ -353,5 +364,16 @@ export class IndexComponent {
   isEllipsisActive(element: HTMLElement | null): boolean {
     if (!element) return false;
     return element.offsetWidth < element.scrollWidth;
+  }
+
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.updatePaginatedData();
+  }
+
+  updatePaginatedData(): void {
+    const startPage = (this.currentPage - 1) * this.itemsPerPage;
+    const endPage = startPage + this.itemsPerPage;
+    this.paginatedData = this.tableData.slice(startPage, endPage);
   }
 }
