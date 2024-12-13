@@ -14,7 +14,7 @@ import { CommonModule } from '@angular/common';
 export class AppComponent {
   title = 'OFSAA_Data_Mapping';
 
-  role: 'user' | 'admin' | undefined;
+  role: 'User' | 'Admin' | undefined;
 
   constructor(private roleService: RoleService, private router: Router) {
     // this.router = router;

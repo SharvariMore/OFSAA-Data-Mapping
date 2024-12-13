@@ -14,7 +14,7 @@ export class ChangelogComponent {
   constructor(private roleService: RoleService) {}
 
   isAdmin(): boolean {
-    return this.roleService.getRole() === 'admin';
+    return this.roleService.getRole() === 'Admin';
   }
 
   addChange() {

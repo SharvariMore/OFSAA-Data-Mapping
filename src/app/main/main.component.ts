@@ -13,7 +13,7 @@ import { Router } from '@angular/router';
 export class MainComponent {
   constructor(private router: Router, private roleService: RoleService) {}
 
-  selectRole(role: 'user' | 'admin') {
+  selectRole(role: 'User' | 'Admin') {
     this.roleService.setRole(role);
     this.router.navigate(['/home']);
   }

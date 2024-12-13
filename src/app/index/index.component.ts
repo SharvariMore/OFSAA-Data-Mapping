@@ -131,7 +131,7 @@ export class IndexComponent {
   }
 
   isAdmin(): boolean {
-    return this.roleService.getRole() === 'admin';
+    return this.roleService.getRole() === 'Admin';
   }
 
   filteredData(): TableRow[] {
