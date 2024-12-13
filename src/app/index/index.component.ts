@@ -504,4 +504,28 @@ export class IndexComponent {
     }
   }
 
+  saveAllColumns(): void {
+    if(!this.isAdmin()) return;
+
+    if (this.editingMode) {
+      const requiredFields = this.tableColumns.map((colm) => colm.field);
+
+      const inValidRows = this.tableData.filter((row) => {
+        return requiredFields.some((field) => !row[field] || row[field].toString().trim() === '');
+      });
+
+      if (inValidRows.length > 0) {
+        alert('Please fill in All Missing Column Data Before Saving!');
+        return;
+      }
+
+      this.editingMode = false;
+      this.cdr.detectChanges();
+      alert('All Columns Saved Successfully!')
+    } else {
+      this.editingMode = true;
+      alert('You can Edit All Columns Now! Click "Save All Columns" Again to Finalize Changes.');
+    }
+  }
+
 }
