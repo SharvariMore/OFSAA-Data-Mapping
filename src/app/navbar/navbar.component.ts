@@ -27,7 +27,7 @@ export class NavbarComponent {
     this.dropdownOpen = !this.dropdownOpen;
   }
 
-  // Toggles the role and closes the dropdown
+  // Toggles role and closes dropdown
   toggleRole(): void {
     this.roleService.toggleRole();
     this.dropdownOpen = false;
