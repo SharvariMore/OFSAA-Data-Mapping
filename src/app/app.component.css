@@ -25,3 +25,11 @@ button {
 button:hover {
   background-color: #035493;
 }
+
+@media (max-width: 768px) {
+  .button-container {
+    align-items: stretch;
+    flex-direction: column;
+    padding: 10px;
+  }
+}
