@@ -61,12 +61,6 @@ button:hover {
 
 }
 
-.dropdown-wrapper {
-  max-height: 200px; /* Limit the dropdown list's height */
-  overflow-y: auto; /* Enable scrolling if content exceeds height */
-  position: relative;
-}
-
 .search-column-dropdown {
   width: 200px;
   padding: 5px;
@@ -173,7 +167,6 @@ input.input-default {
   color: white !important;
 }
 
-
 .highlights {
   background-color: palegoldenrod;
   color: seagreen;
@@ -203,10 +196,6 @@ input.input-default {
   .search-content select,
   .admin-control button {
     width: 100%;
-  }
-
-  select > option {
-    background-color: #035493;
   }
 
   .admin-column {
