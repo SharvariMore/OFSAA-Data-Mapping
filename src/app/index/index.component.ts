@@ -4,6 +4,9 @@ import { RoleService } from '../role.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgxPaginationModule } from 'ngx-pagination';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { DialogComponent } from '../dialog/dialog.component';
 
 export interface TableRow {
   [key: string]: string | number | boolean | any; // Allow dynamic keys
@@ -32,7 +35,14 @@ export interface TableRow {
 @Component({
   selector: 'app-index',
   standalone: true,
-  imports: [NavbarComponent, CommonModule, FormsModule, NgxPaginationModule],
+  imports: [
+    NavbarComponent,
+    CommonModule,
+    FormsModule,
+    NgxPaginationModule,
+    MatDialogModule,
+    MatButtonModule,
+  ],
   templateUrl: './index.component.html',
   styleUrl: './index.component.css',
 })
@@ -45,11 +55,10 @@ export class IndexComponent {
   editingRow: TableRow | null = null; // Keeps track of currently edited row
   currentPage = 1;
   itemsPerPage = 10;
-  paginatedData: TableRow[] = [];  // Holds current page data
+  paginatedData: TableRow[] = []; // Holds current page data
 
   statusOptions: string[] = ['Not Started', 'In Progress', 'Complete'];
   usedInOptions = ['Y', 'N'];
-
 
   tableData: TableRow[] = this.loadFromStorage('tableData') || [
     {
@@ -123,8 +132,15 @@ export class IndexComponent {
 
   constructor(
     private roleService: RoleService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private dialog: MatDialog
   ) {}
+
+  openDialog(message: string, title: string = 'Notification') {
+    this.dialog.open(DialogComponent, {
+      data: { title: title, message: message },
+    });
+  }
 
   ngOnInit(): void {
     this.updatePaginatedData();
@@ -173,7 +189,7 @@ export class IndexComponent {
       'Where do you want to insert the new row?\n1. At the beginning\n2. At the end\n3. In between\nEnter the number (1, 2, or 3):'
     );
 
-    if(!insertOption) return;
+    if (!insertOption) return;
 
     const newRow: TableRow = {
       srNo: this.tableData.length + 1,
@@ -201,13 +217,13 @@ export class IndexComponent {
     switch (insertOption.trim()) {
       case '1': {
         this.tableData.unshift(newRow);
-        alert('New Row Added At Beginning! You can now Edit it.');
+        this.openDialog('New Row Added At Beginning! You can now Edit it.');
         break;
       }
 
       case '2': {
         this.tableData.push(newRow);
-        alert('New Row Added At End! You can now Edit it.');
+        this.openDialog('New Row Added At End! You can now Edit it.');
         break;
       }
 
@@ -220,9 +236,9 @@ export class IndexComponent {
           const index = Number(position) - 1;
           if (index >= 0 && index <= this.tableData.length) {
             this.tableData.splice(index, 0, newRow);
-            alert(`New Row Added at ${index + 1}! You can now Edit it.`);
+            this.openDialog(`New Row Added at ${index + 1}! You can now Edit it.`);
           } else {
-            alert('Invalid Position!');
+            this.openDialog('Invalid Position!');
           }
         } else {
           return;
@@ -231,7 +247,7 @@ export class IndexComponent {
       }
 
       default:
-        alert('Invalid option! Please enter 1, 2, or 3.');
+        this.openDialog('Invalid option! Please enter 1, 2, or 3.');
         break;
     }
 
@@ -249,16 +265,19 @@ export class IndexComponent {
     if (!this.isAdmin()) return;
 
     if (this.editingMode) {
-      const requiredFields = this.tableColumns.map((column: { field: any; }) => column.field);
+      const requiredFields = this.tableColumns.map(
+        (column: { field: any }) => column.field
+      );
 
       const inValidRows = this.tableData.filter((row) => {
         return requiredFields.some(
-          (field: string | number) => !row[field] || row[field].toString().trim() === ''
+          (field: string | number) =>
+            !row[field] || row[field].toString().trim() === ''
         );
       });
 
       if (inValidRows.length > 0) {
-        alert('Please Fill All Missing Fields!');
+        this.openDialog('Please Fill All Missing Fields!');
         return;
       }
 
@@ -266,11 +285,10 @@ export class IndexComponent {
       this.editingRow = null;
       this.cdr.detectChanges();
       this.saveToStorage('tableData', this.tableData);
-      alert('All Rows Saved Successfully!');
-
+      this.openDialog('All Rows Saved Successfully!');
     } else {
       this.editingMode = true;
-      alert('You can edit rows now. Click "Save" again to finalize changes.');
+      this.openDialog('You can edit rows now. Click "Save" again to finalize changes.');
     }
   }
 
@@ -289,11 +307,11 @@ export class IndexComponent {
 
       if (
         this.tableColumns.some(
-          (colm: { field: string; header: string; }) =>
+          (colm: { field: string; header: string }) =>
             colm.field === newField || colm.header === this.newColumnName
         )
       ) {
-        alert(`Column "${this.newColumnName}" Already exists!`);
+        this.openDialog(`Column "${this.newColumnName}" Already exists!`);
         return;
       }
 
@@ -309,22 +327,22 @@ export class IndexComponent {
 
       this.newColumnName = '';
       // this.newColumnAdded = true;
-       this.saveToStorage('tableData', this.tableData);
-      alert(`New Column Added: "${newColumn.header}"!`);
+      this.saveToStorage('tableData', this.tableData);
+      this.openDialog(`New Column Added: "${newColumn.header}"!`);
     } else {
-      alert('Please Enter Column Name!');
+      this.openDialog('Please Enter Column Name!');
     }
   }
 
   saveColumnData(row: TableRow, column: any, event: Event) {
     if (!row || !column || !column.field) {
-      alert('Invalid row or column data');
+      this.openDialog('Invalid row or column data');
       return;
     }
 
     const inputElement = event.target as HTMLInputElement;
     if (!inputElement || inputElement.value === undefined) {
-      alert('Invalid input element');
+      this.openDialog('Invalid input element');
       return;
     }
 
@@ -336,7 +354,7 @@ export class IndexComponent {
     row[column.field + '_dirty'] = newValue !== '';
 
     console.log(`Updated column '${column.field}' with value: ${newValue}`);
-    alert(`Data for column '${column.header}' Added with value: ${newValue}!`);
+    this.openDialog(`Data for column '${column.header}' Added with value: ${newValue}!`);
   }
 
   editData(row: TableRow): void {
@@ -345,7 +363,7 @@ export class IndexComponent {
     if (this.editingRow === row) {
       //save changes and exit
       this.editingRow = null;
-      alert(`Edited Data Sucessfully!`);
+      this.openDialog(`Edited Data Sucessfully!`);
     } else {
       //enable edit mode
       this.editingRow = row;
@@ -373,9 +391,9 @@ export class IndexComponent {
             this.tableData.splice(rowIndex, 1);
             this.cdr.detectChanges();
             this.saveToStorage('tableData', this.tableData);
-            alert(`Row ${rowNum} Deleted Successfully!`);
+            this.openDialog(`Row ${rowNum} Deleted Successfully!`);
           } else {
-            alert('Row Number Not Found!');
+            this.openDialog('Row Number Not Found!');
           }
         }
         break;
@@ -384,9 +402,13 @@ export class IndexComponent {
       case '2': {
         // const startRowNum = prompt('Enter the starting row number: ');
         // const endRowNum = prompt('Enter the ending row number: ');
-        const rangeInput = prompt('Enter the starting and ending row numbers (separated by hyphen [-] ):')
+        const rangeInput = prompt(
+          'Enter the starting and ending row numbers (separated by hyphen [-] ):'
+        );
         if (rangeInput) {
-          const[startRowNum, endRowNum] = rangeInput.split('-').map(num => num.trim());
+          const [startRowNum, endRowNum] = rangeInput
+            .split('-')
+            .map((num) => num.trim());
           const startIndex = this.tableData.findIndex(
             (row) => row.srNo === Number(startRowNum)
           );
@@ -398,27 +420,29 @@ export class IndexComponent {
             this.tableData.splice(startIndex, endIndex - startIndex + 1);
             this.cdr.detectChanges();
             this.saveToStorage('tableData', this.tableData);
-            alert(`Rows ${startRowNum} to ${endRowNum} Deleted SuccessFully!`);
+            this.openDialog(`Rows ${startRowNum} to ${endRowNum} Deleted SuccessFully!`);
           } else {
-            alert('Invalid Series of Row Numbers!');
+            this.openDialog('Invalid Series of Row Numbers!');
           }
         }
         break;
       }
 
       case '3': {
-        const rowAllDelete = confirm('Are you sure you want to delete all rows? This action cannot be undone.');
+        const rowAllDelete = confirm(
+          'Are you sure you want to delete all rows? This action cannot be undone.'
+        );
         if (rowAllDelete) {
           this.tableData = [];
           this.cdr.detectChanges();
           this.saveToStorage('tableData', this.tableData);
-          alert('All Rows Deleted Successfully!')
+          this.openDialog('All Rows Deleted Successfully!');
         }
         break;
       }
 
       default:
-        alert('Invalid option! Please enter 1, 2, or 3.');
+        this.openDialog('Invalid option! Please enter 1, 2, or 3.');
         break;
     }
   }
@@ -442,15 +466,20 @@ export class IndexComponent {
   editColumnData() {
     if (!this.isAdmin()) return;
 
-    const colmnToEdit = prompt(`Select a column to Edit by Entering it's Header Name:\n`);
+    const colmnToEdit = prompt(
+      `Select a column to Edit by Entering it's Header Name:\n`
+    );
     // ${this.tableColumns.map((col) => col.header).join(', ')}`);
 
     if (!colmnToEdit) return;
 
-    const selectedColumn = this.tableColumns.find((colm: { header: string; }) => colm.header.toLowerCase() === colmnToEdit.toLowerCase());
+    const selectedColumn = this.tableColumns.find(
+      (colm: { header: string }) =>
+        colm.header.toLowerCase() === colmnToEdit.toLowerCase()
+    );
 
     if (!selectedColumn) {
-      alert('Invalid Column Name! Please Try Again.');
+      this.openDialog('Invalid Column Name! Please Try Again.');
       return;
     }
 
@@ -471,7 +500,9 @@ export class IndexComponent {
             row[selectedColumn.field] = newValue;
           });
 
-          alert(`All rows in the "${selectedColumn.header}" column updated with value: ${newValue}!`);
+          this.openDialog(
+            `All rows in the "${selectedColumn.header}" column updated with value: ${newValue}!`
+          );
           this.updatePaginatedData();
           this.cdr.detectChanges();
         }
@@ -484,7 +515,9 @@ export class IndexComponent {
         );
 
         if (rangeInput) {
-          const[startRowNum, endRowNum] = rangeInput.split('-').map(num => num.trim());
+          const [startRowNum, endRowNum] = rangeInput
+            .split('-')
+            .map((num) => num.trim());
           const startIndex = this.tableData.findIndex(
             (row) => row.srNo === Number(startRowNum)
           );
@@ -502,7 +535,7 @@ export class IndexComponent {
                 this.tableData[i][selectedColumn.field] = newValue;
               }
 
-              alert(
+              this.openDialog(
                 `Rows ${startRowNum} to ${endRowNum} in the "${selectedColumn.header}" column updated with value: ${newValue}!`
               );
               this.updatePaginatedData();
@@ -510,39 +543,45 @@ export class IndexComponent {
             }
           }
         } else {
-          alert('Invalid series of row numbers!');
+          this.openDialog('Invalid series of row numbers!');
         }
         break;
       }
 
       default:
-        alert('Invalid option! Please enter 1 or 2.');
+        this.openDialog('Invalid option! Please enter 1 or 2.');
         break;
     }
   }
 
   saveAllColumns(): void {
-    if(!this.isAdmin()) return;
+    if (!this.isAdmin()) return;
 
     if (this.editingMode) {
-      const requiredFields = this.tableColumns.map((colm: { field: any; }) => colm.field);
+      const requiredFields = this.tableColumns.map(
+        (colm: { field: any }) => colm.field
+      );
 
       const inValidRows = this.tableData.filter((row) => {
-        return requiredFields.some((field: string | number) => !row[field] || row[field].toString().trim() === '');
+        return requiredFields.some(
+          (field: string | number) =>
+            !row[field] || row[field].toString().trim() === ''
+        );
       });
 
       if (inValidRows.length > 0) {
-        alert('Please fill in All Missing Column Data Before Saving!');
+        this.openDialog('Please fill in All Missing Column Data Before Saving!');
         return;
       }
 
       this.editingMode = false;
       this.cdr.detectChanges();
-      alert('All Columns Saved Successfully!')
+      this.openDialog('All Columns Saved Successfully!');
     } else {
       this.editingMode = true;
-      alert('You can Edit All Columns Now! Click "Save All Columns" Again to Finalize Changes.');
+      this.openDialog(
+        'You can Edit All Columns Now! Click "Save All Columns" Again to Finalize Changes.'
+      );
     }
   }
-
 }

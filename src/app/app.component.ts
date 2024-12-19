@@ -2,14 +2,24 @@ import { RoleService } from './role.service';
 import { Component } from '@angular/core';
 import { Router, RouterModule, RouterOutlet } from '@angular/router';
 // import { NavbarComponent } from './navbar/navbar.component';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, RouterModule],
+  imports: [
+    RouterOutlet,
+    CommonModule,
+    RouterModule,
+    MatButtonModule,
+    MatDialogModule,
+    MatInputModule
+  ],
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.css'],
 })
 export class AppComponent {
   title = 'OFSAA_Data_Mapping';
