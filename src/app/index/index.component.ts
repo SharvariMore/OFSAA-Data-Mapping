@@ -51,7 +51,7 @@ export class IndexComponent {
   usedInOptions = ['Y', 'N'];
 
 
-  tableData: TableRow[] = [
+  tableData: TableRow[] = this.loadFromStorage('tableData') || [
     {
       srNo: 1,
       tfsReq: 'REQ-001',
@@ -98,7 +98,7 @@ export class IndexComponent {
     },
   ];
 
-  tableColumns = [
+  tableColumns = this.loadFromStorage('tableColumns') || [
     { header: 'Sr. No.', field: 'srNo' },
     { header: 'TFS Req.', field: 'tfsReq' },
     { header: 'Release', field: 'release' },
@@ -128,6 +128,15 @@ export class IndexComponent {
 
   ngOnInit(): void {
     this.updatePaginatedData();
+  }
+
+  saveToStorage(key: string, data: any): void {
+    localStorage.setItem(key, JSON.stringify(data));
+  }
+
+  loadFromStorage(key: string): any {
+    const data = localStorage.getItem(key);
+    return data ? JSON.parse(data) : null;
   }
 
   isAdmin(): boolean {
@@ -230,6 +239,8 @@ export class IndexComponent {
       row.srNo = index + 1;
     });
 
+    this.saveToStorage('tableData', this.tableData);
+
     this.updatePaginatedData();
     this.cdr.detectChanges();
   }
@@ -238,11 +249,11 @@ export class IndexComponent {
     if (!this.isAdmin()) return;
 
     if (this.editingMode) {
-      const requiredFields = this.tableColumns.map((column) => column.field);
+      const requiredFields = this.tableColumns.map((column: { field: any; }) => column.field);
 
       const inValidRows = this.tableData.filter((row) => {
         return requiredFields.some(
-          (field) => !row[field] || row[field].toString().trim() === ''
+          (field: string | number) => !row[field] || row[field].toString().trim() === ''
         );
       });
 
@@ -254,7 +265,9 @@ export class IndexComponent {
       this.editingMode = false;
       this.editingRow = null;
       this.cdr.detectChanges();
+      this.saveToStorage('tableData', this.tableData);
       alert('All Rows Saved Successfully!');
+
     } else {
       this.editingMode = true;
       alert('You can edit rows now. Click "Save" again to finalize changes.');
@@ -276,7 +289,7 @@ export class IndexComponent {
 
       if (
         this.tableColumns.some(
-          (colm) =>
+          (colm: { field: string; header: string; }) =>
             colm.field === newField || colm.header === this.newColumnName
         )
       ) {
@@ -296,6 +309,7 @@ export class IndexComponent {
 
       this.newColumnName = '';
       // this.newColumnAdded = true;
+       this.saveToStorage('tableData', this.tableData);
       alert(`New Column Added: "${newColumn.header}"!`);
     } else {
       alert('Please Enter Column Name!');
@@ -349,7 +363,7 @@ export class IndexComponent {
 
     switch (deleteOption.trim()) {
       case '1': {
-        const rowNum = prompt('Enter the row number you wnat to delete: ');
+        const rowNum = prompt('Enter the row number you want to delete: ');
         if (rowNum) {
           const rowIndex = this.tableData.findIndex(
             (row) => row.srNo === Number(rowNum)
@@ -358,6 +372,7 @@ export class IndexComponent {
           if (rowIndex !== -1) {
             this.tableData.splice(rowIndex, 1);
             this.cdr.detectChanges();
+            this.saveToStorage('tableData', this.tableData);
             alert(`Row ${rowNum} Deleted Successfully!`);
           } else {
             alert('Row Number Not Found!');
@@ -382,9 +397,10 @@ export class IndexComponent {
           if (startIndex !== -1 && endIndex !== -1 && startIndex <= endIndex) {
             this.tableData.splice(startIndex, endIndex - startIndex + 1);
             this.cdr.detectChanges();
+            this.saveToStorage('tableData', this.tableData);
             alert(`Rows ${startRowNum} to ${endRowNum} Deleted SuccessFully!`);
           } else {
-            alert('Inavlid Series of Row Numbers!');
+            alert('Invalid Series of Row Numbers!');
           }
         }
         break;
@@ -395,6 +411,7 @@ export class IndexComponent {
         if (rowAllDelete) {
           this.tableData = [];
           this.cdr.detectChanges();
+          this.saveToStorage('tableData', this.tableData);
           alert('All Rows Deleted Successfully!')
         }
         break;
@@ -430,7 +447,7 @@ export class IndexComponent {
 
     if (!colmnToEdit) return;
 
-    const selectedColumn = this.tableColumns.find((colm) => colm.header.toLowerCase() === colmnToEdit.toLowerCase());
+    const selectedColumn = this.tableColumns.find((colm: { header: string; }) => colm.header.toLowerCase() === colmnToEdit.toLowerCase());
 
     if (!selectedColumn) {
       alert('Invalid Column Name! Please Try Again.');
@@ -446,7 +463,7 @@ export class IndexComponent {
     switch (editOption.trim()) {
       case '1': {
         const newValue = prompt(
-          `Enter the new value for all rows in the "${selectedColumn.header}" column:`
+          `Enter new value for all rows in the "${selectedColumn.header}" column:`
         );
 
         if (newValue != null) {
@@ -477,7 +494,7 @@ export class IndexComponent {
 
           if (startIndex !== -1 && endIndex !== -1 && startIndex <= endIndex) {
             const newValue = prompt(
-              `Enter the new value for rows ${startRowNum} to ${endRowNum} in the "${selectedColumn.header}" column:`
+              `Enter new value for rows ${startRowNum} to ${endRowNum} in the "${selectedColumn.header}" column:`
             );
 
             if (newValue !== null) {
@@ -508,10 +525,10 @@ export class IndexComponent {
     if(!this.isAdmin()) return;
 
     if (this.editingMode) {
-      const requiredFields = this.tableColumns.map((colm) => colm.field);
+      const requiredFields = this.tableColumns.map((colm: { field: any; }) => colm.field);
 
       const inValidRows = this.tableData.filter((row) => {
-        return requiredFields.some((field) => !row[field] || row[field].toString().trim() === '');
+        return requiredFields.some((field: string | number) => !row[field] || row[field].toString().trim() === '');
       });
 
       if (inValidRows.length > 0) {
