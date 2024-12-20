@@ -4,7 +4,6 @@ import { Router, RouterModule, RouterOutlet } from '@angular/router';
 // import { NavbarComponent } from './navbar/navbar.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
-import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -16,7 +15,6 @@ import { CommonModule } from '@angular/common';
     RouterModule,
     MatButtonModule,
     MatDialogModule,
-    MatInputModule
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],

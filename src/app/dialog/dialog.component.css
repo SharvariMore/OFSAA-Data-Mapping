@@ -16,3 +16,7 @@
 button:hover {
   background-color: #035493;
 }
+
+.mat-dialog-content {
+  white-space: pre-line !important; /* Ensures line breaks in plain text */
+}

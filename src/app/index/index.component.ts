@@ -7,6 +7,7 @@ import { NgxPaginationModule } from 'ngx-pagination';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { DialogComponent } from '../dialog/dialog.component';
+import { firstValueFrom } from 'rxjs';
 
 export interface TableRow {
   [key: string]: string | number | boolean | any; // Allow dynamic keys
@@ -142,6 +143,32 @@ export class IndexComponent {
     });
   }
 
+  async openInputDialog(
+    title: string,
+    message: string,
+    inputLabel: string = '',
+    inputValue: string = '',
+    selectLabel: string = '',
+    options: string[] = [],
+    selectedOption: string = ''
+  ): Promise<string | null> {
+    const dialogRef = this.dialog.open(DialogComponent, {
+      data: {
+        title,
+        message,
+        input: !!inputLabel,
+        inputLabel,
+        inputValue,
+        selectLabel,
+        options,
+        selectedOption,
+      },
+    });
+
+    // return dialogRef.afterClosed().toPromise();
+    return firstValueFrom(dialogRef.afterClosed());
+  }
+
   ngOnInit(): void {
     this.updatePaginatedData();
   }
@@ -182,11 +209,21 @@ export class IndexComponent {
     return false;
   }
 
-  addData() {
+  async addData() {
     if (!this.isAdmin()) return;
 
-    const insertOption = prompt(
-      'Where do you want to insert the new row?\n1. At the beginning\n2. At the end\n3. In between\nEnter the number (1, 2, or 3):'
+    // const insertOption = await this.openInputDialog( 'Insert Row',
+    //   'Where do you want to insert the new row?\n\n1. At the beginning\n2. At the end\n3. In between',
+    //    'Enter the number (1, 2, or 3):'
+    // );
+    const insertOption = await this.openInputDialog(
+      'Insert Row',
+      'Where do you want to insert the new row?',
+      '',
+      '',
+      'Select Any Option:',
+      ['At the beginning', 'At the end', 'In between'],
+      'At the beginning'
     );
 
     if (!insertOption) return;
@@ -215,28 +252,33 @@ export class IndexComponent {
     };
 
     switch (insertOption.trim()) {
-      case '1': {
+      case 'At the beginning': {
         this.tableData.unshift(newRow);
         this.openDialog('New Row Added At Beginning! You can now Edit it.');
         break;
       }
 
-      case '2': {
+      case 'At the end': {
         this.tableData.push(newRow);
         this.openDialog('New Row Added At End! You can now Edit it.');
         break;
       }
 
-      case '3': {
-        const position = prompt(
-          `Enter the position (1 to ${this.tableData.length}) where you want to insert the new row:`
+      case 'In between': {
+        const position = await this.openInputDialog(
+          'Select Position',
+          `Enter the position (1 to ${this.tableData.length}) where you want to insert the new row:`,
+          'Position',
+          '',
         );
 
         if (position) {
           const index = Number(position) - 1;
           if (index >= 0 && index <= this.tableData.length) {
             this.tableData.splice(index, 0, newRow);
-            this.openDialog(`New Row Added at ${index + 1}! You can now Edit it.`);
+            this.openDialog(
+              `New Row Added at ${index + 1}! You can now Edit it.`
+            );
           } else {
             this.openDialog('Invalid Position!');
           }
@@ -288,7 +330,9 @@ export class IndexComponent {
       this.openDialog('All Rows Saved Successfully!');
     } else {
       this.editingMode = true;
-      this.openDialog('You can edit rows now. Click "Save" again to finalize changes.');
+      this.openDialog(
+        'You can edit rows now. Click "Save" again to finalize changes.'
+      );
     }
   }
 
@@ -354,7 +398,9 @@ export class IndexComponent {
     row[column.field + '_dirty'] = newValue !== '';
 
     console.log(`Updated column '${column.field}' with value: ${newValue}`);
-    this.openDialog(`Data for column '${column.header}' Added with value: ${newValue}!`);
+    this.openDialog(
+      `Data for column '${column.header}' Added with value: ${newValue}!`
+    );
   }
 
   editData(row: TableRow): void {
@@ -370,18 +416,26 @@ export class IndexComponent {
     }
   }
 
-  deleteRow() {
+  async deleteRow() {
     if (!this.isAdmin()) return;
 
-    const deleteOption = prompt(
-      'Choose an option for deletion:\n1. Delete a specific row\n2. Delete a range of rows\n3. Delete all rows\nEnter the number (1, 2, or 3):'
+    const deleteOption = await this.openInputDialog('Delete Row',
+      'Choose an option for deletion:',
+      '',
+      '',
+      'Select Any Option',
+      ['Delete a specific row', 'Delete a range of rows', 'Delete all rows'],
+      'Delete a specific row'
     );
 
     if (!deleteOption) return;
 
     switch (deleteOption.trim()) {
-      case '1': {
-        const rowNum = prompt('Enter the row number you want to delete: ');
+      case 'Delete a specific row': {
+        const rowNum = await this.openInputDialog('Select Position',
+          'Enter the row number you want to delete: ',
+        'Row Number',
+        '');
         if (rowNum) {
           const rowIndex = this.tableData.findIndex(
             (row) => row.srNo === Number(rowNum)
@@ -399,11 +453,13 @@ export class IndexComponent {
         break;
       }
 
-      case '2': {
+      case 'Delete a range of rows': {
         // const startRowNum = prompt('Enter the starting row number: ');
         // const endRowNum = prompt('Enter the ending row number: ');
-        const rangeInput = prompt(
-          'Enter the starting and ending row numbers (separated by hyphen [-] ):'
+        const rangeInput = await this.openInputDialog('Select Range',
+          'Enter the starting and ending row numbers (separated by hyphen [-] ):',
+          'Range',
+          '',
         );
         if (rangeInput) {
           const [startRowNum, endRowNum] = rangeInput
@@ -420,7 +476,9 @@ export class IndexComponent {
             this.tableData.splice(startIndex, endIndex - startIndex + 1);
             this.cdr.detectChanges();
             this.saveToStorage('tableData', this.tableData);
-            this.openDialog(`Rows ${startRowNum} to ${endRowNum} Deleted SuccessFully!`);
+            this.openDialog(
+              `Rows ${startRowNum} to ${endRowNum} Deleted SuccessFully!`
+            );
           } else {
             this.openDialog('Invalid Series of Row Numbers!');
           }
@@ -428,7 +486,7 @@ export class IndexComponent {
         break;
       }
 
-      case '3': {
+      case 'Delete all rows': {
         const rowAllDelete = confirm(
           'Are you sure you want to delete all rows? This action cannot be undone.'
         );
@@ -463,11 +521,13 @@ export class IndexComponent {
     this.paginatedData = this.tableData.slice(startPage, endPage);
   }
 
-  editColumnData() {
+  async editColumnData() {
     if (!this.isAdmin()) return;
 
-    const colmnToEdit = prompt(
-      `Select a column to Edit by Entering it's Header Name:\n`
+    const colmnToEdit = await this.openInputDialog('Edit Row',
+      `Select a column to Edit by Entering it's Header Name:\n`,
+      'Header Name',
+      '',
     );
     // ${this.tableColumns.map((col) => col.header).join(', ')}`);
 
@@ -483,7 +543,7 @@ export class IndexComponent {
       return;
     }
 
-    const editOption = prompt(
+    const editOption = (
       `Choose an option for Editing "${selectedColumn.header}":\n1. Edit all rows\n2. Edit a series of rows\nEnter the number (1 or 2):`
     );
 
@@ -570,7 +630,9 @@ export class IndexComponent {
       });
 
       if (inValidRows.length > 0) {
-        this.openDialog('Please fill in All Missing Column Data Before Saving!');
+        this.openDialog(
+          'Please fill in All Missing Column Data Before Saving!'
+        );
         return;
       }
 

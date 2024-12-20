@@ -1,5 +1,20 @@
-<h1 mat-dialog-title>{{ data?.title }}</h1>
-<div mat-dialog-content>{{ data?.message }}</div>
+<h1 mat-dialog-title>{{ data.title }}</h1>
+<div mat-dialog-content>
+  <p>{{ data.message }}</p>
+  <mat-form-field appearance="fill" *ngIf="data.input">
+    <mat-label>{{ data.inputLabel }}</mat-label>
+    <input matInput [(ngModel)]="data.inputValue" />
+  </mat-form-field>
+
+  <mat-form-field appearance="fill" *ngIf="data.options && data.options.length > 0">
+    <mat-label>{{ data.selectLabel }}</mat-label>
+    <mat-select [(value)]="data.selectedOption">
+      <mat-option *ngFor="let option of data.options" [value]="option">{{ option }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
 <div mat-dialog-actions>
-  <button mat-button [mat-dialog-close]="true">OK</button>
+  <!-- <button mat-button [mat-dialog-close]="true">OK</button> -->
+  <button mat-button *ngIf="data.input || data.selectLabel" (click)="onCancel()">Cancel</button>
+  <button mat-button color="primary" (click)="onConfirm()">OK</button>
 </div>
