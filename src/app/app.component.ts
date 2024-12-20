@@ -5,6 +5,9 @@ import { Router, RouterModule, RouterOutlet } from '@angular/router';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-root',
@@ -15,6 +18,9 @@ import { CommonModule } from '@angular/common';
     RouterModule,
     MatButtonModule,
     MatDialogModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    FormsModule,
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],

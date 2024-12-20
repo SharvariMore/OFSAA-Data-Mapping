@@ -2,18 +2,20 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class RoleService {
   // private role: 'user' | 'admin' | undefined;
 
   // Use BehaviorSubject to maintain and observe the role
-  private roleSubject = new BehaviorSubject<'User' | 'Admin' | undefined>(undefined);
+  private roleSubject = new BehaviorSubject<'User' | 'Admin' | undefined>(
+    undefined
+  );
 
   // Observable to expose current role
   role$ = this.roleSubject.asObservable();
 
-  getRole(): 'User' | 'Admin' | undefined{
+  getRole(): 'User' | 'Admin' | undefined {
     // return this.role;
     return this.roleSubject.getValue();
   }
@@ -28,5 +30,4 @@ export class RoleService {
     const newRole = currentRole === 'User' ? 'Admin' : 'User';
     this.roleSubject.next(newRole);
   }
-
 }

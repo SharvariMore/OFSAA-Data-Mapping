@@ -269,7 +269,7 @@ export class IndexComponent {
           'Select Position',
           `Enter the position (1 to ${this.tableData.length}) where you want to insert the new row:`,
           'Position',
-          '',
+          ''
         );
 
         if (position) {
@@ -419,7 +419,8 @@ export class IndexComponent {
   async deleteRow() {
     if (!this.isAdmin()) return;
 
-    const deleteOption = await this.openInputDialog('Delete Row',
+    const deleteOption = await this.openInputDialog(
+      'Delete Row',
       'Choose an option for deletion:',
       '',
       '',
@@ -432,10 +433,12 @@ export class IndexComponent {
 
     switch (deleteOption.trim()) {
       case 'Delete a specific row': {
-        const rowNum = await this.openInputDialog('Select Position',
+        const rowNum = await this.openInputDialog(
+          'Select Position',
           'Enter the row number you want to delete: ',
-        'Row Number',
-        '');
+          'Row Number',
+          ''
+        );
         if (rowNum) {
           const rowIndex = this.tableData.findIndex(
             (row) => row.srNo === Number(rowNum)
@@ -456,10 +459,11 @@ export class IndexComponent {
       case 'Delete a range of rows': {
         // const startRowNum = prompt('Enter the starting row number: ');
         // const endRowNum = prompt('Enter the ending row number: ');
-        const rangeInput = await this.openInputDialog('Select Range',
+        const rangeInput = await this.openInputDialog(
+          'Select Range',
           'Enter the starting and ending row numbers (separated by hyphen [-] ):',
           'Range',
-          '',
+          ''
         );
         if (rangeInput) {
           const [startRowNum, endRowNum] = rangeInput
@@ -524,10 +528,11 @@ export class IndexComponent {
   async editColumnData() {
     if (!this.isAdmin()) return;
 
-    const colmnToEdit = await this.openInputDialog('Edit Row',
+    const colmnToEdit = await this.openInputDialog(
+      'Edit Row',
       `Select a column to Edit by Entering it's exact Header Name: `,
       'Header Name',
-      '',
+      ''
     );
     // ${this.tableColumns.map((col) => col.header).join(', ')}`);
 
@@ -549,18 +554,19 @@ export class IndexComponent {
       '',
       '',
       'Select Any Option: ',
-       ['Edit All rows', 'Edit a Series of Rows'],
-       'Edit All rows'
+      ['Edit All rows', 'Edit a Series of Rows'],
+      'Edit All rows'
     );
 
     if (!editOption) return;
 
     switch (editOption.trim()) {
       case 'Edit All rows': {
-        const newValue = await this.openInputDialog('Enter Value',
+        const newValue = await this.openInputDialog(
+          'Enter Value',
           `Enter new value for all rows in the "${selectedColumn.header}" column:`,
           'Value',
-          '',
+          ''
         );
 
         if (newValue != null) {
@@ -578,10 +584,11 @@ export class IndexComponent {
       }
 
       case 'Edit a Series of Rows': {
-        const rangeInput = await this.openInputDialog('Select Series',
+        const rangeInput = await this.openInputDialog(
+          'Select Series',
           `Enter the starting and ending row numbers (separated by a hyphen [-]) to edit in the "${selectedColumn.header}" column:`,
           'Series',
-          '',
+          ''
         );
 
         if (rangeInput) {
@@ -596,10 +603,11 @@ export class IndexComponent {
           );
 
           if (startIndex !== -1 && endIndex !== -1 && startIndex <= endIndex) {
-            const newValue = await this.openInputDialog('Enter Value',
+            const newValue = await this.openInputDialog(
+              'Enter Value',
               `Enter new value for rows ${startRowNum} to ${endRowNum} in the "${selectedColumn.header}" column:`,
               'Value',
-              '',
+              ''
             );
 
             if (newValue !== null) {

@@ -1,7 +1,8 @@
 .index {
   padding: 2rem;
   text-align: center;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
 }
 
 button {
@@ -58,7 +59,6 @@ button:hover {
   font-size: 15px;
   border-radius: 5px;
   border: 1px solid #ccc;
-
 }
 
 .search-column-dropdown {
@@ -66,7 +66,6 @@ button:hover {
   padding: 5px;
   font-size: 16px;
   cursor: pointer;
-
 }
 
 .search-column-dropdown option {
@@ -79,7 +78,6 @@ button:hover {
   color: white;
   width: 100px;
 }
-
 
 .nodata {
   font-size: 16px;
@@ -96,7 +94,8 @@ table {
   border-collapse: collapse;
 }
 
-th, td {
+th,
+td {
   border: 1px solid #ddd;
   padding: 8px;
   white-space: nowrap;
@@ -145,7 +144,8 @@ input {
 input.no-border {
   border: none;
   background-color: rgba(255, 255, 255, 0.801);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   font-size: 16px;
 }
 
@@ -154,7 +154,7 @@ input.input-default {
   border: 1px solid #ccc;
 }
 
-.dropdownstyle{
+.dropdownstyle {
   border: 1px solid #ccc;
   padding: 8px;
   border-radius: 5px;
@@ -178,7 +178,6 @@ input.input-default {
   display: flex;
   justify-content: flex-end;
 }
-
 
 @media (max-width: 768px) {
   .table-container table {
@@ -208,10 +207,8 @@ input.input-default {
     margin-top: 16px;
   }
 
-  .column-button{
+  .column-button {
     flex-direction: column;
     align-items: stretch;
   }
-
 }
-

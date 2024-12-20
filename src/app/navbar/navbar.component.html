@@ -8,22 +8,21 @@
   <ul class="nav-links" [class.active]="isNavbarOpen">
     <li><a routerLink="/index" routerLinkActive="active">Index</a></li>
     <li><a routerLink="/changelog" routerLinkActive="active">Change Log</a></li>
-    <li><a routerLink="/data-mapping-rule" routerLinkActive="active">Data Mapping Rule</a></li>
+    <li>
+      <a routerLink="/data-mapping-rule" routerLinkActive="active"
+        >Data Mapping Rule</a
+      >
+    </li>
   </ul>
   <!-- <span>{{currentRole}}</span> -->
-  <div class="role-container" [ngClass]="{ 'hidden': isNavbarOpen }">
+  <div class="role-container" [ngClass]="{ hidden: isNavbarOpen }">
     <!-- <i class="fa-regular fa-user"></i> -->
-    <span
-      class="current-role"
-      (click)="toggleDropdown()">
-      <i class="fa-regular fa-user"></i>   {{ currentRole || 'Guest' }}
+    <span class="current-role" (click)="toggleDropdown()">
+      <i class="fa-regular fa-user"></i> {{ currentRole || "Guest" }}
     </span>
 
-    <div
-      *ngIf="dropdownOpen"
-      class="dropdown">
-      <span
-        (click)="toggleRole()">
+    <div *ngIf="dropdownOpen" class="dropdown">
+      <span (click)="toggleRole()">
         {{ getOtherRole() }}
       </span>
     </div>

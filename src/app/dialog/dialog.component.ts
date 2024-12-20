@@ -10,21 +10,32 @@ import { MatSelectModule } from '@angular/material/select';
 @Component({
   selector: 'app-dialog',
   standalone: true,
-  imports: [MatDialogModule, MatInputModule, MatFormFieldModule, MatSelectModule, FormsModule, CommonModule],
+  imports: [
+    MatDialogModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    FormsModule,
+    CommonModule,
+  ],
   templateUrl: './dialog.component.html',
-  styleUrl: './dialog.component.css'
+  styleUrl: './dialog.component.css',
 })
 export class DialogComponent {
-  constructor(public dialogRef: MatDialogRef<DialogComponent>, @Inject(MAT_DIALOG_DATA) public data: {
-     title: string;
+  constructor(
+    public dialogRef: MatDialogRef<DialogComponent>,
+    @Inject(MAT_DIALOG_DATA)
+    public data: {
+      title: string;
       message: string;
       input?: boolean;
       inputLabel?: string;
       inputValue?: string;
-      selectLabel?: string;  // Optional label for the select dropdown
-      options?: string[];    // List of options for the select dropdown
+      selectLabel?: string; // Optional label for the select dropdown
+      options?: string[]; // List of options for the select dropdown
       selectedOption?: string;
-  }) {}
+    }
+  ) {}
 
   onCancel(): void {
     this.dialogRef.close(null);
@@ -44,5 +55,4 @@ export class DialogComponent {
       this.dialogRef.close(true);
     }
   }
-
 }

@@ -6,15 +6,26 @@
     <input matInput [(ngModel)]="data.inputValue" />
   </mat-form-field>
 
-  <mat-form-field appearance="fill" *ngIf="data.options && data.options.length > 0">
+  <mat-form-field
+    appearance="fill"
+    *ngIf="data.options && data.options.length > 0"
+  >
     <mat-label>{{ data.selectLabel }}</mat-label>
     <mat-select [(value)]="data.selectedOption">
-      <mat-option *ngFor="let option of data.options" [value]="option">{{ option }}</mat-option>
+      <mat-option *ngFor="let option of data.options" [value]="option">{{
+        option
+      }}</mat-option>
     </mat-select>
   </mat-form-field>
 </div>
 <div mat-dialog-actions>
-  <button mat-button *ngIf="!data.input && !data.selectLabel" [mat-dialog-close]="true">OK</button>
+  <button
+    mat-button
+    *ngIf="!data.input && !data.selectLabel"
+    [mat-dialog-close]="true"
+  >
+    OK
+  </button>
 
   <!-- Show Cancel and Confirm buttons for input/select dialogs -->
   <ng-container *ngIf="data.input || data.selectLabel">

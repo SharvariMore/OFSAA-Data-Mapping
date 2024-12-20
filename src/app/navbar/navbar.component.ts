@@ -8,7 +8,7 @@ import { RoleService } from '../role.service';
   standalone: true,
   imports: [RouterModule, CommonModule],
   templateUrl: './navbar.component.html',
-  styleUrl: './navbar.component.css'
+  styleUrl: './navbar.component.css',
 })
 export class NavbarComponent {
   isNavbarOpen: boolean = false;
