@@ -1,5 +1,13 @@
+.mat-mdc-dialog-title {
+  text-align: center !important;
+}
+
+.mat-mdc-dialog-content {
+  text-align: center;
+}
+
 .mat-mdc-dialog-actions {
-  justify-content: center !important;
+  justify-content: space-evenly !important;
 }
 
 .mat-mdc-dialog-actions > button {

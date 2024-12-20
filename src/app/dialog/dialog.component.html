@@ -14,7 +14,11 @@
   </mat-form-field>
 </div>
 <div mat-dialog-actions>
-  <!-- <button mat-button [mat-dialog-close]="true">OK</button> -->
-  <button mat-button *ngIf="data.input || data.selectLabel" (click)="onCancel()">Cancel</button>
-  <button mat-button color="primary" (click)="onConfirm()">OK</button>
+  <button mat-button *ngIf="!data.input && !data.selectLabel" [mat-dialog-close]="true">OK</button>
+
+  <!-- Show Cancel and Confirm buttons for input/select dialogs -->
+  <ng-container *ngIf="data.input || data.selectLabel">
+    <button mat-button (click)="onCancel()">Cancel</button>
+    <button mat-button color="primary" (click)="onConfirm()">Confirm</button>
+  </ng-container>
 </div>

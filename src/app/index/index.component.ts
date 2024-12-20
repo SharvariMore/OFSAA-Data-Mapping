@@ -289,7 +289,7 @@ export class IndexComponent {
       }
 
       default:
-        this.openDialog('Invalid option! Please enter 1, 2, or 3.');
+        this.openDialog('Invalid option!');
         break;
     }
 
@@ -500,7 +500,7 @@ export class IndexComponent {
       }
 
       default:
-        this.openDialog('Invalid option! Please enter 1, 2, or 3.');
+        this.openDialog('Invalid option!');
         break;
     }
   }
@@ -525,7 +525,7 @@ export class IndexComponent {
     if (!this.isAdmin()) return;
 
     const colmnToEdit = await this.openInputDialog('Edit Row',
-      `Select a column to Edit by Entering it's Header Name:\n`,
+      `Select a column to Edit by Entering it's exact Header Name: `,
       'Header Name',
       '',
     );
@@ -543,16 +543,24 @@ export class IndexComponent {
       return;
     }
 
-    const editOption = (
-      `Choose an option for Editing "${selectedColumn.header}":\n1. Edit all rows\n2. Edit a series of rows\nEnter the number (1 or 2):`
+    const editOption = await this.openInputDialog(
+      'Select Editing Option',
+      `Choose an option for Editing "${selectedColumn.header}":`,
+      '',
+      '',
+      'Select Any Option: ',
+       ['Edit All rows', 'Edit a Series of Rows'],
+       'Edit All rows'
     );
 
     if (!editOption) return;
 
     switch (editOption.trim()) {
-      case '1': {
-        const newValue = prompt(
-          `Enter new value for all rows in the "${selectedColumn.header}" column:`
+      case 'Edit All rows': {
+        const newValue = await this.openInputDialog('Enter Value',
+          `Enter new value for all rows in the "${selectedColumn.header}" column:`,
+          'Value',
+          '',
         );
 
         if (newValue != null) {
@@ -569,9 +577,11 @@ export class IndexComponent {
         break;
       }
 
-      case '2': {
-        const rangeInput = prompt(
-          `Enter the starting and ending row numbers (separated by a hyphen [-]) to edit in the "${selectedColumn.header}" column:`
+      case 'Edit a Series of Rows': {
+        const rangeInput = await this.openInputDialog('Select Series',
+          `Enter the starting and ending row numbers (separated by a hyphen [-]) to edit in the "${selectedColumn.header}" column:`,
+          'Series',
+          '',
         );
 
         if (rangeInput) {
@@ -586,8 +596,10 @@ export class IndexComponent {
           );
 
           if (startIndex !== -1 && endIndex !== -1 && startIndex <= endIndex) {
-            const newValue = prompt(
-              `Enter new value for rows ${startRowNum} to ${endRowNum} in the "${selectedColumn.header}" column:`
+            const newValue = await this.openInputDialog('Enter Value',
+              `Enter new value for rows ${startRowNum} to ${endRowNum} in the "${selectedColumn.header}" column:`,
+              'Value',
+              '',
             );
 
             if (newValue !== null) {
@@ -609,7 +621,7 @@ export class IndexComponent {
       }
 
       default:
-        this.openDialog('Invalid option! Please enter 1 or 2.');
+        this.openDialog('Invalid option!');
         break;
     }
   }
