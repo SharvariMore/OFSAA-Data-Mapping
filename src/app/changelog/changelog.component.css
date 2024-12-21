@@ -29,6 +29,27 @@ button:hover {
 }
 
 .admin-control button {
+   padding: 10px 20px; 
+  font-size: 16px;
+  background-color: #071975;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 15px;
+  transition: background-color 0.3s;
+}
+
+.admin-control button:hover {
+  background-color: #035493;
+}
+
+.deleteButton{
+  margin-top: 2rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.deleteButton button{
   padding: 10px 20px;
   font-size: 16px;
   background-color: #071975;
@@ -39,15 +60,18 @@ button:hover {
   transition: background-color 0.3s;
 }
 
-.admin-control button:hover {
+.deleteButton:hover{
   background-color: #035493;
 }
-
 .search-content {
   margin-bottom: 20px;
   /*display: flex;
   align-items: center;
   gap: 10px;  Adds spacing between the label and input */
+}
+
+button i {
+  margin-right: 5px; /* Add space between icon and text */
 }
 
 .search-content input {
@@ -68,6 +92,13 @@ button:hover {
 .nodata {
   font-size: 16px;
   font-weight: bolder;
+}
+
+.table-container-scroll {
+  max-height: 400px; /* Set the maximum height for the table */
+  overflow-y: auto; /* Enable vertical scrolling */
+  overflow-x: auto; /* Enable horizontal scrolling if needed */
+  border: 1px solid #ddd; /* Optional: Add a border around the container */
 }
 
 table {
@@ -212,3 +243,71 @@ th {
 .pagination-controls .ngx-pagination a:hover {
   text-decoration: underline;
 }
+
+/* General button styles */
+button {
+  margin: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+  background-color: #071975;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #035493;
+}
+
+/* Flex container for toggle and action buttons */
+.button-container {
+  display: flex;
+  align-items: center; /* Vertically align buttons */
+  gap: 10px; /* Space between the toggle and action buttons */
+}
+
+/* Style for the toggle button */
+.icon-button {
+  background: none;
+  border: none;
+  color: #071975;
+  font-size: 1.5rem; /* Adjust icon size */
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: color 0.3s;
+}
+
+.icon-button:hover {
+  color: #035493;
+}
+
+.icon-button i {
+  vertical-align: middle; /* Align icon properly */
+}
+
+/* Style for action buttons */
+.action-buttons button {
+  margin: 0;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  background-color: #071975;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.action-buttons button:hover {
+  background-color: #035493;
+}
+
+.action-buttons button i {
+  margin-right: 5px; /* Space between icon and text */
+  vertical-align: middle;
+}
+
+
+

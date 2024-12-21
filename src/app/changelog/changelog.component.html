@@ -32,21 +32,39 @@
   </div>
 
   <div *ngIf="isAdmin()" class="admin-control">
-    <div>
+    <div class="button-container">
+    <button (click)="toggleButtonsVisibility()" class="icon-button">
+      <i class="material-icons">{{ isButtonsVisible ? 'remove' : 'add' }}</i>
+    </button>
+    <div *ngIf="isButtonsVisible">
        <button (click)="addChange()">Add New Row</button>
        <button (click)="saveNewRow()">Save All Rows</button>
-      <!-- <button (click)="deleteRow()">Delete Row</button> -->
+       <button *ngIf="isAdmin()" (click)="deleteSelectedRows()" [disabled]="!selectedRows.length">
+        <i class="fas fa-trash"></i>
+      </button> 
     </div>
-   
-
-    <div *ngIf="isAdmin()" class="admin-column">
+  </div>
+    <!-- <div *ngIf="isAdmin()" class="admin-column">
+      <button (click)="editColumnData()">Edit Column Data</button>
+      <button (click)="saveAllColumns()">Save All Columns</button>
       <button (click)="addColumn()">Add New Column</button>
       <input type="text" class="input-column" [(ngModel)]="newColumnName" placeholder=" Enter New Column Name" />
+    </div> -->
+    <div class="button-container">
+      <div *ngIf="isColumnActionsVisible">
+        <button (click)="editColumnData()">Edit Column Data</button>
+        <button (click)="saveAllColumns()">Save All Columns</button>
+        <button (click)="addColumn()">Add New Column</button>
+        <input type="text" class="input-column" [(ngModel)]="newColumnName" placeholder="Enter New Column Name" />
+      </div>
+      <button (click)="toggleColumnActionsVisibility()" class="icon-button">
+        <i class="material-icons">{{ isColumnActionsVisible ? 'remove' : 'add' }}</i>
+      </button>
     </div>
   </div>
 
 
-  <div class="table-container">
+  <div class="table-container-scroll">
   <table *ngIf="filteredData().length > 0">
     <thead>
       <tr> 
@@ -219,11 +237,12 @@
       
         <!-- Column 13: Edit/Save Button -->
         <td *ngIf="isAdmin()">
-          <div>
-            <button (click)="editChange(row)">{{ editingRow === row ? 'Save' : 'Edit' }}</button>
+          <div>  
+              <button (click)="editChange(row)" class="icon-button">
+                  <i class="material-icons">{{ editingRow === row ? 'save' : 'edit' }}</i>
+              </button>         
           </div>
-        </td>
-      
+        </td>      
       </tr>
         
     </tbody>
@@ -236,11 +255,11 @@
     (pageChange)="currentPage = $event"
     ></pagination-controls>
   </div>
-  <div *ngIf="isAdmin()" class="column-button">
-    <button (click)="editColumnData()">Edit Column Data</button>
-    <button (click)="saveAllColumns()">Save All Columns</button>
-      <button *ngIf="isAdmin()" (click)="deleteSelectedRows()" [disabled]="!selectedRows.length">
-        Delete
-      </button>
-  </div>
+   <div *ngIf="isAdmin()" class="column-button">
+    <button (click)="exportToExcel()">Export</button>
+    <!-- <button (click)="saveAllColumns()">Save All Columns</button>
+    <button *ngIf="isAdmin()" (click)="deleteSelectedRows()" [disabled]="!selectedRows.length">
+      <i class="fas fa-trash"></i>
+    </button> -->
+  </div> 
 </div>

@@ -42,6 +42,8 @@ export class ChangelogComponent {
   verifiedOptions: string[] = ['Yes','No'];
   selected: any;
   selectedRows: any[] = [];
+  isButtonsVisible: boolean = false;
+  isColumnActionsVisible: boolean = false;
   selectAll = false; 
   tableData: TableRow[] = [
     {
@@ -526,6 +528,9 @@ export class ChangelogComponent {
     }
   }
 
+  exportToExcel() : void{
+    
+  }
 
 // Toggles the 'selected' property for all rows when 'Select All' is checked
 toggleSelectAll(): void {
@@ -572,9 +577,16 @@ deleteSelectedRows(): void {
     this.updatePaginatedData();
     this.cdr.detectChanges();
 
-    alert('Selected rows deleted successfully!');
+   // alert('Selected rows deleted successfully!');
   }
 }
 
+toggleButtonsVisibility() {
+  this.isButtonsVisible = !this.isButtonsVisible;
+}
+
+toggleColumnActionsVisibility() {
+  this.isColumnActionsVisible = !this.isColumnActionsVisible;
+}
 
 }
