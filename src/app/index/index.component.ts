@@ -7,7 +7,7 @@ import { NgxPaginationModule } from 'ngx-pagination';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { DialogComponent } from '../dialog/dialog.component';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, range } from 'rxjs';
 
 export interface TableRow {
   [key: string]: string | number | boolean | any; // Allow dynamic keys
@@ -108,7 +108,9 @@ export class IndexComponent {
     },
   ];
 
-  tableColumns = this.loadFromStorage('tableColumns') || [
+  tableColumns: Array<{ header: string; field: string }> = this.loadFromStorage(
+    'tableColumns'
+  ) || [
     { header: 'Sr. No.', field: 'srNo' },
     { header: 'TFS Req.', field: 'tfsReq' },
     { header: 'Release', field: 'release' },
@@ -130,6 +132,9 @@ export class IndexComponent {
     { header: 'Used in CCAR', field: 'usedInCCAR' },
     { header: 'Used in AXIOM', field: 'usedInAXIOM' },
   ];
+
+  tableColumnsBackup: Array<{ header: string; field: string }> | null = null;
+  tableDataBackup: any[] | null = null;
 
   constructor(
     private roleService: RoleService,
@@ -173,9 +178,9 @@ export class IndexComponent {
     this.updatePaginatedData();
   }
 
-  saveToStorage(key: string, data: any): void {
-    localStorage.setItem(key, JSON.stringify(data));
-  }
+  // saveToStorage(key: string, data: any): void {
+  //   localStorage.setItem(key, JSON.stringify(data));
+  // }
 
   loadFromStorage(key: string): any {
     const data = localStorage.getItem(key);
@@ -218,12 +223,12 @@ export class IndexComponent {
     // );
     const insertOption = await this.openInputDialog(
       'Insert Row',
-      'Where do you want to insert the new row?',
+      'Where do you want to Insert the New Row?',
       '',
       '',
       'Select Any Option:',
-      ['At the beginning', 'At the end', 'In between'],
-      'At the beginning'
+      ['At the Beginning', 'At the End', 'In Between'],
+      'At the Beginning'
     );
 
     if (!insertOption) return;
@@ -252,22 +257,22 @@ export class IndexComponent {
     };
 
     switch (insertOption.trim()) {
-      case 'At the beginning': {
+      case 'At the Beginning': {
         this.tableData.unshift(newRow);
         this.openDialog('New Row Added At Beginning! You can now Edit it.');
         break;
       }
 
-      case 'At the end': {
+      case 'At the End': {
         this.tableData.push(newRow);
         this.openDialog('New Row Added At End! You can now Edit it.');
         break;
       }
 
-      case 'In between': {
+      case 'In Between': {
         const position = await this.openInputDialog(
           'Select Position',
-          `Enter the position (1 to ${this.tableData.length}) where you want to insert the new row:`,
+          `Enter the Position (1 to ${this.tableData.length}) where you want to Insert New Row:`,
           'Position',
           ''
         );
@@ -331,7 +336,7 @@ export class IndexComponent {
     } else {
       this.editingMode = true;
       this.openDialog(
-        'You can edit rows now. Click "Save" again to finalize changes.'
+        'You can Edit rows now. Click "Save" again to finalize changes.'
       );
     }
   }
@@ -359,7 +364,8 @@ export class IndexComponent {
         return;
       }
 
-      this.tableColumns.push(newColumn);
+      // this.tableColumns.push(newColumn);
+      this.tableColumns = [...this.tableColumns, newColumn];
 
       //add new column to table with empty value
       this.tableData.forEach((row) => {
@@ -380,13 +386,13 @@ export class IndexComponent {
 
   saveColumnData(row: TableRow, column: any, event: Event) {
     if (!row || !column || !column.field) {
-      this.openDialog('Invalid row or column data');
+      this.openDialog('Invalid Row or Column data!');
       return;
     }
 
     const inputElement = event.target as HTMLInputElement;
     if (!inputElement || inputElement.value === undefined) {
-      this.openDialog('Invalid input element');
+      this.openDialog('Invalid Input Element!');
       return;
     }
 
@@ -397,10 +403,9 @@ export class IndexComponent {
     // this.newColumnAdded = false;
     row[column.field + '_dirty'] = newValue !== '';
 
-    console.log(`Updated column '${column.field}' with value: ${newValue}`);
-    this.openDialog(
-      `Data for column '${column.header}' Added with value: ${newValue}!`
-    );
+    // this.openDialog(
+    //   `Data for column '${column.header}' Added with value: ${newValue}!`
+    // );
   }
 
   editData(row: TableRow): void {
@@ -421,11 +426,16 @@ export class IndexComponent {
 
     const deleteOption = await this.openInputDialog(
       'Delete Row',
-      'Choose an option for deletion:',
+      'Choose an option for Deletion:',
       '',
       '',
       'Select Any Option',
-      ['Delete a specific row', 'Delete a range of rows', 'Delete all rows'],
+      [
+        'Delete a specific row',
+        'Delete a range of rows',
+        'Delete multiple rows',
+        'Delete all rows',
+      ],
       'Delete a specific row'
     );
 
@@ -435,7 +445,7 @@ export class IndexComponent {
       case 'Delete a specific row': {
         const rowNum = await this.openInputDialog(
           'Select Position',
-          'Enter the row number you want to delete: ',
+          'Enter the Row Number you want to Delete: ',
           'Row Number',
           ''
         );
@@ -461,7 +471,7 @@ export class IndexComponent {
         // const endRowNum = prompt('Enter the ending row number: ');
         const rangeInput = await this.openInputDialog(
           'Select Range',
-          'Enter the starting and ending row numbers (separated by hyphen [-] ):',
+          'Enter the Starting and Ending Row Numbers (separated by hyphen [-] ):',
           'Range',
           ''
         );
@@ -490,9 +500,46 @@ export class IndexComponent {
         break;
       }
 
+      case 'Delete multiple rows': {
+        const rowsInput = await this.openInputDialog(
+          'Delete Multiple Rows',
+          'Enter the Row Numbers you want to Delete, separated by commas(,):',
+          'Row Numbers',
+          ''
+        );
+
+        if (rowsInput) {
+          const rowNumbers = rowsInput
+            .split(',')
+            .map((num) => Number(num.trim()));
+          const invalidRows = rowNumbers.filter(
+            (num) => !this.tableData.some((row) => row.srNo === num)
+          );
+
+          if (invalidRows.length > 0) {
+            this.openDialog(`Row numbers not found: ${invalidRows.join(', ')}`);
+          } else {
+            this.tableData = this.tableData.filter(
+              (row) => !rowNumbers.includes(row.srNo)
+            );
+            this.cdr.detectChanges();
+            this.saveToStorage('tableData', this.tableData);
+            this.openDialog(
+              `Rows ${rowNumbers.join(', ')} Deleted Successfully!`
+            );
+          }
+        }
+        break;
+      }
+
       case 'Delete all rows': {
-        const rowAllDelete = confirm(
-          'Are you sure you want to delete all rows? This action cannot be undone.'
+        const rowAllDelete = await this.openInputDialog(
+          'Delete Confirmation',
+          'Are you sure you want to delete all rows? This action cannot be undone.',
+          '',
+          '',
+          '',
+          []
         );
         if (rowAllDelete) {
           this.tableData = [];
@@ -575,7 +622,7 @@ export class IndexComponent {
           });
 
           this.openDialog(
-            `All rows in the "${selectedColumn.header}" column updated with value: ${newValue}!`
+            `All rows in the "${selectedColumn.header}" column Updated with value: ${newValue}!`
           );
           this.updatePaginatedData();
           this.cdr.detectChanges();
@@ -586,7 +633,7 @@ export class IndexComponent {
       case 'Edit a Series of Rows': {
         const rangeInput = await this.openInputDialog(
           'Select Series',
-          `Enter the starting and ending row numbers (separated by a hyphen [-]) to edit in the "${selectedColumn.header}" column:`,
+          `Enter the Starting and Ending Row Numbers (separated by a hyphen [-]) to Edit in the "${selectedColumn.header}" column:`,
           'Series',
           ''
         );
@@ -651,7 +698,7 @@ export class IndexComponent {
 
       if (inValidRows.length > 0) {
         this.openDialog(
-          'Please fill in All Missing Column Data Before Saving!'
+          'Please Fill in All Missing Column Data Before Saving!'
         );
         return;
       }
@@ -665,5 +712,236 @@ export class IndexComponent {
         'You can Edit All Columns Now! Click "Save All Columns" Again to Finalize Changes.'
       );
     }
+  }
+
+  backupColumnsBeforeDeletion() {
+    // Backing up the current state of tableColumns and tableData
+    localStorage.setItem(
+      'tableColumnsBackup',
+      JSON.stringify(this.tableColumns)
+    );
+    localStorage.setItem('tableDataBackup', JSON.stringify(this.tableData));
+  }
+
+  async deleteColumn() {
+    if (!this.isAdmin()) return;
+
+    this.backupColumnsBeforeDeletion();
+
+    const deleteOption = await this.openInputDialog(
+      'Delete Column',
+      'Choose an option for column Deletion:',
+      '',
+      '',
+      'Select Any Option',
+      [
+        'Delete a Specific Column',
+        'Delete a Range of Columns',
+        'Delete Multiple Columns',
+      ],
+      'Delete a Specific Column'
+    );
+
+    if (!deleteOption) return;
+
+    switch (deleteOption.trim()) {
+      case 'Delete a Specific Column': {
+        const colName = await this.openInputDialog(
+          'Select Column to Delete',
+          'Enter exact Header Name of the Column you want to Delete: ',
+          'Column Name',
+          ''
+        );
+
+        if (colName) {
+          const columnIndex = this.tableColumns.findIndex(
+            (col: { header: string }) =>
+              col.header.toLowerCase() === colName.toLowerCase()
+          );
+
+          if (columnIndex !== -1) {
+            const columnDelete = this.tableColumns[columnIndex].field;
+
+            this.tableColumns.splice(columnIndex, 1);
+
+            this.tableData.forEach((row) => {
+              delete row[columnDelete];
+            });
+            this.saveToStorage('tableData', this.tableData);
+            this.saveToStorage('tableColumns', this.tableColumns);
+            this.cdr.detectChanges();
+            this.openDialog(`Column "${colName}" Deleted Successfully!`);
+          } else {
+            this.openDialog('Invalid Column!');
+          }
+        }
+        break;
+      }
+
+      case 'Delete a Range of Columns': {
+        const rangeInput = await this.openInputDialog(
+          'Select Range',
+          'Enter the Starting and Ending column headers (separated by hyphen [-]) to Delete: ',
+          'Range',
+          ''
+        );
+
+        if (rangeInput) {
+          const [startColumn, endColumn] = rangeInput
+            .split('-')
+            .map((col) => col.trim());
+
+          const startIndex = this.tableColumns.findIndex(
+            (col: { header: string }) =>
+              col.header.toLowerCase() === startColumn.toLowerCase()
+          );
+          const endIndex = this.tableColumns.findIndex(
+            (col: { header: string }) =>
+              col.header.toLowerCase() === endColumn.toLowerCase()
+          );
+
+          if (startIndex !== -1 && endIndex !== -1 && startIndex <= endIndex) {
+            const columnToDelete = this.tableColumns
+              .splice(startIndex, endIndex + 1)
+              .map((col: { field: any }) => col.field);
+
+            this.tableColumns.splice(startIndex, endIndex - startIndex + 1);
+
+            this.tableData.forEach((row) => {
+              columnToDelete.forEach(
+                (field: string | number) => delete row[field]
+              );
+            });
+            this.saveToStorage('tableData', this.tableData);
+            this.saveToStorage('tableColumns', this.tableColumns);
+            this.cdr.detectChanges();
+            this.openDialog(
+              `Columns from "${startColumn}" to "${endColumn}" Deleted Successfully!`
+            );
+          } else {
+            this.openDialog('Invalid Range of Columns!');
+          }
+        }
+        break;
+      }
+
+      case 'Delete Multiple Columns': {
+        const columnsInput = await this.openInputDialog(
+          'Select Multiple Columns',
+          'Enter the Column Headers separated by comma (,) to Delete: ',
+          'Columns',
+          ''
+        );
+
+        if (columnsInput) {
+          const columnsDelete = columnsInput
+            .split(',')
+            .map((col) => col.trim())
+            .map((colName) => colName.toLowerCase());
+
+          const columnsFields = this.tableColumns
+            .filter((col: { header: string }) =>
+              columnsDelete.includes(col.header.toLowerCase())
+            )
+            .map((col: { field: any }) => col.field);
+
+          if (columnsFields.length > 0) {
+            this.tableColumns = this.tableColumns.filter(
+              (col: { header: string }) =>
+                !columnsDelete.includes(col.header.toLowerCase())
+            );
+
+            this.tableData.forEach((row) => {
+              columnsFields.forEach(
+                (field: string | number) => delete row[field]
+              );
+            });
+            this.saveToStorage('tableData', this.tableData);
+            this.saveToStorage('tableColumns', this.tableColumns);
+            this.cdr.detectChanges();
+            this.openDialog(`Columns "${columnsInput}" Deleted Successfully!`);
+          } else {
+            this.openDialog('Invalid Columns!');
+          }
+        }
+        break;
+      }
+
+      default:
+        this.openDialog('Invalid Option!');
+        break;
+    }
+  }
+
+  async undoDeleteColumn() {
+    // Retrieve the backup of the original columns and data from localStorage
+    const backupTableColumns = JSON.parse(
+      localStorage.getItem('tableColumnsBackup') || '[]'
+    );
+    const backupTableData = JSON.parse(
+      localStorage.getItem('tableDataBackup') || '[]'
+    );
+
+    if (backupTableColumns.length > 0) {
+      // Restore the original tableColumns and tableData
+      this.tableColumns = backupTableColumns;
+      this.tableData = backupTableData;
+
+      // Save the restored state back to localStorage
+      localStorage.setItem('tableColumns', JSON.stringify(this.tableColumns));
+      localStorage.setItem('tableData', JSON.stringify(this.tableData));
+
+      this.cdr.detectChanges();
+
+      this.openDialog('All column Deletions have been undone!');
+    } else {
+      this.loadColumnsFromStorage();
+      this.openDialog('No previous column Deletions Found to undo!');
+    }
+  }
+
+  saveToStorage(key: string, data: any): void {
+    localStorage.setItem(key, JSON.stringify(data));
+  }
+
+  loadColumnsFromStorage() {
+    // Retrieve tableColumns from localStorage
+    const storedTableColumns = JSON.parse(
+      localStorage.getItem('tableColumns') || '[]'
+    );
+
+    if (storedTableColumns.length === 0) {
+      // If not found in localStorage, save default columns
+      const defaultTableColumns = [
+        { header: 'Sr. No.', field: 'srNo' },
+        { header: 'TFS Req.', field: 'tfsReq' },
+        { header: 'Release', field: 'release' },
+        { header: 'OFSAA Physical Names', field: 'ofsaaPhysicalNames' },
+        {
+          header: 'OFSAA Logical Entity Name',
+          field: 'ofsaaLogicalEntityName',
+        },
+        { header: 'Source', field: 'source' },
+        { header: 'Type of Data', field: 'typeOfData' },
+        { header: 'Frequency', field: 'frequency' },
+        { header: 'Load Mode', field: 'loadMode' },
+        { header: 'Load Type', field: 'loadType' },
+        { header: 'Expected Volume', field: 'expectedVolume' },
+        { header: 'Mapping Status', field: 'mappingStatus' },
+        { header: 'ODI Build Status', field: 'odiBuildStatus' },
+        { header: 'Review Status', field: 'reviewStatus' },
+        { header: 'Used in EFRA', field: 'usedInEFRA' },
+        { header: 'Used in CECL', field: 'usedInCECL' },
+        { header: 'Used in AML', field: 'usedInAML' },
+        { header: 'Used in Onestream', field: 'usedInOnestream' },
+        { header: 'Used in CCAR', field: 'usedInCCAR' },
+        { header: 'Used in AXIOM', field: 'usedInAXIOM' },
+      ];
+
+      localStorage.setItem('tableColumns', JSON.stringify(defaultTableColumns));
+    }
+
+    this.tableColumns = storedTableColumns;
+    this.cdr.detectChanges();
   }
 }

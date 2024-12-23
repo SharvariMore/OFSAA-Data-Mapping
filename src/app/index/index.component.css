@@ -151,7 +151,9 @@ input.no-border {
 
 /* Keep the default border if not filled */
 input.input-default {
-  border: 1px solid #ccc;
+  /* border: 1px solid #ccc; */
+  border: none;
+  width: 150px;
 }
 
 .dropdownstyle {
