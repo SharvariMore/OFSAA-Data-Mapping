@@ -2,8 +2,57 @@
 
 <div class="datamap">
   <h2>Data Mapping Rule</h2>
+
+  <ul class="tabs">
+    <li *ngFor="let tab of tabs"
+        (click)="switchTab(tab)"
+        [class.active]="activeTab === tab">
+      {{ tab }}
+    </li>
+  </ul>
+
   <div *ngIf="isAdmin()" class="admin-controld">
     <button (click)="addMap()">Add</button>
     <button (click)="editMap()">Edit</button>
   </div>
+
+  <div class="table-container">
+    <h3>{{ activeTab }}</h3>
+
+    <!-- Table -->
+    <table class="mapping-table">
+      <thead>
+        <tr>
+          <th *ngFor="let col of tableFormats[activeTab]">{{ col }}</th>
+          <th *ngIf="isAdmin()">Actions</th>
+        </tr>
+      </thead>
+      <!-- <tbody>
+
+        <tr *ngFor="let row of mappingRules[activeTab]; let i = index">
+          <td *ngFor="let col of tableFormats[activeTab]">
+            {{ row[col.replace(/\s+/g, '').toLowerCase()] }}
+          </td>
+          <td *ngIf="isAdmin()">
+            <button (click)="deleteRow()">Delete</button>
+          </td>
+        </tr>
+
+        <tr *ngIf="userRole === 'admin'">
+          <td *ngFor="let col of tableFormats[activeTab]">
+            <input [(ngModel)]="newMappingRow[col.replace(/\s+/g, '').toLowerCase()]" />
+          </td>
+          <td>
+            <button (click)="addRow()">Add</button>
+          </td>
+        </tr>
+      </tbody> -->
+    </table>
+  </div>
+
+  <!-- Actions -->
+  <!-- <div class="actions">
+    <button (click)="saveChanges()" *ngIf="userRole === 'admin'">Save Changes</button>
+    <button (click)="exportToExcel()">Export to Excel</button>
+  </div> -->
 </div>

@@ -29,3 +29,60 @@ button {
 .admin-controld button:hover {
   background-color: #035493;
 }
+
+ul {
+  list-style-type: none;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+}
+
+li {
+  padding: 10px 20px;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  margin-right: 5px;
+  border-radius: 5px;
+}
+
+li.active {
+  background-color: #071975;
+  color: white;
+  font-weight: 640;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  white-space: nowrap;
+}
+
+.td-overflow {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.td-overflow:hover {
+  background-color: #f9f9f9;
+  z-index: 1;
+}
+
+th {
+  background-color: #071975;
+  color: white;
+  text-align: center;
+  font-weight: 640;
+}
+
+.pagination-controls {
+  margin-top: 20px;
+  text-align: center;
+}
