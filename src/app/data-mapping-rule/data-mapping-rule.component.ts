@@ -25,8 +25,8 @@ export class DataMappingRuleComponent {
    * Returns the table format for the current tab's tables.
    * @param tableIndex Index of the table (0 for first, 1 for second).
    */
-  getTableFormat(tableIndex: number): string[] {
-    const tabFormats: Record<string, string[][]> = {
+  getTableFormat(tableIndex: number): { header: string; field: string }[] {
+    const tabFormats: Record<string, { header: string; field: string }[][]> = {
       'Source to FDS Pre-Stage Mapping Table': [
         this.tableFormats['sourceTable'],
         this.tableFormats['fdsPreStageTable'],
@@ -93,54 +93,54 @@ export class DataMappingRuleComponent {
     'FDS Generated ID TP Mapping Table',
   ];
 
-  tableFormats: { [key: string]: string[] } = {
+  tableFormats: { [key: string]: Array<{ header: string; field: string }> } = {
     sourceTable: [
-      'Sr. No.',
-      'Source Table',
-      'Source Column',
-      'Transformation',
-      'Comment',
+      { header: 'Sr. No.', field: 'srNo' },
+      { header: 'Source Table', field: 'sourceTable' },
+      { header: 'Source Column', field: 'sourceColumn' },
+      { header: 'Transformation', field: 'transformation' },
+      { header: 'Comment', field: 'comment' },
     ],
     fdsPreStageTable: [
-      'FDS Table',
-      'FDS Column',
-      'Data Type',
-      'PK',
-      'Nullable',
-      'Comment',
+      { header: 'FDS Table', field: 'fdsTable' },
+      { header: 'FDS Column', field: 'fdsColumn' },
+      { header: 'Data Type', field: 'dataType' },
+      { header: 'PK', field: 'pk' },
+      { header: 'Nullable', field: 'nullable' },
+      { header: 'Comment', field: 'fdsComment' },
     ],
     fdsPreStageTable1: [
-      'FDS Table',
-      'FDS Column',
-      'Transformation',
-      'Data Type',
-      'PK',
-      'Nullable',
-      'Comment',
+      { header: 'FDS Table', field: 'fdsTable' },
+      { header: 'FDS Column', field: 'fdsColumn' },
+      { header: 'Transformation', field: 'transformation' },
+      { header: 'Data Type', field: 'dataType' },
+      { header: 'PK', field: 'pk' },
+      { header: 'Nullable', field: 'nullable' },
+      { header: 'Comment', field: 'fdsComment' },
     ],
     fdsStageTable: [
-      'FDS Stage Table',
-      'FDS Stage Column',
-      'Data Type',
-      'PK',
-      'Nullable',
-      'Custom',
-      'Comment',
+      { header: 'FDS Stage Table', field: 'fdsStageTable' },
+      { header: 'FDS Stage Column', field: 'fdsStageColumn' },
+      { header: 'Data Type', field: 'stageDataType' },
+      { header: 'PK', field: 'stagePk' },
+      { header: 'Nullable', field: 'stageNullable' },
+      { header: 'Custom', field: 'custom' },
+      { header: 'Comment', field: 'stageComment' },
     ],
     fdsgenerated: [
-      'Sr. No.',
-      'Source Table',
-      'Source Column',
-      'Transformation',
-      'Comment',
+      { header: 'Sr. No.', field: 'srNo' },
+      { header: 'Source Table', field: 'sourceTable' },
+      { header: 'Source Column', field: 'sourceColumn' },
+      { header: 'Transformation', field: 'transformation' },
+      { header: 'Comment', field: 'comment' },
     ],
     tpMapTable: [
-      'FDS Table',
-      'FDS Column',
-      'Data Type',
-      'PK',
-      'Nullable',
-      'Comment',
+      { header: 'FDS Table', field: 'fdsTable' },
+      { header: 'FDS Column', field: 'fdsColumn' },
+      { header: 'Data Type', field: 'dataType' },
+      { header: 'PK', field: 'pk' },
+      { header: 'Nullable', field: 'nullable' },
+      { header: 'Comment', field: 'fdsComment' },
     ],
   };
 
@@ -187,7 +187,7 @@ export class DataMappingRuleComponent {
         dataType: 'VARCHAR',
         pk: 'Yes',
         nullable: 'No',
-        comment: 'CommentB',
+        fdsComment: 'CommentB',
       },
       {
         fdsTable: 'FDS_Table2',
@@ -196,7 +196,7 @@ export class DataMappingRuleComponent {
         dataType: 'INT',
         pk: 'No',
         nullable: 'Yes',
-        comment: 'CommentC',
+        fdsComment: 'CommentC',
       },
     ],
     fdsStageTable: [
@@ -270,12 +270,16 @@ export class DataMappingRuleComponent {
   // }
 
   switchTab(tab: string) {
+    if (!this.tabs.includes(tab)) {
+      console.warn(`Invalid tab: ${tab}`);
+      return;
+    }
     this.activeTab = tab;
     // this.initNewRow();
   }
 
-  getRowValue(row: any, column: string): string {
-    const propertyName = column.replace(/\s+/g, '').toLowerCase();
+  getRowValue(row: any, column: { header: string; field: string }): string {
+    const propertyName = column.field;
     return row[propertyName] || '';
   }
 

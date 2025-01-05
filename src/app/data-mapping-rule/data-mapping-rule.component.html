@@ -27,7 +27,7 @@
           <thead>
             <tr>
               <th *ngFor="let column of getTableFormat(0)">
-                {{ column }}
+                {{ column.header }}
               </th>
               <th *ngIf="isAdmin()">Actions</th>
             </tr>
@@ -52,7 +52,7 @@
           <thead>
             <tr>
               <th *ngFor="let column of getTableFormat(1)">
-                {{ column }}
+                {{ column.header }}
               </th>
               <th *ngIf="isAdmin()">Actions</th>
             </tr>
