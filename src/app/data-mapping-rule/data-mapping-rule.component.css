@@ -7,8 +7,17 @@
 button {
   margin: 0.5rem;
   padding: 0.5rem 1rem;
-  font-size: 1rem;
+  font-size: 16px;
   cursor: pointer;
+  background-color: #071975;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #035493;
 }
 
 .admin-controld {
@@ -30,10 +39,79 @@ button {
   background-color: #035493;
 }
 
+.search-content {
+  margin-bottom: 20px;
+}
+
+.search-content input {
+  width: 300px;
+  padding: 8px;
+  font-size: 15px;
+  border-radius: 5px;
+}
+
+label {
+  margin-right: 5px;
+}
+
+#globalFilter {
+  width: 270px;
+  padding: 8px;
+  font-size: 15px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.search-column-dropdown {
+  width: 200px;
+  padding: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.search-column-dropdown option {
+  color: black;
+  background: white;
+}
+
+.search-column-dropdown option.highlighted {
+  background-color: #071975;
+  color: white;
+  width: 100px;
+}
+
+.optgroup-t1 {
+  font-weight: bold;
+  color: #071975;
+  background-color: gainsboro;
+}
+
+.optgroup-t2 {
+  font-weight: bold;
+  color: #071975;
+  background-color: gainsboro;
+}
+
+.nodata {
+  font-size: 16px;
+  font-weight: bolder;
+}
+
+.highlights {
+  background-color: palegoldenrod;
+  color: seagreen;
+  font-weight: bold;
+}
+
 .side-by-side-tables {
   display: flex;
   justify-content: space-between;
-  gap: 10px;
+  gap: 130px;
+}
+
+.table-container {
+  overflow-x: auto;
+  max-width: 100%;
 }
 
 .table-wrapper {

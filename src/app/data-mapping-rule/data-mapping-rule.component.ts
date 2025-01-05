@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { RoleService } from '../role.service';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 export interface MappingRow {
   [key: string]: any;
@@ -10,12 +11,14 @@ export interface MappingRow {
 @Component({
   selector: 'app-data-mapping-rule',
   standalone: true,
-  imports: [NavbarComponent, CommonModule],
+  imports: [NavbarComponent, CommonModule, FormsModule],
   templateUrl: './data-mapping-rule.component.html',
   styleUrl: './data-mapping-rule.component.css',
 })
 export class DataMappingRuleComponent {
   activeTab: string = 'Source to FDS Pre-Stage Mapping Table';
+  globalSearchText: string = '';
+  globalFilterColumn: string = '';
 
   constructor(private roleService: RoleService) {
     // this.initNewRow();
@@ -281,6 +284,37 @@ export class DataMappingRuleComponent {
   getRowValue(row: any, column: { header: string; field: string }): string {
     const propertyName = column.field;
     return row[propertyName] || '';
+  }
+
+  filteredData(tableIndex: number): any[] {
+    const searchText = this.globalSearchText?.toLowerCase().trim();
+    const filterColumn = this.globalFilterColumn;
+    const data = this.getMappingRules(tableIndex);
+
+    if (!searchText) return data;
+
+    // const data = this.mappingRules[Object.keys(this.mappingRules)[tableIndex]];
+
+    return data.filter((row) => {
+      if (filterColumn) {
+        return this.matchText(row[filterColumn], searchText);
+      } else {
+        return Object.values(row).some((val) => this.matchText(val, searchText))
+      }
+    })
+  }
+
+  matchText(value: any, searchText: string): boolean {
+    if (value && searchText) {
+      return value.toString().toLowerCase().includes(searchText.toLowerCase());
+    } else {
+      return false;
+    }
+  }
+
+  isEllipsisActive(element: HTMLElement | null): boolean {
+    if (!element) return false;
+    return element.offsetWidth < element.scrollWidth;
   }
 
   addMap() {
