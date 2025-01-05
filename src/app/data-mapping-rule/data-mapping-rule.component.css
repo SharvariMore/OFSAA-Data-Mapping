@@ -30,6 +30,21 @@ button {
   background-color: #035493;
 }
 
+.side-by-side-tables {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.table-wrapper {
+  width: 48%;
+}
+
+.mapping-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
 ul {
   list-style-type: none;
   padding: 0;

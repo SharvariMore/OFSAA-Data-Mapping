@@ -17,10 +17,74 @@ export interface MappingRow {
 export class DataMappingRuleComponent {
   activeTab: string = 'Source to FDS Pre-Stage Mapping Table';
 
-
-
   constructor(private roleService: RoleService) {
     // this.initNewRow();
+  }
+
+  /**
+   * Returns the table format for the current tab's tables.
+   * @param tableIndex Index of the table (0 for first, 1 for second).
+   */
+  getTableFormat(tableIndex: number): string[] {
+    const tabFormats: Record<string, string[][]> = {
+      'Source to FDS Pre-Stage Mapping Table': [
+        this.tableFormats['sourceTable'],
+        this.tableFormats['fdsPreStageTable'],
+      ],
+      'FDS Pre-Stage to FDS Stage Mapping Table': [
+        this.tableFormats['fdsPreStageTable1'],
+        this.tableFormats['fdsStageTable'],
+      ],
+      'FDS Generated ID TP Mapping Table': [
+        this.tableFormats['fdsgenerated'],
+        this.tableFormats['tpMapTable'],
+      ],
+    };
+
+    return tabFormats[this.activeTab]?.[tableIndex] || [];
+  }
+
+  /**
+   * Returns the mapping rules for the current tab's tables.
+   * @param tableIndex Index of the table (0 for first, 1 for second).
+   */
+  getMappingRules(tableIndex: number): MappingRow[] {
+    const tabRules: Record<string, MappingRow[][]> = {
+      'Source to FDS Pre-Stage Mapping Table': [
+        this.mappingRules['sourceTable'],
+        this.mappingRules['fdsPreStageTable'],
+      ],
+      'FDS Pre-Stage to FDS Stage Mapping Table': [
+        this.mappingRules['fdsPreStageTable1'],
+        this.mappingRules['fdsStageTable'],
+      ],
+      'FDS Generated ID TP Mapping Table': [
+        this.mappingRules['fdsgenerated'],
+        this.mappingRules['tpMapTable'],
+      ],
+    };
+
+    return tabRules[this.activeTab]?.[tableIndex] || [];
+  }
+
+  /**
+   * Returns the header name for a table based on its index and the active tab.
+   * @param tableIndex Index of the table (0 for first, 1 for second).
+   */
+  getTableHeader(tableIndex: number): string {
+    const tabHeaders: Record<string, string[]> = {
+      'Source to FDS Pre-Stage Mapping Table': [
+        'Source Table',
+        'FDS Pre-Stage Table',
+      ],
+      'FDS Pre-Stage to FDS Stage Mapping Table': [
+        'FDS Pre-Stage Table',
+        'FDS Stage Table',
+      ],
+      'FDS Generated ID TP Mapping Table': ['Source Table', 'ID TP Table'],
+    };
+
+    return tabHeaders[this.activeTab]?.[tableIndex] || 'Table';
   }
 
   tabs = [
@@ -28,13 +92,16 @@ export class DataMappingRuleComponent {
     'FDS Pre-Stage to FDS Stage Mapping Table',
     'FDS Generated ID TP Mapping Table',
   ];
+
   tableFormats: { [key: string]: string[] } = {
-    'Source to FDS Pre-Stage Mapping Table': [
+    sourceTable: [
       'Sr. No.',
       'Source Table',
       'Source Column',
       'Transformation',
       'Comment',
+    ],
+    fdsPreStageTable: [
       'FDS Table',
       'FDS Column',
       'Data Type',
@@ -42,7 +109,7 @@ export class DataMappingRuleComponent {
       'Nullable',
       'Comment',
     ],
-    'FDS Pre-Stage to FDS Stage Mapping Table': [
+    fdsPreStageTable1: [
       'FDS Table',
       'FDS Column',
       'Transformation',
@@ -50,6 +117,8 @@ export class DataMappingRuleComponent {
       'PK',
       'Nullable',
       'Comment',
+    ],
+    fdsStageTable: [
       'FDS Stage Table',
       'FDS Stage Column',
       'Data Type',
@@ -58,12 +127,14 @@ export class DataMappingRuleComponent {
       'Custom',
       'Comment',
     ],
-    'FDS Generated ID TP Mapping Table': [
+    fdsgenerated: [
       'Sr. No.',
       'Source Table',
       'Source Column',
       'Transformation',
       'Comment',
+    ],
+    tpMapTable: [
       'FDS Table',
       'FDS Column',
       'Data Type',
@@ -74,22 +145,41 @@ export class DataMappingRuleComponent {
   };
 
   mappingRules: { [key: string]: MappingRow[] } = {
-    'Source to FDS Pre-Stage Mapping Table': [
+    sourceTable: [
       {
         srNo: 1,
         sourceTable: 'Source1',
         sourceColumn: 'Column1',
         transformation: 'Transform1',
         comment: 'Comment1',
+      },
+      {
+        srNo: 2,
+        sourceTable: 'Source2',
+        sourceColumn: 'Column2',
+        transformation: 'Transform2',
+        comment: 'Comment2',
+      },
+    ],
+    fdsPreStageTable: [
+      {
         fdsTable: 'FDS_Table1',
         fdsColumn: 'FDS_Column1',
         dataType: 'VARCHAR',
         pk: 'Yes',
         nullable: 'No',
-        fdsComment: 'CommentA'
-      }
+        fdsComment: 'CommentA',
+      },
+      {
+        fdsTable: 'FDS_Table2',
+        fdsColumn: 'FDS_Column2',
+        dataType: 'INT',
+        pk: 'No',
+        nullable: 'Yes',
+        fdsComment: 'CommentB',
+      },
     ],
-    'FDS Pre-Stage to FDS Stage Mapping Table': [
+    fdsPreStageTable1: [
       {
         fdsTable: 'FDS_Table1',
         fdsColumn: 'FDS_Column1',
@@ -98,30 +188,71 @@ export class DataMappingRuleComponent {
         pk: 'Yes',
         nullable: 'No',
         comment: 'CommentB',
+      },
+      {
+        fdsTable: 'FDS_Table2',
+        fdsColumn: 'FDS_Column2',
+        transformation: 'Transform3',
+        dataType: 'INT',
+        pk: 'No',
+        nullable: 'Yes',
+        comment: 'CommentC',
+      },
+    ],
+    fdsStageTable: [
+      {
         fdsStageTable: 'Stage_Table1',
         fdsStageColumn: 'Stage_Column1',
         stageDataType: 'NUMBER',
         stagePk: 'No',
         stageNullable: 'Yes',
         custom: 'CustomValue',
-        stageComment: 'CommentC'
-      }
+        stageComment: 'CommentC',
+      },
+      {
+        fdsStageTable: 'Stage_Table2',
+        fdsStageColumn: 'Stage_Column2',
+        stageDataType: 'VARCHAR',
+        stagePk: 'Yes',
+        stageNullable: 'No',
+        custom: 'CustomValue2',
+        stageComment: 'CommentD',
+      },
     ],
-    'FDS Generated ID TP Mapping Table': [
+    fdsgenerated: [
       {
         srNo: 1,
         sourceTable: 'SourceID1',
         sourceColumn: 'ID_Column1',
         transformation: 'Transform3',
         comment: 'CommentD',
+      },
+      {
+        srNo: 2,
+        sourceTable: 'SourceID2',
+        sourceColumn: 'ID_Column2',
+        transformation: 'Transform4',
+        comment: 'CommentE',
+      },
+    ],
+    tpMapTable: [
+      {
         fdsTable: 'ID_Table1',
-        fdsColumn: 'ID_Column2',
+        fdsColumn: 'ID_Column1',
         dataType: 'INT',
         pk: 'No',
         nullable: 'Yes',
-        fdsComment: 'CommentE'
-      }
-    ]
+        fdsComment: 'CommentF',
+      },
+      {
+        fdsTable: 'ID_Table2',
+        fdsColumn: 'ID_Column2',
+        dataType: 'VARCHAR',
+        pk: 'Yes',
+        nullable: 'No',
+        fdsComment: 'CommentG',
+      },
+    ],
   };
 
   isAdmin(): boolean {
@@ -129,8 +260,6 @@ export class DataMappingRuleComponent {
   }
 
   newMappingRow: MappingRow = {};
-
-
 
   // initNewRow() {
   //   const format = this.tableFormats[this.activeTab];
@@ -143,6 +272,11 @@ export class DataMappingRuleComponent {
   switchTab(tab: string) {
     this.activeTab = tab;
     // this.initNewRow();
+  }
+
+  getRowValue(row: any, column: string): string {
+    const propertyName = column.replace(/\s+/g, '').toLowerCase();
+    return row[propertyName] || '';
   }
 
   addMap() {

@@ -17,42 +17,58 @@
   </div>
 
   <div class="table-container">
-    <h3>{{ activeTab }}</h3>
+    <!-- <h3>{{ activeTab }}</h3> -->
 
-    <!-- Table -->
-    <table class="mapping-table">
-      <thead>
-        <tr>
-          <th *ngFor="let col of tableFormats[activeTab]">{{ col }}</th>
-          <th *ngIf="isAdmin()">Actions</th>
-        </tr>
-      </thead>
-      <!-- <tbody>
+    <div class="side-by-side-tables">
+      <!-- First Table -->
+      <div class="table-wrapper">
+        <h3>{{ getTableHeader(0) }}</h3>
+        <table class="mapping-table">
+          <thead>
+            <tr>
+              <th *ngFor="let column of getTableFormat(0)">
+                {{ column }}
+              </th>
+              <th *ngIf="isAdmin()">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of getMappingRules(0); let i = index">
+              <td *ngFor="let column of getTableFormat(0)">
+                {{ getRowValue(row, column) }}
+              </td>
+              <!-- <td *ngIf="isAdmin()">
+                <button (click)="deleteRow()">Delete</button>
+              </td> -->
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-        <tr *ngFor="let row of mappingRules[activeTab]; let i = index">
-          <td *ngFor="let col of tableFormats[activeTab]">
-            {{ row[col.replace(/\s+/g, '').toLowerCase()] }}
-          </td>
-          <td *ngIf="isAdmin()">
-            <button (click)="deleteRow()">Delete</button>
-          </td>
-        </tr>
-
-        <tr *ngIf="userRole === 'admin'">
-          <td *ngFor="let col of tableFormats[activeTab]">
-            <input [(ngModel)]="newMappingRow[col.replace(/\s+/g, '').toLowerCase()]" />
-          </td>
-          <td>
-            <button (click)="addRow()">Add</button>
-          </td>
-        </tr>
-      </tbody> -->
-    </table>
+      <!-- Second Table -->
+      <div class="table-wrapper">
+        <h3>{{ getTableHeader(1) }}</h3>
+        <table class="mapping-table">
+          <thead>
+            <tr>
+              <th *ngFor="let column of getTableFormat(1)">
+                {{ column }}
+              </th>
+              <th *ngIf="isAdmin()">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of getMappingRules(1); let i = index">
+              <td *ngFor="let column of getTableFormat(1)">
+                {{ getRowValue(row, column) }}
+              </td>
+              <!-- <td *ngIf="isAdmin()">
+                <button (click)="deleteRow(i, 1)">Delete</button>
+              </td> -->
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
-
-  <!-- Actions -->
-  <!-- <div class="actions">
-    <button (click)="saveChanges()" *ngIf="userRole === 'admin'">Save Changes</button>
-    <button (click)="exportToExcel()">Export to Excel</button>
-  </div> -->
 </div>
