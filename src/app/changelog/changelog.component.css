@@ -9,13 +9,47 @@ button {
   padding: 0.5rem 1rem;
   font-size: 1rem;
   cursor: pointer;
+  background-color: #071975;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  transition: background-color 0.3s;
 }
 
-.admin-controlc {
+
+
+button:hover {
+  background-color: #035493;
+}
+
+.admin-control {
   margin-top: 2rem;
+  display: flex;
+  justify-content: space-between;
 }
 
-.admin-controlc button {
+.admin-control button {
+   padding: 10px 20px; 
+  font-size: 16px;
+  background-color: #071975;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 15px;
+  transition: background-color 0.3s;
+}
+
+.admin-control button:hover {
+  background-color: #035493;
+}
+
+.deleteButton{
+  margin-top: 2rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.deleteButton button{
   padding: 10px 20px;
   font-size: 16px;
   background-color: #071975;
@@ -26,6 +60,254 @@ button {
   transition: background-color 0.3s;
 }
 
-.admin-controlc button:hover {
+.deleteButton:hover{
   background-color: #035493;
 }
+.search-content {
+  margin-bottom: 20px;
+  /*display: flex;
+  align-items: center;
+  gap: 10px;  Adds spacing between the label and input */
+}
+
+button i {
+  margin-right: 5px; /* Add space between icon and text */
+}
+
+.search-content input {
+  width: 300px;
+  padding: 8px;
+  font-size: 14px;
+  border-radius: 5px;
+}
+
+#searchColumn {
+  width: 270px;
+  padding: 8px;
+  font-size: 15px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.nodata {
+  font-size: 16px;
+  font-weight: bolder;
+}
+
+.table-container-scroll {
+  max-height: 400px; /* Set the maximum height for the table */
+  overflow-y: auto; /* Enable vertical scrolling */
+  overflow-x: auto; /* Enable horizontal scrolling if needed */
+  border: 1px solid #ddd; /* Optional: Add a border around the container */
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  /* text-align: left;
+  word-break: break-word; */
+}
+
+
+.td-overflow {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.td-overflow:hover {
+  background-color: #f9f9f9;
+  z-index: 1;
+} 
+
+th {
+  background-color: #071975;
+  color: white;
+  text-align: left;
+}
+
+.input-column {
+  height: 25px;
+  border-radius: 5px;
+  font-size: 14px;
+  padding: 8px;
+}
+
+.save-all-rows {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.save-all-rows button {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  background-color: #071975;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.save-all-rows button:hover {
+  background-color: #071975;
+}
+
+.pagination-controls {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.pagination-controls {
+  text-align: center;
+  margin-top: 16px;
+}
+
+.column-button {
+  display: flex;
+  justify-content: flex-end;
+}
+
+
+
+@media (max-width: 768px) {
+  .table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .table-container table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .search-content,
+  .admin-control {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-content input,
+  .search-content select,
+  .admin-control button {
+    width: 100%;
+  }
+
+  .admin-column {
+    margin-bottom: 8px;
+  }
+
+  .pagination-controls {
+    text-align: center;
+    margin-top: 16px;
+  }
+
+  .column-button{
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+}
+
+.pagination-controls {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.pagination-controls .ngx-pagination {
+  display: inline-block;
+}
+
+.pagination-controls .ngx-pagination .current {
+  background-color: #071975;
+  color: white;
+  border-radius: 5px;
+  padding: 5px 10px;
+}
+
+.pagination-controls .ngx-pagination a {
+  color: #071975;
+  margin: 0 5px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.pagination-controls .ngx-pagination a:hover {
+  text-decoration: underline;
+}
+
+/* General button styles */
+button {
+  margin: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+  background-color: #071975;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #035493;
+}
+
+/* Flex container for toggle and action buttons */
+.button-container {
+  display: flex;
+  align-items: center; /* Vertically align buttons */
+  gap: 10px; /* Space between the toggle and action buttons */
+}
+
+/* Style for the toggle button */
+.icon-button {
+  background: none;
+  border: none;
+  color: #071975;
+  font-size: 1.5rem; /* Adjust icon size */
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: color 0.3s;
+}
+
+.icon-button:hover {
+  color: #035493;
+}
+
+.icon-button i {
+  vertical-align: middle; /* Align icon properly */
+}
+
+/* Style for action buttons */
+.action-buttons button {
+  margin: 0;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  background-color: #071975;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.action-buttons button:hover {
+  background-color: #035493;
+}
+
+.action-buttons button i {
+  margin-right: 5px; /* Space between icon and text */
+  vertical-align: middle;
+}
+
+
+
