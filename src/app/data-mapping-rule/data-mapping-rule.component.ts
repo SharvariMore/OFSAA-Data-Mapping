@@ -299,9 +299,11 @@ export class DataMappingRuleComponent {
       if (filterColumn) {
         return this.matchText(row[filterColumn], searchText);
       } else {
-        return Object.values(row).some((val) => this.matchText(val, searchText))
+        return Object.values(row).some((val) =>
+          this.matchText(val, searchText)
+        );
       }
-    })
+    });
   }
 
   matchText(value: any, searchText: string): boolean {
