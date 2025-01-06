@@ -84,6 +84,31 @@ button:hover {
   font-weight: bolder;
 }
 
+.button-container {
+  display: flex;
+  align-items: center; /* Vertically align buttons */
+  gap: 10px; /* Space between the toggle and action buttons */
+}
+
+.icon-button {
+  background: none;
+  border: none;
+  color: #071975;
+  font-size: 1.5rem; /* Adjust icon size */
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: color 0.3s;
+}
+
+.icon-button:hover {
+  color: #035493;
+}
+
+.icon-button i {
+  vertical-align: middle; /* Align icon properly */
+}
+
+
 .table-container {
   overflow-x: auto;
   max-width: 100%;

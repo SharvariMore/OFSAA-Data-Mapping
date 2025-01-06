@@ -38,13 +38,22 @@
   </div>
 
   <div *ngIf="isAdmin()" class="admin-control">
-    <div>
+    <div class="button-container">
+      <button (click)="toggleButtonsVisibility()" class="icon-button">
+        <i class="material-icons">{{ isButtonsVisible ? 'remove' : 'add' }}</i>
+      </button>
+      <div *ngIf="isButtonsVisible">
       <button (click)="addData()">Add New Row</button>
-      <button (click)="saveNewRow()">Save All Rows</button>
+      <!-- <button (click)="saveData()">Save All</button> -->
       <button (click)="deleteRow()">Delete Row</button>
     </div>
+    </div>
 
-    <div *ngIf="isAdmin()" class="admin-column">
+    <div class="button-container">
+      <div *ngIf="isColumnActionsVisible">
+    <!-- <div *ngIf="isAdmin()" class="admin-column"> -->
+      <button (click)="editColumnData()">Edit Column Data</button>
+      <button (click)="deleteColumn()">Delete Column</button>
       <button (click)="addColumn()">Add New Column</button>
       <input
         type="text"
@@ -52,8 +61,12 @@
         [(ngModel)]="newColumnName"
         placeholder=" Enter New Column Name"
       />
-    </div>
   </div>
+  <button (click)="toggleColumnActionsVisibility()" class="icon-button">
+    <i class="material-icons">{{ isColumnActionsVisible ? 'remove' : 'add' }}</i>
+  </button>
+</div>
+</div>
 
   <div class="table-container">
     <table *ngIf="filteredData().length > 0">
@@ -231,9 +244,7 @@
     ></pagination-controls>
   </div>
   <div *ngIf="isAdmin()" class="column-button">
-    <button (click)="editColumnData()">Edit Column Data</button>
-    <button (click)="saveAllColumns()">Save All Columns</button>
-    <button (click)="deleteColumn()">Delete Column</button>
+    <button (click)="saveData()">Save All</button>
     <button (click)="undoDeleteColumn()">Undo Deletion</button>
   </div>
 </div>

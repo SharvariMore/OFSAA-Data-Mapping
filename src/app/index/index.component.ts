@@ -57,6 +57,8 @@ export class IndexComponent {
   currentPage = 1;
   itemsPerPage = 10;
   paginatedData: TableRow[] = []; // Holds current page data
+  isButtonsVisible: boolean = false;
+  isColumnActionsVisible: boolean = false;
 
   statusOptions: string[] = ['Not Started', 'In Progress', 'Complete'];
   usedInOptions = ['Y', 'N'];
@@ -308,38 +310,38 @@ export class IndexComponent {
     this.cdr.detectChanges();
   }
 
-  saveNewRow() {
-    if (!this.isAdmin()) return;
+  // saveNewRow() {
+  //   if (!this.isAdmin()) return;
 
-    if (this.editingMode) {
-      const requiredFields = this.tableColumns.map(
-        (column: { field: any }) => column.field
-      );
+  //   if (this.editingMode) {
+  //     const requiredFields = this.tableColumns.map(
+  //       (column: { field: any }) => column.field
+  //     );
 
-      const inValidRows = this.tableData.filter((row) => {
-        return requiredFields.some(
-          (field: string | number) =>
-            !row[field] || row[field].toString().trim() === ''
-        );
-      });
+  //     const inValidRows = this.tableData.filter((row) => {
+  //       return requiredFields.some(
+  //         (field: string | number) =>
+  //           !row[field] || row[field].toString().trim() === ''
+  //       );
+  //     });
 
-      if (inValidRows.length > 0) {
-        this.openDialog('Please Fill All Missing Fields!');
-        return;
-      }
+  //     if (inValidRows.length > 0) {
+  //       this.openDialog('Please Fill All Missing Fields!');
+  //       return;
+  //     }
 
-      this.editingMode = false;
-      this.editingRow = null;
-      this.cdr.detectChanges();
-      this.saveToStorage('tableData', this.tableData);
-      this.openDialog('All Rows Saved Successfully!');
-    } else {
-      this.editingMode = true;
-      this.openDialog(
-        'You can Edit rows now. Click "Save" again to finalize changes.'
-      );
-    }
-  }
+  //     this.editingMode = false;
+  //     this.editingRow = null;
+  //     this.cdr.detectChanges();
+  //     this.saveToStorage('tableData', this.tableData);
+  //     this.openDialog('All Rows Saved Successfully!');
+  //   } else {
+  //     this.editingMode = true;
+  //     this.openDialog(
+  //       'You can Edit rows now. Click "Save" again to finalize changes.'
+  //     );
+  //   }
+  // }
 
   addColumn() {
     if (!this.isAdmin()) return;
@@ -681,38 +683,73 @@ export class IndexComponent {
     }
   }
 
-  saveAllColumns(): void {
+  // saveAllColumns(): void {
+  //   if (!this.isAdmin()) return;
+
+  //   if (this.editingMode) {
+  //     const requiredFields = this.tableColumns.map(
+  //       (colm: { field: any }) => colm.field
+  //     );
+
+  //     const inValidRows = this.tableData.filter((row) => {
+  //       return requiredFields.some(
+  //         (field: string | number) =>
+  //           !row[field] || row[field].toString().trim() === ''
+  //       );
+  //     });
+
+  //     if (inValidRows.length > 0) {
+  //       this.openDialog(
+  //         'Please Fill in All Missing Column Data Before Saving!'
+  //       );
+  //       return;
+  //     }
+
+  //     this.editingMode = false;
+  //     this.cdr.detectChanges();
+  //     this.openDialog('All Columns Saved Successfully!');
+  //   } else {
+  //     this.editingMode = true;
+  //     this.openDialog(
+  //       'You can Edit All Columns Now! Click "Save All Columns" Again to Finalize Changes.'
+  //     );
+  //   }
+  // }
+
+  saveData(): void {
     if (!this.isAdmin()) return;
 
-    if (this.editingMode) {
-      const requiredFields = this.tableColumns.map(
-        (colm: { field: any }) => colm.field
+    const requiredFields = this.tableColumns.map(
+      (column: { field: any }) => column.field
+    );
+
+    // Check for missing data in rows or columns
+    const hasInvalidData = this.tableData.some((row) => {
+      return requiredFields.some(
+        (field: string | number) =>
+          !row[field] || row[field].toString().trim() === ''
       );
+    });
 
-      const inValidRows = this.tableData.filter((row) => {
-        return requiredFields.some(
-          (field: string | number) =>
-            !row[field] || row[field].toString().trim() === ''
-        );
-      });
+    if (hasInvalidData) {
+      this.openDialog('Please Fill in All Missing Fields in Rows or Columns Before Saving!');
+      return;
+    }
 
-      if (inValidRows.length > 0) {
-        this.openDialog(
-          'Please Fill in All Missing Column Data Before Saving!'
-        );
-        return;
-      }
-
+    if (this.editingMode) {
       this.editingMode = false;
+      this.editingRow = null;
       this.cdr.detectChanges();
-      this.openDialog('All Columns Saved Successfully!');
+      this.saveToStorage('tableData', this.tableData);
+      this.openDialog('Data Saved Successfully!');
     } else {
       this.editingMode = true;
       this.openDialog(
-        'You can Edit All Columns Now! Click "Save All Columns" Again to Finalize Changes.'
+        'You can Edit Rows and Columns Now! Click "Save Data" Again to Finalize Changes.'
       );
     }
   }
+
 
   backupColumnsBeforeDeletion() {
     // Backing up the current state of tableColumns and tableData
@@ -943,5 +980,13 @@ export class IndexComponent {
 
     this.tableColumns = storedTableColumns;
     this.cdr.detectChanges();
+  }
+
+  toggleButtonsVisibility() {
+    this.isButtonsVisible = !this.isButtonsVisible;
+  }
+
+  toggleColumnActionsVisibility() {
+    this.isColumnActionsVisible = !this.isColumnActionsVisible;
   }
 }
