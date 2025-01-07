@@ -19,6 +19,8 @@ export class DataMappingRuleComponent {
   activeTab: string = 'Source to FDS Pre-Stage Mapping Table';
   globalSearchText: string = '';
   globalFilterColumn: string = '';
+  isButtonsVisible: boolean = false;
+  isColumnActionsVisible: boolean = false;
 
   constructor(private roleService: RoleService) {
     // this.initNewRow();
@@ -334,7 +336,40 @@ export class DataMappingRuleComponent {
     alert('Delete content clicked!');
   }
 
+  addColumnMap() {
+    if (!this.isAdmin()) return;
+    alert('Add content clicked!');
+  }
+
+  editColumnMap() {
+    if (!this.isAdmin()) return;
+    alert('Edit content clicked!');
+  }
+
+  deleteColumnMap() {
+    if (!this.isAdmin()) return;
+    alert('Add content clicked!');
+  }
+
+  saveMap() {
+    if (!this.isAdmin()) return;
+    alert('Save content clicked!');
+  }
+
+  undoDeleteColumnMap() {
+    if (!this.isAdmin()) return;
+    alert('Undo content clicked!');
+  }
+
   exportToExcel() {
     alert('Exporting data to Excel...');
+  }
+
+  toggleButtonsVisibility() {
+    this.isButtonsVisible = !this.isButtonsVisible;
+  }
+
+  toggleColumnActionsVisibility() {
+    this.isColumnActionsVisible = !this.isColumnActionsVisible;
   }
 }

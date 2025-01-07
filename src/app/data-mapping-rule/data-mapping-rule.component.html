@@ -13,11 +13,6 @@
     </li>
   </ul>
 
-  <!-- <div *ngIf="isAdmin()" class="admin-controld">
-    <button (click)="addMap()">Add</button>
-    <button (click)="editMap()">Edit</button>
-  </div> -->
-
   <div class="table-container">
     <!-- <h3>{{ activeTab }}</h3> -->
 
@@ -65,10 +60,45 @@
       </select>
     </div>
 
+    <div *ngIf="isAdmin()" class="admin-controld">
+      <div class="button-container">
+        <button (click)="toggleButtonsVisibility()" class="icon-button">
+          <i class="material-icons">{{
+            isButtonsVisible ? "remove" : "add"
+          }}</i>
+        </button>
+        <div *ngIf="isButtonsVisible">
+          <button (click)="addMap()">Add Row</button>
+          <button (click)="editMap()">Edit Row</button>
+          <button (click)="deleteMap()">Delete Row</button>
+        </div>
+      </div>
+
+      <div class="button-container">
+        <div *ngIf="isColumnActionsVisible">
+          <!-- <div *ngIf="isAdmin()" class="admin-column"> -->
+          <button (click)="editColumnMap()">Edit Column Data</button>
+          <button (click)="deleteColumnMap()">Delete Column</button>
+          <button (click)="addColumnMap()">Add New Column</button>
+          <!-- <input
+          type="text"
+          class="input-column"
+          [(ngModel)]="newColumnName"
+          placeholder=" Enter New Column Name"
+        /> -->
+        </div>
+        <button (click)="toggleColumnActionsVisibility()" class="icon-button">
+          <i class="material-icons">{{
+            isColumnActionsVisible ? "remove" : "add"
+          }}</i>
+        </button>
+      </div>
+    </div>
+
     <div class="side-by-side-tables">
       <!-- First Table -->
       <div class="table-wrapper">
-        <h3>{{ getTableHeader(0) }}</h3>
+        <!-- <h3>{{ getTableHeader(0) }}</h3> -->
         <div *ngIf="filteredData(0).length === 0">
           <p class="nodata">
             No Data Found in {{ getTableHeader(0) }} for the entered search!
@@ -77,10 +107,18 @@
         <table *ngIf="filteredData(0).length > 0" class="mapping-table">
           <thead>
             <tr>
+              <th
+                [attr.colspan]="getTableFormat(0).length + (isAdmin() ? 1 : 0)"
+                style="padding: 10px"
+              >
+                {{ getTableHeader(0) }}
+              </th>
+            </tr>
+            <tr>
               <th *ngFor="let column of getTableFormat(0)">
                 {{ column.header }}
               </th>
-              <th *ngIf="isAdmin()">Actions</th>
+              <!-- <th *ngIf="isAdmin()">Actions</th> -->
             </tr>
           </thead>
           <tbody>
@@ -94,9 +132,9 @@
               >
                 {{ getRowValue(row, column) }}
               </td>
-              <td *ngIf="isAdmin()">
+              <!-- <td *ngIf="isAdmin()">
                 <button>Edit</button>
-              </td>
+              </td> -->
             </tr>
           </tbody>
         </table>
@@ -104,7 +142,7 @@
 
       <!-- Second Table -->
       <div class="table-wrapper">
-        <h3>{{ getTableHeader(1) }}</h3>
+        <!-- <h3>{{ getTableHeader(1) }}</h3> -->
         <div *ngIf="filteredData(1).length === 0">
           <p class="nodata">
             No Data Found in {{ getTableHeader(1) }} for the entered search!
@@ -112,11 +150,17 @@
         </div>
         <table *ngIf="filteredData(1).length > 0" class="mapping-table">
           <thead>
+            <th
+              [attr.colspan]="getTableFormat(1).length + (isAdmin() ? 1 : 0)"
+              style="padding: 10px"
+            >
+              {{ getTableHeader(1) }}
+            </th>
             <tr>
               <th *ngFor="let column of getTableFormat(1)">
                 {{ column.header }}
               </th>
-              <th *ngIf="isAdmin()">Actions</th>
+              <!-- <th *ngIf="isAdmin()">Actions</th> -->
             </tr>
           </thead>
           <tbody>
@@ -130,13 +174,18 @@
               >
                 {{ getRowValue(row, column) }}
               </td>
-              <td *ngIf="isAdmin()">
+              <!-- <td *ngIf="isAdmin()">
                 <button>Edit</button>
-              </td>
+              </td> -->
             </tr>
           </tbody>
         </table>
       </div>
     </div>
+  </div>
+  <div *ngIf="isAdmin()" class="column-button">
+    <button (click)="exportToExcel()">Export</button>
+    <button (click)="saveMap()">Save All</button>
+    <button (click)="undoDeleteColumnMap()">Undo Deletion</button>
   </div>
 </div>

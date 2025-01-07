@@ -23,6 +23,8 @@ button:hover {
 
 .admin-controld {
   margin-top: 2rem;
+  display: flex;
+  justify-content: space-between;
 }
 
 .admin-controld button {
@@ -104,10 +106,34 @@ label {
   font-weight: bold;
 }
 
+.button-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.icon-button {
+  background: none;
+  border: none;
+  color: #071975;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: color 0.3s;
+}
+
+.icon-button:hover {
+  color: #035493;
+}
+
+.icon-button i {
+  vertical-align: middle;
+}
+
 .side-by-side-tables {
   display: flex;
-  justify-content: space-between;
-  gap: 130px;
+  /* justify-content: space-between; */
+  /* gap: 130px; */
 }
 
 .table-container {
@@ -180,3 +206,10 @@ th {
   margin-top: 20px;
   text-align: center;
 }
+
+.column-button {
+  display: flex;
+  justify-content: flex-end;
+}
+
+
