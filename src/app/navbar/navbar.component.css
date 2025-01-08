@@ -88,23 +88,29 @@
   display: none !important;
 }
 
-.tabs > ul {
+ul {
+  display: flex;
+}
+
+.tabs ul {
   list-style-type: none;
   padding: 0;
   display: flex;
   justify-content: center;
 }
 
-.tabs > li {
+.tabs li {
   padding: 10px 20px;
   cursor: pointer;
   border: 1px solid #ccc;
   margin-right: 5px;
   border-radius: 5px;
   list-style-type: none;
+  background-color: steelblue;
+  color: white;
 }
 
-.tabs > li.active {
+.tabs li.active {
   background-color: white;
   color: #071975;
   font-weight: 640;
