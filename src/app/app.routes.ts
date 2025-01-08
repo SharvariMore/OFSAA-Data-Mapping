@@ -13,6 +13,8 @@ export const routes: Routes = [
   {path: 'index', component: IndexComponent},
   {path: 'changelog', component: ChangelogComponent},
   {path: 'data-mapping-rule', component: DataMappingRuleComponent},
+  { path: '', redirectTo: '/data-mapping-rule', pathMatch: 'full' }, // Default route
+  { path: '**', redirectTo: '/data-mapping-rule' }
   // {path: '**', redirectTo: 'main'},
 ];
 

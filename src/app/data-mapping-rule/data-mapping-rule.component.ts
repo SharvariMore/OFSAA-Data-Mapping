@@ -3,6 +3,7 @@ import { NavbarComponent } from '../navbar/navbar.component';
 import { RoleService } from '../role.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TabService } from '../tab.service';
 
 export interface MappingRow {
   [key: string]: any;
@@ -16,14 +17,21 @@ export interface MappingRow {
   styleUrl: './data-mapping-rule.component.css',
 })
 export class DataMappingRuleComponent {
-  activeTab: string = 'Source to FDS Pre-Stage Mapping Table';
+  activeTab: string = '';
   globalSearchText: string = '';
   globalFilterColumn: string = '';
   isButtonsVisible: boolean = false;
   isColumnActionsVisible: boolean = false;
 
-  constructor(private roleService: RoleService) {
+  constructor(private roleService: RoleService, private tabService: TabService) {
     // this.initNewRow();
+  }
+
+  ngOnInit(): void {
+    // Subscribe to activeTab$ to receive updates from TabService
+    this.tabService.activeTab$.subscribe((tab) => {
+      this.activeTab = tab;
+    });
   }
 
   /**

@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Component, Input } from '@angular/core';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { RoleService } from '../role.service';
+import { TabService } from '../tab.service';
 
 @Component({
   selector: 'app-navbar',
@@ -14,12 +15,22 @@ export class NavbarComponent {
   isNavbarOpen: boolean = false;
   currentRole: string | undefined;
   dropdownOpen: boolean = false;
+  tabs: string[] = ['Source to FDS Pre-Stage', 'FDS Pre-Stage to FDS Stage Mapping Table', 'FDS Generated ID TP Mapping Table'];
+  activeTab: string = this.tabs[0];
 
-  constructor(private roleService: RoleService) {}
+  constructor(private roleService: RoleService, private tabService: TabService, private activatedRoute: ActivatedRoute, public router: Router) {}
 
   ngOnInit(): void {
     this.roleService.role$.subscribe((role) => {
       this.currentRole = role;
+    });
+
+    this.router.events.subscribe(() => {
+      if (this.router.url === '/data-mapping-rule') {
+        this.showTabs();
+      } else {
+        this.hideTabs();
+      }
     });
   }
 
@@ -39,5 +50,18 @@ export class NavbarComponent {
 
   getOtherRole(): 'User' | 'Admin' {
     return this.currentRole === 'User' ? 'Admin' : 'User';
+  }
+
+  switchTab(tab: string) {
+    this.activeTab = tab;
+    this.tabService.setActiveTab(tab);
+  }
+
+  showTabs(): void {
+    this.activeTab = this.tabs[0];
+  }
+
+  hideTabs(): void {
+    this.activeTab = '';
   }
 }
