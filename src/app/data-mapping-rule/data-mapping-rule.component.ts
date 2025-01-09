@@ -40,15 +40,15 @@ export class DataMappingRuleComponent {
    */
   getTableFormat(tableIndex: number): { header: string; field: string }[] {
     const tabFormats: Record<string, { header: string; field: string }[][]> = {
-      'Source to FDS Pre-Stage Mapping Table': [
+      'Pre-Stage Table': [
         this.tableFormats['sourceTable'],
         this.tableFormats['fdsPreStageTable'],
       ],
-      'FDS Pre-Stage to FDS Stage Mapping Table': [
+      'Stage Table': [
         this.tableFormats['fdsPreStageTable1'],
         this.tableFormats['fdsStageTable'],
       ],
-      'FDS Generated ID TP Mapping Table': [
+      'ID TP Table': [
         this.tableFormats['fdsgenerated'],
         this.tableFormats['tpMapTable'],
       ],
@@ -63,15 +63,15 @@ export class DataMappingRuleComponent {
    */
   getMappingRules(tableIndex: number): MappingRow[] {
     const tabRules: Record<string, MappingRow[][]> = {
-      'Source to FDS Pre-Stage Mapping Table': [
+      'Pre-Stage Table': [
         this.mappingRules['sourceTable'],
         this.mappingRules['fdsPreStageTable'],
       ],
-      'FDS Pre-Stage to FDS Stage Mapping Table': [
+      'Stage Table': [
         this.mappingRules['fdsPreStageTable1'],
         this.mappingRules['fdsStageTable'],
       ],
-      'FDS Generated ID TP Mapping Table': [
+      'ID TP Table': [
         this.mappingRules['fdsgenerated'],
         this.mappingRules['tpMapTable'],
       ],
@@ -86,25 +86,27 @@ export class DataMappingRuleComponent {
    */
   getTableHeader(tableIndex: number): string {
     const tabHeaders: Record<string, string[]> = {
-      'Source to FDS Pre-Stage Mapping Table': [
+      'Pre-Stage Table': [
         'Source Table',
         'FDS Pre-Stage Table',
       ],
-      'FDS Pre-Stage to FDS Stage Mapping Table': [
+      'Stage Table': [
         'FDS Pre-Stage Table',
         'FDS Stage Table',
       ],
-      'FDS Generated ID TP Mapping Table': ['Source Table', 'ID TP Table'],
+      'ID TP Table': ['Source Table', 'ID TP Table'],
     };
 
     return tabHeaders[this.activeTab]?.[tableIndex] || 'Table';
   }
 
-  tabs = [
-    'Source to FDS Pre-Stage Mapping Table',
-    'FDS Pre-Stage to FDS Stage Mapping Table',
-    'FDS Generated ID TP Mapping Table',
-  ];
+  // tabs = [
+  //   'Source to FDS Pre-Stage Mapping Table',
+  //   'FDS Pre-Stage to FDS Stage Mapping Table',
+  //   'FDS Generated ID TP Mapping Table',
+  // ];
+
+  tabs = ['Pre-Stage Table', 'Stage Table', 'ID TP Table']
 
   tableFormats: { [key: string]: Array<{ header: string; field: string }> } = {
     sourceTable: [

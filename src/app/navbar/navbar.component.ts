@@ -15,7 +15,7 @@ export class NavbarComponent {
   isNavbarOpen: boolean = false;
   currentRole: string | undefined;
   dropdownOpen: boolean = false;
-  tabs: string[] = ['Source to FDS Pre-Stage', 'FDS Pre-Stage to FDS Stage Mapping Table', 'FDS Generated ID TP Mapping Table'];
+  tabs: string[] = ['Pre-Stage Table', 'Stage Table', 'ID TP Table'];
   activeTab: string = this.tabs[0];
 
   constructor(private roleService: RoleService, private tabService: TabService, private activatedRoute: ActivatedRoute, public router: Router) {}
@@ -52,7 +52,7 @@ export class NavbarComponent {
     return this.currentRole === 'User' ? 'Admin' : 'User';
   }
 
-  switchTab(tab: string) {
+  switchTab(tab: string): void {
     this.activeTab = tab;
     this.tabService.setActiveTab(tab);
   }

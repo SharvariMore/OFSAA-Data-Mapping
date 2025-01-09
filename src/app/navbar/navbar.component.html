@@ -15,16 +15,16 @@
     </li>
   </ul>
   <div class="display:flex;">
-  <ul class="tabs" *ngIf="router.url === '/data-mapping-rule'">
-    <li
-      *ngFor="let tab of tabs"
-      (click)="switchTab(tab)"
-      [class.active]="activeTab === tab"
-    >
-      {{ tab }}
-    </li>
-  </ul>
-</div>
+    <ul class="tabs" *ngIf="router.url === '/data-mapping-rule'">
+      <li
+        *ngFor="let tab of tabs"
+        (click)="switchTab(tab)"
+        [class.active]="activeTab === tab"
+      >
+        {{ tab }}
+      </li>
+    </ul>
+  </div>
 
   <!-- <span>{{currentRole}}</span> -->
   <div class="role-container" [ngClass]="{ hidden: isNavbarOpen }">
