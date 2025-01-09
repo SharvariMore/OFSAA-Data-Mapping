@@ -1,12 +1,35 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { RoleService } from '../role.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TabService } from '../tab.service';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogComponent } from '../dialog/dialog.component';
+import { firstValueFrom } from 'rxjs';
 
 export interface MappingRow {
-  [key: string]: any;
+  [key: string]: string | number | boolean | any;
+  srNo?: number;
+  sourceTable?: string;
+  sourceColumn?: string;
+  transformation?: string;
+  comment?: string;
+
+  fdsTable?: string;
+  fdsColumn?: string;
+  dataType?: string;
+  pk?: string;
+  nullable?: string;
+  fdsComment?: string;
+
+  fdsStageTable?: string;
+  fdsStageColumn?: string;
+  stageDataType?: string;
+  stagePk?: string;
+  stageNullable?: string;
+  custom?: string;
+  stageComment?: string;
 }
 
 @Component({
@@ -23,7 +46,12 @@ export class DataMappingRuleComponent {
   isButtonsVisible: boolean = false;
   isColumnActionsVisible: boolean = false;
 
-  constructor(private roleService: RoleService, private tabService: TabService) {
+  constructor(
+    private roleService: RoleService,
+    private tabService: TabService,
+    private cdr: ChangeDetectorRef,
+    private dialog: MatDialog
+  ) {
     // this.initNewRow();
   }
 
@@ -86,19 +114,49 @@ export class DataMappingRuleComponent {
    */
   getTableHeader(tableIndex: number): string {
     const tabHeaders: Record<string, string[]> = {
-      'Pre-Stage Table': [
-        'Source Table',
-        'FDS Pre-Stage Table',
-      ],
-      'Stage Table': [
-        'FDS Pre-Stage Table',
-        'FDS Stage Table',
-      ],
+      'Pre-Stage Table': ['Source Table', 'FDS Pre-Stage Table'],
+      'Stage Table': ['FDS Pre-Stage Table', 'FDS Stage Table'],
       'ID TP Table': ['Source Table', 'ID TP Table'],
     };
 
     return tabHeaders[this.activeTab]?.[tableIndex] || 'Table';
   }
+
+  /**
+ * Returns the headers of the tables for the active tab.
+ */
+getActiveTabTableHeaders(): string[] {
+  const tabHeaders: Record<string, string[]> = {
+    'Pre-Stage Table': ['Source Table', 'FDS Pre-Stage Table'],
+    'Stage Table': ['FDS Pre-Stage Table', 'FDS Stage Table'],
+    'ID TP Table': ['Source Table', 'ID TP Table'],
+  };
+
+  return tabHeaders[this.activeTab] || [];
+}
+
+/**
+ * Returns the mapping rules for the specified table header in the active tab.
+ * @param tableHeader Header of the table.
+ */
+getMappingRulesByHeader(tableHeader: string): MappingRow[] {
+  const tabRules: Record<string, Record<string, MappingRow[]>> = {
+    'Pre-Stage Table': {
+      'Source Table': this.mappingRules['sourceTable'],
+      'FDS Pre-Stage Table': this.mappingRules['fdsPreStageTable'],
+    },
+    'Stage Table': {
+      'FDS Pre-Stage Table': this.mappingRules['fdsPreStageTable1'],
+      'FDS Stage Table': this.mappingRules['fdsStageTable'],
+    },
+    'ID TP Table': {
+      'Source Table': this.mappingRules['fdsgenerated'],
+      'ID TP Table': this.mappingRules['tpMapTable'],
+    },
+  };
+
+  return tabRules[this.activeTab]?.[tableHeader] || [];
+}
 
   // tabs = [
   //   'Source to FDS Pre-Stage Mapping Table',
@@ -106,7 +164,7 @@ export class DataMappingRuleComponent {
   //   'FDS Generated ID TP Mapping Table',
   // ];
 
-  tabs = ['Pre-Stage Table', 'Stage Table', 'ID TP Table']
+  tabs = ['Pre-Stage Table', 'Stage Table', 'ID TP Table'];
 
   tableFormats: { [key: string]: Array<{ header: string; field: string }> } = {
     sourceTable: [
@@ -270,6 +328,38 @@ export class DataMappingRuleComponent {
     ],
   };
 
+  openDialog(message: string, title: string = 'Notification') {
+    this.dialog.open(DialogComponent, {
+      data: { title: title, message: message },
+    });
+  }
+
+  async openInputDialog(
+    title: string,
+    message: string,
+    inputLabel: string = '',
+    inputValue: string = '',
+    selectLabel: string = '',
+    options: string[] = [],
+    selectedOption: string = ''
+  ): Promise<string | null> {
+    const dialogRef = this.dialog.open(DialogComponent, {
+      data: {
+        title,
+        message,
+        input: !!inputLabel,
+        inputLabel,
+        inputValue,
+        selectLabel,
+        options,
+        selectedOption,
+      },
+    });
+
+    // return dialogRef.afterClosed().toPromise();
+    return firstValueFrom(dialogRef.afterClosed());
+  }
+
   isAdmin(): boolean {
     return this.roleService.getRole() === 'Admin';
   }
@@ -331,9 +421,101 @@ export class DataMappingRuleComponent {
     return element.offsetWidth < element.scrollWidth;
   }
 
-  addMap() {
+  async addMap() {
     if (!this.isAdmin()) return;
-    alert('Add content clicked!');
+    const tableChoice = await this.openInputDialog(
+      'Select Table',
+      'For which table do you want to add a new row?',
+      '',
+      '',
+      'Select Table:',
+      this.getActiveTabTableHeaders(), // Fetches the headers of the active tab's tables
+      this.getActiveTabTableHeaders()[0] // Default selection is the first table's header
+    );
+
+    if (!tableChoice) return;
+
+    const insertOption = await this.openInputDialog(
+      'Insert Row',
+      `Where do you want to insert a new row in "${tableChoice}"?`,
+      '',
+      '',
+      'Select Option:',
+      ['At the Beginning', 'At the End', 'In Between'],
+      'At the Beginning'
+    );
+
+    if (!insertOption) return;
+
+    const newRow: MappingRow = {
+      srNo: this.getMappingRulesByHeader(tableChoice).length + 1,
+      sourceTable: 'New Source Table',
+      sourceColumn: 'New Source Column',
+      transformation: 'New Transformation',
+      comment: 'New Comment',
+      fdsTable: 'New FDS Table',
+      fdsColumn: 'New FDS Column',
+      dataType: 'New Data Type',
+      pk: 'No',
+      nullable: 'Yes',
+      fdsComment: 'New Comment',
+      fdsStageTable: 'New FDS Stage Table',
+      fdsStageColumn: 'New FDS Stage Column',
+      stageDataType: 'New Stage Data Type',
+      stagePk: 'No',
+      stageNullable: 'Yes',
+      custom: 'Custom Value',
+      stageComment: 'New Stage Comment',
+    };
+
+    const tableData = this.getMappingRulesByHeader(tableChoice);
+
+    switch (insertOption.trim()) {
+      case 'At the Beginning': {
+        tableData.unshift(newRow);
+        this.openDialog(`New row added at the beginning of "${tableChoice}"! You can now edit it.`);
+        break;
+      }
+
+      case 'At the End': {
+        tableData.push(newRow);
+        this.openDialog(`New row added at the end of "${tableChoice}"! You can now edit it.`);
+        break;
+      }
+
+      case 'In Between': {
+        const position = await this.openInputDialog(
+          'Select Position',
+          `Enter the position (1 to ${tableData.length}) where you want to insert a new row in "${tableChoice}":`,
+          'Position',
+          ''
+        );
+
+        if (position) {
+          const index = Number(position) - 1;
+          if (index >= 0 && index <= tableData.length) {
+            tableData.splice(index, 0, newRow);
+            this.openDialog(`New row added at position ${index + 1} in "${tableChoice}"! You can now edit it.`);
+          } else {
+            this.openDialog('Invalid position!');
+          }
+        } else {
+          return;
+        }
+        break;
+      }
+
+      default:
+        this.openDialog('Invalid option!');
+        break;
+    }
+
+    // Reassign serial numbers
+    tableData.forEach((row, index) => {
+      row.srNo = index + 1;
+    });
+
+    this.cdr.detectChanges();
   }
 
   editMap() {

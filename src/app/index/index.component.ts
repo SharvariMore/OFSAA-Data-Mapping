@@ -321,7 +321,7 @@ export class IndexComponent {
   //     const inValidRows = this.tableData.filter((row) => {
   //       return requiredFields.some(
   //         (field: string | number) =>
-  //           !row[field] || row[field].toString().trim() === ''
+  //           row[field] || row[field].toString().trim() === ''
   //       );
   //     });
 
