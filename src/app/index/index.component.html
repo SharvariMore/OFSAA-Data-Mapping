@@ -42,7 +42,7 @@
       <button (click)="toggleButtonsVisibility()" class="icon-button">
         <i class="material-icons">{{ isButtonsVisible ? 'remove' : 'add' }}</i>
       </button>
-      <div *ngIf="isButtonsVisible">
+      <div *ngIf="isButtonsVisible" class="stacked-buttons">
       <button (click)="addData()">Add New Row</button>
       <!-- <button (click)="saveData()">Save All</button> -->
       <button (click)="deleteRow()">Delete Row</button>
