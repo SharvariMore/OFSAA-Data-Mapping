@@ -215,6 +215,16 @@ th {
     align-items: stretch;
   }
 
+  .stacked-buttons {
+    flex-direction: column;
+    gap: 5px;
+    width: 100%;
+  }
+
+  .stacked-buttons button {
+    width: 100%;
+  }
+
 }
 
 .pagination-controls {

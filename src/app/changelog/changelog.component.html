@@ -36,24 +36,18 @@
     <button (click)="toggleButtonsVisibility()" class="icon-button">
       <i class="material-icons">{{ isButtonsVisible ? 'remove' : 'add' }}</i>
     </button>
-    <div *ngIf="isButtonsVisible">
-       <button (click)="addChange()">Add New Row</button>
-       <button (click)="saveNewRow()">Save All Rows</button>
+    <div *ngIf="isButtonsVisible" class="stacked-buttons">
+       <button (click)="addData()">Add New Row</button>
+       <!-- <button (click)="saveNewRow()">Save All Rows</button> -->
        <button *ngIf="isAdmin()" (click)="deleteSelectedRows()" [disabled]="!selectedRows.length">
         <i class="fas fa-trash"></i>
       </button>
     </div>
   </div>
-    <!-- <div *ngIf="isAdmin()" class="admin-column">
-      <button (click)="editColumnData()">Edit Column Data</button>
-      <button (click)="saveAllColumns()">Save All Columns</button>
-      <button (click)="addColumn()">Add New Column</button>
-      <input type="text" class="input-column" [(ngModel)]="newColumnName" placeholder=" Enter New Column Name" />
-    </div> -->
     <div class="button-container">
       <div *ngIf="isColumnActionsVisible">
         <button (click)="editColumnData()">Edit Column Data</button>
-        <button (click)="saveAllColumns()">Save All Columns</button>
+        <button (click)="deleteColumn()">Delete Column</button> 
         <button (click)="addColumn()">Add New Column</button>
         <input type="text" class="input-column" [(ngModel)]="newColumnName" placeholder="Enter New Column Name" />
       </div>
@@ -71,7 +65,7 @@
         <th>
           <input type="checkbox" [(ngModel)]="selectAll" (change)="toggleSelectAll()" />
         </th>
-        <th>Sr. No.</th>
+        <!-- <th>Sr. No.</th>
         <th>OFSAA Mapping Change Date</th>
         <th>OFSAA Stage Table Name</th>
         <th>Change Details</th>
@@ -81,8 +75,8 @@
         <th>Verified Y/N</th>
         <th>Verified by</th>
         <th>Verified Date</th>
-        <th>Comments</th>
-        <th *ngFor="let column of filteredTableColumns">{{ column.header }}</th>
+        <th>Comments</th> -->
+        <th *ngFor="let column of tableColumns">{{ column.header }}</th>
         <th *ngIf="isAdmin()">Actions</th>
       </tr>
     </thead>
@@ -92,156 +86,80 @@
         <td>
           <input type="checkbox" [(ngModel)]="row.isSelected"  (change)="updateSelectAll()" />
         </td>
-        <!-- Column 1: Serial Number -->
-        <td [ngClass]="{ highlights: matchText(row.srNo) }">{{ row.srNo }}</td>
+        
+        <td>{{ row.srNo }}</td>
 
-        <!-- Column 2: OFSAA Mapping Change Date -->
-        <td *ngIf="editingRow === row">
-          <input type="date" [(ngModel)]="row.ofsaaMappingChangeDate" />
-        </td>
-        <td
-        class="td-overflow"
-        [title]="row.ofsaaMappingChangeDate"
-        *ngIf="editingRow !== row"
-        [ngClass]="{highlights: matchText(row.ofsaaMappingChangeDate)}">
-          {{ row.ofsaaMappingChangeDate | date:'shortDate' }}
-        </td>
 
-        <!-- Column 3: OFSAA Stage Table Name -->
-        <td *ngIf="editingRow === row">
-          <input [(ngModel)]="row.ofsaaStageTableName" />
-        </td>
-        <td
-        class="td-overflow"
-        [title]="row.ofsaaStageTableName"
-        [ngClass]="{highlights:matchText(row.ofsaaStageTableName)}"
-         *ngIf="editingRow !== row">
-          {{ row.ofsaaStageTableName }}
-        </td>
+        <td>{{ row.ofsaaMappingChangeDate | date: 'shortDate' }}</td>
 
-        <!-- Column 4: Change Details -->
-        <td *ngIf="editingRow === row">
-          <input [(ngModel)]="row.changeDetails" />
-        </td>
-        <td
-        class="td-overflow"
-        [title]="row.changeDetails"
-        [ngClass]="{highlights:matchText(row.changeDetails)}"
-        *ngIf="editingRow !== row">
-          {{ row.changeDetails }}
-        </td>
+        <!-- OFSAA Stage Table Name (Auto-Generated) -->
+        <td>{{ row.ofsaaStageTableName }}</td>
 
-        <!-- Column 5: OFSAA Change By -->
-        <td *ngIf="editingRow === row">
-          <input [(ngModel)]="row.ofsaaChangeBy" />
-        </td>
-        <td
-        class="td-overflow"
-        [title]="row.ofsaaChangeBy"
-        [ngClass]="{highlights:matchText(row.ofsaaChangeBy)}"
-        *ngIf="editingRow !== row">
-          {{ row.ofsaaChangeBy }}
-        </td>
-
-        <!-- Column 6: ODI Build Status -->
-        <td *ngIf="editingRow === row">
-          <input [(ngModel)]="row.odiBuildStatus" />
-        </td>
-        <td
-        class="td-overflow"
-        [title]="row.odiBuildStatus"
-        [ngClass]="{highlights:matchText(row.odiBuildStatus)}"
-        *ngIf="editingRow !== row">
-          {{ row.odiBuildStatus }}
-        </td>
-
-        <!-- Column 7: ODI Build Date -->
-        <td *ngIf="editingRow === row">
-          <input type="date" [(ngModel)]="row.odiBuildDate" />
-        </td>
-        <td
-        class="td-overflow"
-        [title]="row.odiBuildDate"
-        [ngClass]="{highlights:matchText(row.odiBuildDate)}"
-        *ngIf="editingRow !== row">
-          {{ row.odiBuildDate | date:'shortDate' }}
-        </td>
-
-        <!-- Column 8: Verified (Yes/No) -->
-        <td *ngIf="editingRow === row">
-          <select [(ngModel)]="row.verified_yn">
-            <option [value]="'Yes'" [selected]="row.verified_yn === 'Y'">Yes</option>
-            <option [value]="'No'" [selected]="row.verified_yn === 'N'">No</option>
-          </select>
-        </td>
-        <td
-        class="td-overflow"
-        [title]="row.verified_yn"
-        [ngClass]="{highlights:matchText(row.verified_yn)}"
-        *ngIf="editingRow !== row">
-          {{ row.verified_yn }}
-        </td>
-
-        <!-- Column 9: Verified By -->
-        <td *ngIf="editingRow === row">
-          <input [(ngModel)]="row.verifiedBy" />
-        </td>
-        <td
-        class="td-overflow"
-        [title]="row.verifiedBy"
-        [ngClass]="{highlights:matchText(row.verifiedBy)}"
-        *ngIf="editingRow !== row">
-          {{ row.verifiedBy }}
-        </td>
-
-        <!-- Column 10: Verified Date -->
-        <td *ngIf="editingRow === row">
-          <input type="date" [(ngModel)]="row.verifiedDate" />
-        </td>
-        <td
-        class="td-overflow"
-        [title]="row.verifiedDate"
-        [ngClass]="{highlights:matchText(row.verifiedDate)}"
-        *ngIf="editingRow !== row">
-          {{ row.verifiedDate | date:'shortDate' }}
-        </td>
-
-        <!-- Column 11: Comments -->
-        <td *ngIf="editingRow === row">
-          <textarea [(ngModel)]="row.comments"></textarea>
-        </td>
-        <td
-        class="td-overflow"
-        [title]="row.comments"
-        [ngClass]="{highlights:matchText(row.comments)}"
-        *ngIf="editingRow !== row">
-          {{ row.comments }}
-        </td>
-
-        <!-- Column 12: Dynamic Columns for Admin -->
-        <td *ngFor="let column of filteredTableColumns">
-          <span *ngIf="!isAdmin()">{{ row[column.field] }}</span>
+        <!-- Change Details (Editable Text Field) -->
+        <td>
           <input
+            *ngIf="editingRow === row"
             type="text"
-          [ value]="row[column.field]"
-            *ngIf="isAdmin()"
-            [(ngModel)]="row[column.field]"
-            placeholder="Enter Data"
-            (change)="saveColumnData(row, column, $event)"
-            [ngClass]="{
-              'no-border': row[column.field + '_dirty'],
-              'input-default': !row[column.field + '_dirty']
-            }"
+            [(ngModel)]="row.changeDetails"
+            placeholder="Enter Change Details"
           />
+          <span *ngIf="editingRow !== row">{{ row.changeDetails }}</span>
         </td>
 
-        <!-- Column 13: Edit/Save Button -->
+        <!-- OFSAA Change By (Dropdown) -->
+        <td>
+          <select *ngIf="editingRow === row" [(ngModel)]="row.ofsaaChangeBy">
+            <option *ngFor="let user of userOptions" [value]="user">{{ user }}</option>
+          </select>
+          <span *ngIf="editingRow !== row">{{ row.ofsaaChangeBy }}</span>
+        </td>
+
+        <!-- ODI Build Status (Dropdown) -->
+        <td>
+          <select *ngIf="editingRow === row" [(ngModel)]="row.odiBuildStatus">
+            <option *ngFor="let status of buildStatusOptions" [value]="status">{{ status }}</option>
+          </select>
+          <span *ngIf="editingRow !== row">{{ row.odiBuildStatus }}</span>
+        </td>
+
+        <!-- ODI Build Date (Auto-Generated) -->
+        <td>{{ row.odiBuildDate | date: 'shortDate' }}</td>
+
+        <!-- Verified (Yes/No) Dropdown -->
+        <td>
+          <select *ngIf="editingRow === row" [(ngModel)]="row.verified_yn">
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+          </select>
+          <span *ngIf="editingRow !== row">{{ row.verified_yn }}</span>
+        </td>
+
+        <!-- Verified By (Dropdown) -->
+        <td>
+          <select *ngIf="editingRow === row" [(ngModel)]="row.verifiedBy">
+            <option *ngFor="let admin of adminOptions" [value]="admin">{{ admin }}</option>
+          </select>
+          <span *ngIf="editingRow !== row">{{ row.verifiedBy }}</span>
+        </td>
+
+        <!-- Verified Date (Auto-Generated) -->
+        <td>{{ row.verifiedDate | date: 'shortDate' }}</td>
+
+        <!-- Comments (Editable Text Field) -->
+        <td>
+          <textarea
+            *ngIf="editingRow === row"
+            [(ngModel)]="row.comments"
+            placeholder="Enter Comments"
+          ></textarea>
+          <span *ngIf="editingRow !== row">{{ row.comments }}</span>
+        </td>
+
+        <!-- Edit/Save Button -->
         <td *ngIf="isAdmin()">
-          <div>
-              <button (click)="editChange(row)" class="icon-button">
-                  <i class="material-icons">{{ editingRow === row ? 'save' : 'edit' }}</i>
-              </button>
-          </div>
+          <button (click)="toggleEdit(row)">
+            {{ editingRow === row ? 'Save' : 'Edit' }}
+          </button>
         </td>
       </tr>
 
@@ -256,7 +174,9 @@
     ></pagination-controls>
   </div>
    <div *ngIf="isAdmin()" class="column-button">
+    <button (click)="saveChanges()"> Save </button>
     <button (click)="exportToExcel()">Export</button>
+    <button (click)="undoDeleteColumn()">Undo Deletion</button>
     <!-- <button (click)="saveAllColumns()">Save All Columns</button>
     <button *ngIf="isAdmin()" (click)="deleteSelectedRows()" [disabled]="!selectedRows.length">
       <i class="fas fa-trash"></i>
