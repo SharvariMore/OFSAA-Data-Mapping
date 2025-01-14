@@ -67,7 +67,7 @@
             isButtonsVisible ? "remove" : "add"
           }}</i>
         </button>
-        <div *ngIf="isButtonsVisible">
+        <div *ngIf="isButtonsVisible" class="stacked-buttons">
           <button (click)="addMap()">Add New Row</button>
           <button (click)="editMap()">Edit Row</button>
           <button (click)="deleteMap()">Delete Row</button>
