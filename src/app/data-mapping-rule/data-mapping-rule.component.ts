@@ -45,6 +45,7 @@ export class DataMappingRuleComponent {
   globalFilterColumn: string = '';
   isButtonsVisible: boolean = false;
   isColumnActionsVisible: boolean = false;
+  columnName: string = '';
 
   constructor(
     private roleService: RoleService,
@@ -528,9 +529,60 @@ getMappingRulesByHeader(tableHeader: string): MappingRow[] {
     alert('Delete content clicked!');
   }
 
-  addColumnMap() {
+  async addColumnMap() {
     if (!this.isAdmin()) return;
-    alert('Add content clicked!');
+
+    const tableHeaders = this.getActiveTabTableHeaders();
+
+    const tableChoice = await this.openInputDialog(
+      'Select Table',
+      'For which table do you want to add a new column?',
+      '',
+      '',
+      'Select Table:',
+      tableHeaders,
+      tableHeaders[0]
+    );
+
+    if (!tableChoice) return;
+
+    const columnName = await this.openInputDialog(
+      'Enter New Column Name',
+      `Enter Name of New Column for "${tableChoice}":`,
+      'Column Name',
+      ''
+    );
+
+    if (!columnName || columnName.trim() === '') {
+      this.openDialog('Please Enter Column Name!');
+      return;
+    }
+
+
+    const newField = columnName.replace(/\s+/g, '').toLowerCase();
+    const tableData = this.getMappingRulesByHeader(tableChoice);
+    const tableFormat = this.getTableFormat(tableHeaders.indexOf(tableChoice));
+
+    if (
+      tableFormat.some(
+        (column) => column.field === newField || column.header === columnName
+      )
+    ) {
+      this.openDialog(`Column "${columnName}" Already Exists in "${tableChoice}"!`);
+      return;
+    }
+
+    const newColumn = { header: columnName, field: newField };
+    tableFormat.push(newColumn);
+
+    tableData.forEach((row) => {
+      row[newField] = '';
+    });
+
+    this.cdr.detectChanges();
+
+    this.openDialog(`New column "${columnName}" Added to "${tableChoice}" Successfully!`);
+
   }
 
   editColumnMap() {
