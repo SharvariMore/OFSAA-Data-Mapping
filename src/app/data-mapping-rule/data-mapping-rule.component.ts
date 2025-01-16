@@ -46,6 +46,11 @@ export class DataMappingRuleComponent {
   isButtonsVisible: boolean = false;
   isColumnActionsVisible: boolean = false;
   columnName: string = '';
+  isEditing: boolean = false;
+  editingRow: MappingRow | null = null;
+  // selectedTableIndex: number = -1; // Keeps track of the selected table (0 or 1)
+  // selectedRowIndex: number = -1; // Keeps track of the selected row index
+  // editingRow: { [tableIndex: number]: MappingRow | null } = { 0: null, 1: null };
 
   constructor(
     private roleService: RoleService,
@@ -124,40 +129,40 @@ export class DataMappingRuleComponent {
   }
 
   /**
- * Returns the headers of the tables for the active tab.
- */
-getActiveTabTableHeaders(): string[] {
-  const tabHeaders: Record<string, string[]> = {
-    'Pre-Stage Table': ['Source Table', 'FDS Pre-Stage Table'],
-    'Stage Table': ['FDS Pre-Stage Table', 'FDS Stage Table'],
-    'ID TP Table': ['Source Table', 'ID TP Table'],
-  };
+   * Returns the headers of the tables for the active tab.
+   */
+  getActiveTabTableHeaders(): string[] {
+    const tabHeaders: Record<string, string[]> = {
+      'Pre-Stage Table': ['Source Table', 'FDS Pre-Stage Table'],
+      'Stage Table': ['FDS Pre-Stage Table', 'FDS Stage Table'],
+      'ID TP Table': ['Source Table', 'ID TP Table'],
+    };
 
-  return tabHeaders[this.activeTab] || [];
-}
+    return tabHeaders[this.activeTab] || [];
+  }
 
-/**
- * Returns the mapping rules for the specified table header in the active tab.
- * @param tableHeader Header of the table.
- */
-getMappingRulesByHeader(tableHeader: string): MappingRow[] {
-  const tabRules: Record<string, Record<string, MappingRow[]>> = {
-    'Pre-Stage Table': {
-      'Source Table': this.mappingRules['sourceTable'],
-      'FDS Pre-Stage Table': this.mappingRules['fdsPreStageTable'],
-    },
-    'Stage Table': {
-      'FDS Pre-Stage Table': this.mappingRules['fdsPreStageTable1'],
-      'FDS Stage Table': this.mappingRules['fdsStageTable'],
-    },
-    'ID TP Table': {
-      'Source Table': this.mappingRules['fdsgenerated'],
-      'ID TP Table': this.mappingRules['tpMapTable'],
-    },
-  };
+  /**
+   * Returns the mapping rules for the specified table header in the active tab.
+   * @param tableHeader Header of the table.
+   */
+  getMappingRulesByHeader(tableHeader: string): MappingRow[] {
+    const tabRules: Record<string, Record<string, MappingRow[]>> = {
+      'Pre-Stage Table': {
+        'Source Table': this.mappingRules['sourceTable'],
+        'FDS Pre-Stage Table': this.mappingRules['fdsPreStageTable'],
+      },
+      'Stage Table': {
+        'FDS Pre-Stage Table': this.mappingRules['fdsPreStageTable1'],
+        'FDS Stage Table': this.mappingRules['fdsStageTable'],
+      },
+      'ID TP Table': {
+        'Source Table': this.mappingRules['fdsgenerated'],
+        'ID TP Table': this.mappingRules['tpMapTable'],
+      },
+    };
 
-  return tabRules[this.activeTab]?.[tableHeader] || [];
-}
+    return tabRules[this.activeTab]?.[tableHeader] || [];
+  }
 
   // tabs = [
   //   'Source to FDS Pre-Stage Mapping Table',
@@ -474,13 +479,17 @@ getMappingRulesByHeader(tableHeader: string): MappingRow[] {
     switch (insertOption.trim()) {
       case 'At the Beginning': {
         tableData.unshift(newRow);
-        this.openDialog(`New row added at the beginning of "${tableChoice}"! You can now edit it.`);
+        this.openDialog(
+          `New row added at the beginning of "${tableChoice}"! You can now edit it.`
+        );
         break;
       }
 
       case 'At the End': {
         tableData.push(newRow);
-        this.openDialog(`New row added at the end of "${tableChoice}"! You can now edit it.`);
+        this.openDialog(
+          `New row added at the end of "${tableChoice}"! You can now edit it.`
+        );
         break;
       }
 
@@ -496,7 +505,11 @@ getMappingRulesByHeader(tableHeader: string): MappingRow[] {
           const index = Number(position) - 1;
           if (index >= 0 && index <= tableData.length) {
             tableData.splice(index, 0, newRow);
-            this.openDialog(`New row added at position ${index + 1} in "${tableChoice}"! You can now edit it.`);
+            this.openDialog(
+              `New row added at position ${
+                index + 1
+              } in "${tableChoice}"! You can now edit it.`
+            );
           } else {
             this.openDialog('Invalid position!');
           }
@@ -519,9 +532,30 @@ getMappingRulesByHeader(tableHeader: string): MappingRow[] {
     this.cdr.detectChanges();
   }
 
+  // selectRow(tableIndex: number, rowIndex: number): void {
+  //   this.selectedTableIndex = tableIndex;
+  //   this.selectedRowIndex = rowIndex;
+  // }
+
   editMap() {
     if (!this.isAdmin()) return;
-    alert('Edit content clicked!');
+
+    this.isEditing = !this.isEditing;
+
+    if (!this.isEditing) {
+      this.saveMap();
+    }
+  }
+
+  editRow(row: MappingRow): void {
+    if (!this.isAdmin()) return;
+
+    if (this.editingRow === row) {
+      this.editingRow = null;
+      this.openDialog('Edited Data Successfully!');
+    } else {
+      this.editingRow = row;
+    }
   }
 
   deleteMap() {
@@ -558,7 +592,6 @@ getMappingRulesByHeader(tableHeader: string): MappingRow[] {
       return;
     }
 
-
     const newField = columnName.replace(/\s+/g, '').toLowerCase();
     const tableData = this.getMappingRulesByHeader(tableChoice);
     const tableFormat = this.getTableFormat(tableHeaders.indexOf(tableChoice));
@@ -568,7 +601,9 @@ getMappingRulesByHeader(tableHeader: string): MappingRow[] {
         (column) => column.field === newField || column.header === columnName
       )
     ) {
-      this.openDialog(`Column "${columnName}" Already Exists in "${tableChoice}"!`);
+      this.openDialog(
+        `Column "${columnName}" Already Exists in "${tableChoice}"!`
+      );
       return;
     }
 
@@ -581,8 +616,9 @@ getMappingRulesByHeader(tableHeader: string): MappingRow[] {
 
     this.cdr.detectChanges();
 
-    this.openDialog(`New column "${columnName}" Added to "${tableChoice}" Successfully!`);
-
+    this.openDialog(
+      `New column "${columnName}" Added to "${tableChoice}" Successfully!`
+    );
   }
 
   editColumnMap() {
@@ -597,7 +633,9 @@ getMappingRulesByHeader(tableHeader: string): MappingRow[] {
 
   saveMap() {
     if (!this.isAdmin()) return;
-    alert('Save content clicked!');
+    this.openDialog('Data Saved Successfully!');
+    this.isEditing = false;
+    this.editingRow = null;
   }
 
   undoDeleteColumnMap() {

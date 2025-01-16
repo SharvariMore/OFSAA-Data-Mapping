@@ -57,6 +57,23 @@ label {
   margin-right: 5px;
 }
 
+.input-column {
+  height: 25px;
+  border-radius: 5px;
+  font-size: 15px;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+input {
+  border: 1px solid #ccc;
+  height: 25px;
+  padding: 8px;
+  border-radius: 5px;
+  font-size: 15px;
+}
+
+
 #globalFilter {
   width: 270px;
   padding: 8px;
@@ -137,12 +154,15 @@ label {
 }
 
 .table-container {
-  overflow-x: auto;
+  /* overflow-x: auto; */
+  overflow: visible;
   max-width: 100%;
+  transition: height 0.3s ease-in-out;
 }
 
 .table-wrapper {
   width: 48%;
+  overflow: visible;
 }
 
 .mapping-table {
@@ -174,6 +194,7 @@ li.active {
 table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: auto;
 }
 
 th,
@@ -210,6 +231,11 @@ th {
 .column-button {
   display: flex;
   justify-content: flex-end;
+}
+
+.selected-row {
+  background-color: #d3f4ff;
+  cursor: pointer;
 }
 
 @media (max-width: 768px) {
