@@ -165,6 +165,10 @@ input {
   overflow: visible;
 }
 
+.table-wrapper.editing-mode {
+  width: 100%;
+}
+
 .mapping-table {
   width: 100%;
   border-collapse: collapse;

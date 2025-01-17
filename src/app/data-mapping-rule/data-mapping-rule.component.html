@@ -97,7 +97,7 @@
 
     <div class="side-by-side-tables">
       <!-- First Table -->
-      <div class="table-wrapper">
+      <div class="table-wrapper" [ngClass]="{ 'editing-mode': isEditing }">
         <!-- <h3>{{ getTableHeader(0) }}</h3> -->
         <div *ngIf="filteredData(0).length === 0">
           <p class="nodata">
