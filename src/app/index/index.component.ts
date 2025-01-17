@@ -634,7 +634,7 @@ export class IndexComponent {
 
       case 'Edit a Series of Rows': {
         const rangeInput = await this.openInputDialog(
-          'Select Series',
+          'Enter Series',
           `Enter the Starting and Ending Row Numbers (separated by a hyphen [-]) to Edit in the "${selectedColumn.header}" column:`,
           'Series',
           ''

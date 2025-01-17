@@ -621,9 +621,131 @@ export class DataMappingRuleComponent {
     );
   }
 
-  editColumnMap() {
+  async editColumnMap() {
     if (!this.isAdmin()) return;
-    alert('Edit content clicked!');
+
+    const tableChoice = await this.openInputDialog(
+      'Select Table',
+      'In which table do you want to edit a row?',
+      '',
+      '',
+      'Select Table:',
+      this.getActiveTabTableHeaders(), // Fetch headers of active tab's tables
+      this.getActiveTabTableHeaders()[0] // Default selection is the first table's header
+    );
+
+    if (!tableChoice) return;
+
+    const selectedTable = this.getMappingRulesByHeader(tableChoice);
+
+    if (!selectedTable.length) {
+      this.openDialog(
+        `The selected table "${tableChoice}" has no rows to edit.`
+      );
+      return;
+    }
+
+    const editOption = await this.openInputDialog(
+      'Select Editing Option',
+      `Choose an option for Editing rows in "${tableChoice}":`,
+      '',
+      '',
+      'Select Any Option:',
+      ['Edit a Specific Row', 'Edit a Series of Rows'],
+      'Edit a Specific Row'
+    );
+
+    if (!editOption) return;
+
+    const columnToEdit = await this.openInputDialog(
+      'Edit Column',
+      `Enter the column name to edit in the "${tableChoice}" table:`,
+      'Header Name',
+      ''
+    );
+
+    if (!columnToEdit) return;
+
+    const selectedColumn = this.getTableFormat(
+      this.getActiveTabTableHeaders().indexOf(tableChoice)
+    ).find((col) => col.header.toLowerCase() === columnToEdit.toLowerCase());
+
+    if (!selectedColumn) {
+      this.openDialog('Invalid Column Name!');
+      return;
+    }
+
+    switch (editOption.trim()) {
+      case 'Edit a Specific Row': {
+        const newValue = await this.openInputDialog(
+          'Enter New Value',
+          `Enter the new value for the "${selectedColumn.header}" column across all rows:`,
+          'Value',
+          ''
+        );
+
+        if (newValue != null) {
+          selectedTable.forEach((row) => {
+            row[selectedColumn.field] = newValue;
+          });
+
+          this.openDialog(
+            `All rows in the "${selectedColumn.header}" column of "${tableChoice}" table have been updated to: ${newValue}.`
+          );
+          this.cdr.detectChanges();
+        }
+        break;
+      }
+
+      case 'Edit a Series of Rows': {
+        const rangeInput = await this.openInputDialog(
+          'Enter Row Range',
+          `Enter the Starting and Ending Row Numbers (separated by a hyphen [-]) in "${tableChoice}" table:`,
+          'Row Range',
+          ''
+        );
+
+        if (!rangeInput || !/^\d+-\d+$/.test(rangeInput)) {
+          this.openDialog(
+            'Invalid Row Range!'
+          );
+          return;
+        }
+
+        const [start, end] = rangeInput
+          .split('-')
+          .map((n) => parseInt(n.trim(), 10));
+        if (start > end || start < 1 || end > selectedTable.length) {
+          this.openDialog(
+            'Invalid Row Range!'
+          );
+          return;
+        }
+
+        const newValue = await this.openInputDialog(
+          'Enter New Value',
+          `Enter new value for rows ${start}-${end} in the "${selectedColumn.header}" column:`,
+          'Value',
+          ''
+        );
+
+        if (newValue != null) {
+          for (let i = start - 1; i < end; i++) {
+            selectedTable[i][selectedColumn.field] = newValue;
+          }
+
+          this.openDialog(
+            `Rows ${start}-${end} in the "${selectedColumn.header}" column of "${tableChoice}" table have been updated to: ${newValue}.`
+          );
+          this.cdr.detectChanges();
+        }
+        break;
+      }
+
+      default:
+        this.openDialog('Invalid option!');
+        break;
+    }
   }
 
   deleteColumnMap() {
