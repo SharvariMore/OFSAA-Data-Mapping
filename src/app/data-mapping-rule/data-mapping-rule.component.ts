@@ -242,6 +242,7 @@ export class DataMappingRuleComponent {
     ],
     fdsPreStageTable: [
       {
+        srNo: 1,
         fdsTable: 'FDS_Table1',
         fdsColumn: 'FDS_Column1',
         dataType: 'VARCHAR',
@@ -250,6 +251,7 @@ export class DataMappingRuleComponent {
         fdsComment: 'CommentA',
       },
       {
+        srNo: 2,
         fdsTable: 'FDS_Table2',
         fdsColumn: 'FDS_Column2',
         dataType: 'INT',
@@ -260,6 +262,7 @@ export class DataMappingRuleComponent {
     ],
     fdsPreStageTable1: [
       {
+        srNo: 1,
         fdsTable: 'FDS_Table1',
         fdsColumn: 'FDS_Column1',
         transformation: 'Transform2',
@@ -269,6 +272,7 @@ export class DataMappingRuleComponent {
         fdsComment: 'CommentB',
       },
       {
+        srNo: 2,
         fdsTable: 'FDS_Table2',
         fdsColumn: 'FDS_Column2',
         transformation: 'Transform3',
@@ -280,6 +284,7 @@ export class DataMappingRuleComponent {
     ],
     fdsStageTable: [
       {
+        srNo: 1,
         fdsStageTable: 'Stage_Table1',
         fdsStageColumn: 'Stage_Column1',
         stageDataType: 'NUMBER',
@@ -289,6 +294,7 @@ export class DataMappingRuleComponent {
         stageComment: 'CommentC',
       },
       {
+        srNo: 2,
         fdsStageTable: 'Stage_Table2',
         fdsStageColumn: 'Stage_Column2',
         stageDataType: 'VARCHAR',
@@ -316,6 +322,7 @@ export class DataMappingRuleComponent {
     ],
     tpMapTable: [
       {
+        srNo: 1,
         fdsTable: 'ID_Table1',
         fdsColumn: 'ID_Column1',
         dataType: 'INT',
@@ -324,6 +331,7 @@ export class DataMappingRuleComponent {
         fdsComment: 'CommentF',
       },
       {
+        srNo: 2,
         fdsTable: 'ID_Table2',
         fdsColumn: 'ID_Column2',
         dataType: 'VARCHAR',
@@ -401,8 +409,6 @@ export class DataMappingRuleComponent {
 
     if (!searchText) return data;
 
-    // const data = this.mappingRules[Object.keys(this.mappingRules)[tableIndex]];
-
     return data.filter((row) => {
       if (filterColumn) {
         return this.matchText(row[filterColumn], searchText);
@@ -412,6 +418,8 @@ export class DataMappingRuleComponent {
         );
       }
     });
+
+
   }
 
   matchText(value: any, searchText: string): boolean {
@@ -558,9 +566,138 @@ export class DataMappingRuleComponent {
     }
   }
 
-  deleteMap() {
+  async deleteMap() {
     if (!this.isAdmin()) return;
-    alert('Delete content clicked!');
+
+    const tableChoice = await this.openInputDialog(
+      'Select Table',
+      'From which table do you want to delete rows?',
+      '',
+      '',
+      'Select Table:',
+      this.getActiveTabTableHeaders(),
+      this.getActiveTabTableHeaders()[0]
+    );
+
+    if (!tableChoice) return;
+
+    const deleteOption = await this.openInputDialog(
+      'Delete Row',
+      `Choose an option for Deletion in "${tableChoice}":`,
+      '',
+      '',
+      'Select Any Option',
+      [
+        'Delete a specific row',
+        'Delete a range of rows',
+        'Delete multiple rows',
+        'Delete all rows',
+      ],
+      'Delete a specific row'
+    );
+
+    if (!deleteOption) return;
+
+    let tableData = this.getMappingRulesByHeader(tableChoice);
+
+    switch (deleteOption.trim()) {
+      case 'Delete a specific row': {
+        const rowNum = await this.openInputDialog(
+          'Select Position',
+          'Enter the Row Number you want to Delete:',
+          'Row Number',
+          ''
+        );
+        if (rowNum) {
+          const rowIndex = tableData.findIndex((row) => row.srNo === Number(rowNum));
+          if (rowIndex !== -1) {
+            tableData.splice(rowIndex, 1);
+            this.cdr.detectChanges();
+            this.openDialog(`Row ${rowNum} Deleted Successfully from "${tableChoice}"!`);
+          } else {
+            this.openDialog('Row Number Not Found!');
+          }
+        }
+        break;
+      }
+
+      case 'Delete a range of rows': {
+        const rangeInput = await this.openInputDialog(
+          'Select Range',
+          'Enter the Starting and Ending Row Numbers (separated by hyphen [-]):',
+          'Range',
+          ''
+        );
+        if (rangeInput) {
+          const [startRowNum, endRowNum] = rangeInput.split('-').map((num) => num.trim());
+          const startIndex = tableData.findIndex((row) => row.srNo === Number(startRowNum));
+          const endIndex = tableData.findIndex((row) => row.srNo === Number(endRowNum));
+          if (startIndex !== -1 && endIndex !== -1 && startIndex <= endIndex) {
+            tableData.splice(startIndex, endIndex - startIndex + 1);
+            this.cdr.detectChanges();
+            this.openDialog(`Rows ${startRowNum} to ${endRowNum} Deleted Successfully from "${tableChoice}"!`);
+          } else {
+            this.openDialog('Invalid Series of Row Numbers!');
+          }
+        }
+        break;
+      }
+
+      case 'Delete multiple rows': {
+        const rowsInput = await this.openInputDialog(
+          'Delete Multiple Rows',
+          'Enter the Row Numbers you want to Delete, separated by commas(,):',
+          'Row Numbers',
+          ''
+        );
+
+        if (rowsInput) {
+          const rowNumbers = rowsInput.split(',').map((num) => Number(num.trim()));
+          const invalidRows = rowNumbers.filter(
+            (num) => !tableData.some((row) => row.srNo === num)
+          );
+
+          if (invalidRows.length > 0) {
+            this.openDialog(`Row numbers not found: ${invalidRows.join(', ')}`);
+          } else {
+             tableData.filter(
+              (row) => !rowNumbers.includes(Number(row.srNo))
+            );
+            console.log('Updated mappingRules:', this.mappingRules[tableChoice]);
+            // this.cdr.detectChanges();
+            this.openDialog(`Rows ${rowNumbers.join(', ')} Deleted Successfully from "${tableChoice}"!`);
+          }
+        }
+        break;
+      }
+
+      case 'Delete all rows': {
+        const rowAllDelete = await this.openInputDialog(
+          'Delete Confirmation',
+          `Are you sure you want to delete all rows from "${tableChoice}"? This action cannot be undone.`,
+          '',
+          '',
+          '',
+          []
+        );
+
+        console.log('rowAllDelete:', rowAllDelete);
+
+        if (rowAllDelete) {
+          tableData = [];
+          // this.cdr.detectChanges();
+          this.openDialog(`All Rows Deleted Successfully from "${tableChoice}"!`);
+        } else {
+          console.log('Delete all rows was not confirmed.');
+        }
+        break;
+      }
+
+      default:
+        this.openDialog('Invalid option!');
+        break;
+    }
+
   }
 
   async addColumnMap() {
@@ -630,8 +767,8 @@ export class DataMappingRuleComponent {
       '',
       '',
       'Select Table:',
-      this.getActiveTabTableHeaders(), // Fetch headers of active tab's tables
-      this.getActiveTabTableHeaders()[0] // Default selection is the first table's header
+      this.getActiveTabTableHeaders(),
+      this.getActiveTabTableHeaders()[0]
     );
 
     if (!tableChoice) return;
@@ -659,7 +796,7 @@ export class DataMappingRuleComponent {
 
     const columnToEdit = await this.openInputDialog(
       'Edit Column',
-      `Enter the column name to edit in the "${tableChoice}" table:`,
+      `Enter Column Name to edit in "${tableChoice}" table:`,
       'Header Name',
       ''
     );
@@ -679,7 +816,7 @@ export class DataMappingRuleComponent {
       case 'Edit a Specific Row': {
         const newValue = await this.openInputDialog(
           'Enter New Value',
-          `Enter the new value for the "${selectedColumn.header}" column across all rows:`,
+          `Enter new value for "${selectedColumn.header}" column across all rows:`,
           'Value',
           ''
         );
@@ -690,7 +827,7 @@ export class DataMappingRuleComponent {
           });
 
           this.openDialog(
-            `All rows in the "${selectedColumn.header}" column of "${tableChoice}" table have been updated to: ${newValue}.`
+            `All rows in "${selectedColumn.header}" column of "${tableChoice}" table have been updated to: ${newValue}.`
           );
           this.cdr.detectChanges();
         }
