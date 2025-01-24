@@ -164,6 +164,26 @@ export class DataMappingRuleComponent {
     return tabRules[this.activeTab]?.[tableHeader] || [];
   }
 
+  /**
+ * Updates the `srNo` for rows in a given table header.
+ * @param tableHeader Header of the table to update `srNo`.
+ */
+updateSrNo(tableHeader: string) {
+  const tableData = this.getMappingRulesByHeader(tableHeader);
+  tableData.forEach((row, index) => {
+    row.srNo = index + 1;
+  });
+}
+
+// In the component
+combinedData: any[] = [];
+
+// Method to combine filteredData(0) and mappingRules[getTableHeader(0)]
+combineData() {
+  this.combinedData = [...this.filteredData(0), ...this.mappingRules[this.getTableHeader(0)]];
+}
+
+
   // tabs = [
   //   'Source to FDS Pre-Stage Mapping Table',
   //   'FDS Pre-Stage to FDS Stage Mapping Table',
@@ -569,21 +589,9 @@ export class DataMappingRuleComponent {
   async deleteMap() {
     if (!this.isAdmin()) return;
 
-    const tableChoice = await this.openInputDialog(
-      'Select Table',
-      'From which table do you want to delete rows?',
-      '',
-      '',
-      'Select Table:',
-      this.getActiveTabTableHeaders(),
-      this.getActiveTabTableHeaders()[0]
-    );
-
-    if (!tableChoice) return;
-
     const deleteOption = await this.openInputDialog(
-      'Delete Row',
-      `Choose an option for Deletion in "${tableChoice}":`,
+      'Delete Row Data',
+      'Choose an option for Deletion across both tables:',
       '',
       '',
       'Select Any Option',
@@ -598,25 +606,32 @@ export class DataMappingRuleComponent {
 
     if (!deleteOption) return;
 
-    let tableData = this.getMappingRulesByHeader(tableChoice);
+    const headers = this.getActiveTabTableHeaders();
 
     switch (deleteOption.trim()) {
       case 'Delete a specific row': {
         const rowNum = await this.openInputDialog(
           'Select Position',
-          'Enter the Row Number you want to Delete:',
+          'Enter the Row Number you want to Delete: ',
           'Row Number',
           ''
         );
         if (rowNum) {
-          const rowIndex = tableData.findIndex((row) => row.srNo === Number(rowNum));
-          if (rowIndex !== -1) {
-            tableData.splice(rowIndex, 1);
-            this.cdr.detectChanges();
-            this.openDialog(`Row ${rowNum} Deleted Successfully from "${tableChoice}"!`);
-          } else {
-            this.openDialog('Row Number Not Found!');
-          }
+          headers.forEach((header) => {
+            const tableData = this.getMappingRulesByHeader(header);
+            const rowIndex = tableData.findIndex(
+              (row) => row.srNo === Number(rowNum)
+            );
+
+            if (rowIndex !== -1) {
+              tableData.splice(rowIndex, 1);
+              this.updateSrNo(header); // Update Sr. No after deletion
+              this.cdr.detectChanges();
+            }
+          });
+          this.openDialog(`Row ${rowNum} Deleted Successfully from both tables!`);
+        } else {
+          this.openDialog('Row Number Not Found!');
         }
         break;
       }
@@ -624,20 +639,36 @@ export class DataMappingRuleComponent {
       case 'Delete a range of rows': {
         const rangeInput = await this.openInputDialog(
           'Select Range',
-          'Enter the Starting and Ending Row Numbers (separated by hyphen [-]):',
+          'Enter the Starting and Ending Row Numbers (separated by hyphen [-] ):',
           'Range',
           ''
         );
         if (rangeInput) {
-          const [startRowNum, endRowNum] = rangeInput.split('-').map((num) => num.trim());
-          const startIndex = tableData.findIndex((row) => row.srNo === Number(startRowNum));
-          const endIndex = tableData.findIndex((row) => row.srNo === Number(endRowNum));
-          if (startIndex !== -1 && endIndex !== -1 && startIndex <= endIndex) {
-            tableData.splice(startIndex, endIndex - startIndex + 1);
-            this.cdr.detectChanges();
-            this.openDialog(`Rows ${startRowNum} to ${endRowNum} Deleted Successfully from "${tableChoice}"!`);
+          const [startRowNum, endRowNum] = rangeInput
+            .split('-')
+            .map((num) => Number(num.trim()));
+
+          if (startRowNum <= endRowNum) {
+            headers.forEach((header) => {
+              const tableData = this.getMappingRulesByHeader(header);
+              const startIndex = tableData.findIndex(
+                (row) => row.srNo === startRowNum
+              );
+              const endIndex = tableData.findIndex(
+                (row) => row.srNo === endRowNum
+              );
+
+              if (startIndex !== -1 && endIndex !== -1 && startIndex <= endIndex) {
+                tableData.splice(startIndex, endIndex - startIndex + 1);
+                this.updateSrNo(header); // Update Sr. No after deletion
+                this.cdr.detectChanges();
+              }
+            });
+            this.openDialog(
+              `Rows ${startRowNum} to ${endRowNum} Deleted Successfully from both tables!`
+            );
           } else {
-            this.openDialog('Invalid Series of Row Numbers!');
+            this.openDialog('Invalid Range of Row Numbers!');
           }
         }
         break;
@@ -650,45 +681,50 @@ export class DataMappingRuleComponent {
           'Row Numbers',
           ''
         );
-
         if (rowsInput) {
-          const rowNumbers = rowsInput.split(',').map((num) => Number(num.trim()));
-          const invalidRows = rowNumbers.filter(
-            (num) => !tableData.some((row) => row.srNo === num)
-          );
+          const rowNumbers = rowsInput
+            .split(',')
+            .map((num) => Number(num.trim()));
 
-          if (invalidRows.length > 0) {
-            this.openDialog(`Row numbers not found: ${invalidRows.join(', ')}`);
-          } else {
-             tableData.filter(
-              (row) => !rowNumbers.includes(Number(row.srNo))
+          headers.forEach((header) => {
+            const tableData = this.getMappingRulesByHeader(header);
+            const invalidRows = rowNumbers.filter(
+              (num) => !tableData.some((row) => row.srNo === num)
             );
-            console.log('Updated mappingRules:', this.mappingRules[tableChoice]);
-            // this.cdr.detectChanges();
-            this.openDialog(`Rows ${rowNumbers.join(', ')} Deleted Successfully from "${tableChoice}"!`);
-          }
+
+            if (invalidRows.length > 0) {
+              this.openDialog(
+                `Row numbers not found in ${header}: ${invalidRows.join(', ')}`
+              );
+            } else {
+              this.mappingRules[header] = [...tableData.filter(
+                (row) => !rowNumbers.includes(Number(row.srNo))
+              )];
+              this.updateSrNo(header);
+              this.cdr.detectChanges();
+            }
+          });
+
+          this.openDialog(`Rows ${rowNumbers.join(', ')} Deleted Successfully!`);
         }
         break;
       }
 
       case 'Delete all rows': {
-        const rowAllDelete = await this.openInputDialog(
+        const confirmAllDelete = await this.openInputDialog(
           'Delete Confirmation',
-          `Are you sure you want to delete all rows from "${tableChoice}"? This action cannot be undone.`,
+          'Are you sure you want to delete all rows from both tables? This action cannot be undone.',
           '',
           '',
           '',
           []
         );
-
-        console.log('rowAllDelete:', rowAllDelete);
-
-        if (rowAllDelete) {
-          tableData = [];
-          // this.cdr.detectChanges();
-          this.openDialog(`All Rows Deleted Successfully from "${tableChoice}"!`);
-        } else {
-          console.log('Delete all rows was not confirmed.');
+        if (confirmAllDelete) {
+          headers.forEach((header) => {
+            this.mappingRules[header] = [];
+          });
+          this.cdr.detectChanges();
+          this.openDialog('All Rows Deleted Successfully from both tables!');
         }
         break;
       }
@@ -697,7 +733,6 @@ export class DataMappingRuleComponent {
         this.openDialog('Invalid option!');
         break;
     }
-
   }
 
   async addColumnMap() {
