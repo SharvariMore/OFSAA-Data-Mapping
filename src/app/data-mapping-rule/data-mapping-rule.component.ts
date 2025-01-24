@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { RoleService } from '../role.service';
 import { CommonModule } from '@angular/common';
@@ -7,6 +7,7 @@ import { TabService } from '../tab.service';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogComponent } from '../dialog/dialog.component';
 import { firstValueFrom } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
 
 export interface MappingRow {
   [key: string]: string | number | boolean | any;
@@ -40,7 +41,7 @@ export interface MappingRow {
   templateUrl: './data-mapping-rule.component.html',
   styleUrl: './data-mapping-rule.component.css',
 })
-export class DataMappingRuleComponent {
+export class DataMappingRuleComponent implements OnInit {
   activeTab: string = '';
   globalSearchText: string = '';
   globalFilterColumn: string = '';
@@ -49,6 +50,7 @@ export class DataMappingRuleComponent {
   columnName: string = '';
   isEditing: boolean = false;
   editingRow: MappingRow | null = null;
+  ofsaaPhysicalNames: string | null = null;
   // selectedTableIndex: number = -1; // Keeps track of the selected table (0 or 1)
   // selectedRowIndex: number = -1; // Keeps track of the selected row index
   // editingRow: { [tableIndex: number]: MappingRow | null } = { 0: null, 1: null };
@@ -57,7 +59,8 @@ export class DataMappingRuleComponent {
     private roleService: RoleService,
     private tabService: TabService,
     private cdr: ChangeDetectorRef,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private route: ActivatedRoute
   ) {
     // this.initNewRow();
   }
@@ -66,6 +69,10 @@ export class DataMappingRuleComponent {
     // Subscribe to activeTab$ to receive updates from TabService
     this.tabService.activeTab$.subscribe((tab) => {
       this.activeTab = tab;
+    });
+
+    this.route.queryParams.subscribe((params) => {
+      this.ofsaaPhysicalNames = params['ofsaaPhysicalNames'];
     });
   }
 

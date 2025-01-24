@@ -40,33 +40,35 @@
   <div *ngIf="isAdmin()" class="admin-control">
     <div class="button-container">
       <button (click)="toggleButtonsVisibility()" class="icon-button">
-        <i class="material-icons">{{ isButtonsVisible ? 'remove' : 'add' }}</i>
+        <i class="material-icons">{{ isButtonsVisible ? "remove" : "add" }}</i>
       </button>
       <div *ngIf="isButtonsVisible" class="stacked-buttons">
-      <button (click)="addData()">Add New Row</button>
-      <!-- <button (click)="saveData()">Save All</button> -->
-      <button (click)="deleteRow()">Delete Row</button>
-    </div>
+        <button (click)="addData()">Add New Row</button>
+        <!-- <button (click)="saveData()">Save All</button> -->
+        <button (click)="deleteRow()">Delete Row</button>
+      </div>
     </div>
 
     <div class="button-container">
       <div *ngIf="isColumnActionsVisible">
-    <!-- <div *ngIf="isAdmin()" class="admin-column"> -->
-      <button (click)="editColumnData()">Edit Column Data</button>
-      <button (click)="deleteColumn()">Delete Column</button>
-      <button (click)="addColumn()">Add New Column</button>
-      <input
-        type="text"
-        class="input-column"
-        [(ngModel)]="newColumnName"
-        placeholder=" Enter New Column Name"
-      />
+        <!-- <div *ngIf="isAdmin()" class="admin-column"> -->
+        <button (click)="editColumnData()">Edit Column Data</button>
+        <button (click)="deleteColumn()">Delete Column</button>
+        <button (click)="addColumn()">Add New Column</button>
+        <input
+          type="text"
+          class="input-column"
+          [(ngModel)]="newColumnName"
+          placeholder=" Enter New Column Name"
+        />
+      </div>
+      <button (click)="toggleColumnActionsVisibility()" class="icon-button">
+        <i class="material-icons">{{
+          isColumnActionsVisible ? "remove" : "add"
+        }}</i>
+      </button>
+    </div>
   </div>
-  <button (click)="toggleColumnActionsVisibility()" class="icon-button">
-    <i class="material-icons">{{ isColumnActionsVisible ? 'remove' : 'add' }}</i>
-  </button>
-</div>
-</div>
 
   <div class="table-container">
     <table *ngIf="filteredData().length > 0">
@@ -117,12 +119,21 @@
         <tr>
           <td
             *ngFor="let column of tableColumns; let i = index"
-            [ngClass]="{ highlights: matchText(row[column.field]),
-            'td-overflow': !(isAdmin() && editingRow === row)}"
-
+            [ngClass]="{
+              highlights: matchText(row[column.field]),
+              'td-overflow': !(isAdmin() && editingRow === row)
+            }"
           >
             <span *ngIf="!isAdmin() || editingRow !== row">
               <!-- {{ row[column.field] }} -->
+              <ng-container *ngIf="column.field === 'ofsaaPhysicalNames'">
+                <span
+                  (click)="navigateToDataMappingRule(row[column.field])"
+                  style="cursor: pointer; color: blue"
+                >
+                  {{ row[column.field] }}
+                </span>
+              </ng-container>
               <ng-container
                 *ngIf="
                   column.field === 'mappingStatus' ||
@@ -140,6 +151,7 @@
               </ng-container>
               <ng-container
                 *ngIf="
+                  column.field !== 'ofsaaPhysicalNames' &&
                   !(
                     column.field === 'mappingStatus' ||
                     column.field === 'odiBuildStatus' ||
@@ -181,7 +193,7 @@
                 'no-border': row[column.field + '_dirty'],
                 'input-default': !row[column.field + '_dirty']
               }"
-               [style.width]="'150px'"
+              [style.width]="'150px'"
             />
             <select
               *ngIf="

@@ -8,6 +8,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { DialogComponent } from '../dialog/dialog.component';
 import { firstValueFrom, range } from 'rxjs';
+import { Router } from '@angular/router';
 
 export interface TableRow {
   [key: string]: string | number | boolean | any; // Allow dynamic keys
@@ -141,8 +142,16 @@ export class IndexComponent {
   constructor(
     private roleService: RoleService,
     private cdr: ChangeDetectorRef,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private router: Router
   ) {}
+
+  navigateToDataMappingRule(ofsaaPhysicalNames: string): void {
+    this.router.navigate(['/data-mapping-rule'], {
+      queryParams: { ofsaaPhysicalNames },
+    });
+  }
+
 
   openDialog(message: string, title: string = 'Notification') {
     this.dialog.open(DialogComponent, {
