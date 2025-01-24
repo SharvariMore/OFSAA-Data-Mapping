@@ -30,6 +30,7 @@ export interface MappingRow {
   stageNullable?: string;
   custom?: string;
   stageComment?: string;
+  tableColumns?: string[];
 }
 
 @Component({
@@ -443,7 +444,6 @@ export class DataMappingRuleComponent {
     if (!element) return false;
     return element.offsetWidth < element.scrollWidth;
   }
-
 
   async addMap() {
     if (!this.isAdmin()) return;
@@ -910,9 +910,183 @@ export class DataMappingRuleComponent {
     }
   }
 
-  deleteColumnMap() {
+  async deleteColumnMap() {
     if (!this.isAdmin()) return;
-    alert('Add content clicked!');
+
+    const tableChoice = await this.openInputDialog(
+      'Select Table',
+      'Which table do you want to delete columns from?',
+      '',
+      '',
+      'Select Table:',
+      this.getActiveTabTableHeaders(), // Get headers of the active tab's tables
+      this.getActiveTabTableHeaders()[0] // Default to first table
+    );
+
+    if (!tableChoice) return;
+
+    const deleteOption = await this.openInputDialog(
+      'Delete Column',
+      'Choose an option for column Deletion:',
+      '',
+      '',
+      'Select Any Option',
+      [
+        'Delete a Specific Column',
+        'Delete a Range of Columns',
+        'Delete Multiple Columns',
+      ],
+      'Delete a Specific Column'
+    );
+
+    if (!deleteOption) return;
+
+    let tableColumns = this.getTableFormat(
+      this.getActiveTabTableHeaders().indexOf(tableChoice)
+    );
+
+    this.mappingRules = this.mappingRules || {};
+    this.mappingRules[tableChoice] =
+      this.mappingRules[tableChoice] || [];
+
+    switch (deleteOption.trim()) {
+      case 'Delete a Specific Column': {
+        // Prompt user to enter the column name
+        const colName = await this.openInputDialog(
+          'Select Column to Delete',
+          'Enter the exact Header Name of the Column you want to Delete:',
+          'Column Name',
+          ''
+        );
+
+        if (colName) {
+          const columnIndex = tableColumns.findIndex(
+            (col: { header: string }) =>
+              col.header.toLowerCase() === colName.toLowerCase()
+          );
+
+          if (columnIndex !== -1) {
+            const columnField = tableColumns[columnIndex].field;
+
+            tableColumns.splice(columnIndex, 1);
+            this.mappingRules[tableChoice].forEach((row: MappingRow) => {
+              delete row[columnField];
+            });
+
+            this.cdr.detectChanges();
+            this.openDialog(
+              `Column "${colName}" deleted successfully from ${tableChoice}`
+            );
+          } else {
+            this.openDialog('Invalid Column!');
+          }
+        }
+        break;
+      }
+
+      case 'Delete a Range of Columns': {
+        const rangeInput = await this.openInputDialog(
+          'Select Range',
+          'Enter the Starting and Ending column headers (separated by hyphen [-]) to Delete:',
+          'Range',
+          ''
+        );
+
+        if (rangeInput) {
+          const [startColumn, endColumn] = rangeInput
+            .split('-')
+            .map((col) => col.trim());
+
+          const startIndex = tableColumns.findIndex(
+            (col: { header: string }) =>
+              col.header.toLowerCase() === startColumn.toLowerCase()
+          );
+          const endIndex = tableColumns.findIndex(
+            (col: { header: string }) =>
+              col.header.toLowerCase() === endColumn.toLowerCase()
+          );
+
+          if (startIndex !== -1 && endIndex !== -1 && startIndex <= endIndex) {
+            const columnsToDelete = tableColumns
+              .splice(startIndex, endIndex - startIndex + 1)
+              .map((col: { field: any }) => col.field);
+
+            this.mappingRules[tableChoice].forEach((row: MappingRow) => {
+              columnsToDelete.forEach(
+                (field: string | number) => delete row[field]
+              );
+            });
+            this.cdr.detectChanges();
+            this.openDialog(
+              `Columns from "${startColumn}" to "${endColumn}" Deleted Successfully From ${tableChoice}`
+            );
+          } else {
+            this.openDialog('Invalid Range of Columns!');
+          }
+        }
+        break;
+      }
+
+      case 'Delete Multiple Columns': {
+        const columnsInput = await this.openInputDialog(
+          'Select Multiple Columns',
+          'Enter the Column Headers separated by comma (,) to Delete:',
+          'Columns',
+          ''
+        );
+
+        if (columnsInput) {
+          const columnsToDelete = columnsInput
+            .split(',')
+            .map((col) => col.trim())
+            .map((colName) => colName.toLowerCase());
+
+          const columnsFields = tableColumns
+            .filter((col: { header: string }) =>
+              columnsToDelete.includes(col.header.toLowerCase())
+            )
+            .map((col: { field: any }) => col.field);
+
+          if (columnsFields.length > 0) {
+
+
+            const updatedMappingRules: MappingRow[] = [];
+
+            this.mappingRules[tableChoice].forEach((row: MappingRow) => {
+              const shouldKeepRow = !columnsFields.some(
+                (field) => field in row
+              );
+
+              if (shouldKeepRow) {
+                updatedMappingRules.push(row);
+              }
+            });
+
+            this.mappingRules[tableChoice] = updatedMappingRules;
+
+            // Remove deleted columns from tableColumns (looping backward to avoid index shift issues)
+            for (let i = tableColumns.length - 1; i >= 0; i--) {
+              const col = tableColumns[i];
+              if (columnsToDelete.includes(col.header.toLowerCase())) {
+                tableColumns.splice(i, 1);
+              }
+            }
+
+            this.cdr.detectChanges();
+            this.openDialog(
+              `Columns "${columnsInput}" Deleted Successfully from ${tableChoice}!`
+            );
+          } else {
+            this.openDialog('Invalid Columns!');
+          }
+        }
+        break;
+      }
+
+      default:
+        this.openDialog('Invalid Option!');
+        break;
+    }
   }
 
   saveMap() {
