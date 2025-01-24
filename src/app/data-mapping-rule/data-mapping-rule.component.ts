@@ -165,24 +165,15 @@ export class DataMappingRuleComponent {
   }
 
   /**
- * Updates the `srNo` for rows in a given table header.
- * @param tableHeader Header of the table to update `srNo`.
- */
-updateSrNo(tableHeader: string) {
-  const tableData = this.getMappingRulesByHeader(tableHeader);
-  tableData.forEach((row, index) => {
-    row.srNo = index + 1;
-  });
-}
-
-// In the component
-combinedData: any[] = [];
-
-// Method to combine filteredData(0) and mappingRules[getTableHeader(0)]
-combineData() {
-  this.combinedData = [...this.filteredData(0), ...this.mappingRules[this.getTableHeader(0)]];
-}
-
+   * Updates the `srNo` for rows in a given table header.
+   * @param tableHeader Header of the table to update `srNo`.
+   */
+  updateSrNo(tableHeader: string) {
+    const tableData = this.getMappingRulesByHeader(tableHeader);
+    tableData.forEach((row, index) => {
+      row.srNo = index + 1;
+    });
+  }
 
   // tabs = [
   //   'Source to FDS Pre-Stage Mapping Table',
@@ -438,8 +429,6 @@ combineData() {
         );
       }
     });
-
-
   }
 
   matchText(value: any, searchText: string): boolean {
@@ -455,23 +444,117 @@ combineData() {
     return element.offsetWidth < element.scrollWidth;
   }
 
+  // async addMap() {
+  //   if (!this.isAdmin()) return;
+  //   const tableChoice = await this.openInputDialog(
+  //     'Select Table',
+  //     'For which table do you want to add a new row?',
+  //     '',
+  //     '',
+  //     'Select Table:',
+  //     this.getActiveTabTableHeaders(), // Fetches the headers of the active tab's tables
+  //     this.getActiveTabTableHeaders()[0] // Default selection is the first table's header
+  //   );
+
+  //   if (!tableChoice) return;
+
+  //   const insertOption = await this.openInputDialog(
+  //     'Insert Row',
+  //     `Where do you want to insert a new row in "${tableChoice}"?`,
+  //     '',
+  //     '',
+  //     'Select Option:',
+  //     ['At the Beginning', 'At the End', 'In Between'],
+  //     'At the Beginning'
+  //   );
+
+  //   if (!insertOption) return;
+
+  //   const newRow: MappingRow = {
+  //     srNo: this.getMappingRulesByHeader(tableChoice).length + 1,
+  //     sourceTable: 'New Source Table',
+  //     sourceColumn: 'New Source Column',
+  //     transformation: 'New Transformation',
+  //     comment: 'New Comment',
+  //     fdsTable: 'New FDS Table',
+  //     fdsColumn: 'New FDS Column',
+  //     dataType: 'New Data Type',
+  //     pk: 'No',
+  //     nullable: 'Yes',
+  //     fdsComment: 'New Comment',
+  //     fdsStageTable: 'New FDS Stage Table',
+  //     fdsStageColumn: 'New FDS Stage Column',
+  //     stageDataType: 'New Stage Data Type',
+  //     stagePk: 'No',
+  //     stageNullable: 'Yes',
+  //     custom: 'Custom Value',
+  //     stageComment: 'New Stage Comment',
+  //   };
+
+  //   const tableData = this.getMappingRulesByHeader(tableChoice);
+
+  //   switch (insertOption.trim()) {
+  //     case 'At the Beginning': {
+  //       tableData.unshift(newRow);
+  //       this.openDialog(
+  //         `New row added at the beginning of "${tableChoice}"! You can now edit it.`
+  //       );
+  //       break;
+  //     }
+
+  //     case 'At the End': {
+  //       tableData.push(newRow);
+  //       this.openDialog(
+  //         `New row added at the end of "${tableChoice}"! You can now edit it.`
+  //       );
+  //       break;
+  //     }
+
+  //     case 'In Between': {
+  //       const position = await this.openInputDialog(
+  //         'Select Position',
+  //         `Enter the position (1 to ${tableData.length}) where you want to insert a new row in "${tableChoice}":`,
+  //         'Position',
+  //         ''
+  //       );
+
+  //       if (position) {
+  //         const index = Number(position) - 1;
+  //         if (index >= 0 && index <= tableData.length) {
+  //           tableData.splice(index, 0, newRow);
+  //           this.openDialog(
+  //             `New row added at position ${
+  //               index + 1
+  //             } in "${tableChoice}"! You can now edit it.`
+  //           );
+  //         } else {
+  //           this.openDialog('Invalid position!');
+  //         }
+  //       } else {
+  //         return;
+  //       }
+  //       break;
+  //     }
+
+  //     default:
+  //       this.openDialog('Invalid option!');
+  //       break;
+  //   }
+
+  //   // Reassign serial numbers
+  //   tableData.forEach((row, index) => {
+  //     row.srNo = index + 1;
+  //   });
+
+  //   this.cdr.detectChanges();
+  // }
+
   async addMap() {
     if (!this.isAdmin()) return;
-    const tableChoice = await this.openInputDialog(
-      'Select Table',
-      'For which table do you want to add a new row?',
-      '',
-      '',
-      'Select Table:',
-      this.getActiveTabTableHeaders(), // Fetches the headers of the active tab's tables
-      this.getActiveTabTableHeaders()[0] // Default selection is the first table's header
-    );
-
-    if (!tableChoice) return;
 
     const insertOption = await this.openInputDialog(
       'Insert Row',
-      `Where do you want to insert a new row in "${tableChoice}"?`,
+      'Where do you want to insert a new row in both tables?',
       '',
       '',
       'Select Option:',
@@ -482,7 +565,7 @@ combineData() {
     if (!insertOption) return;
 
     const newRow: MappingRow = {
-      srNo: this.getMappingRulesByHeader(tableChoice).length + 1,
+      srNo: 1,
       sourceTable: 'New Source Table',
       sourceColumn: 'New Source Column',
       transformation: 'New Transformation',
@@ -502,21 +585,24 @@ combineData() {
       stageComment: 'New Stage Comment',
     };
 
-    const tableData = this.getMappingRulesByHeader(tableChoice);
+    const tableData1 = this.getMappingRulesByHeader(this.getTableHeader(0));
+    const tableData2 = this.getMappingRulesByHeader(this.getTableHeader(1));
 
     switch (insertOption.trim()) {
       case 'At the Beginning': {
-        tableData.unshift(newRow);
+        tableData1.unshift(newRow);
+        tableData2.unshift(newRow);
         this.openDialog(
-          `New row added at the beginning of "${tableChoice}"! You can now edit it.`
+          `New row added at the beginning of both tables! You can now edit it.`
         );
         break;
       }
 
       case 'At the End': {
-        tableData.push(newRow);
+        tableData1.push(newRow);
+        tableData2.push(newRow);
         this.openDialog(
-          `New row added at the end of "${tableChoice}"! You can now edit it.`
+          `New row added at the end of both tables! You can now edit it.`
         );
         break;
       }
@@ -524,19 +610,20 @@ combineData() {
       case 'In Between': {
         const position = await this.openInputDialog(
           'Select Position',
-          `Enter the position (1 to ${tableData.length}) where you want to insert a new row in "${tableChoice}":`,
+          `Enter the position (1 to ${tableData1.length}) where you want to insert a new row in both tables:`,
           'Position',
           ''
         );
 
         if (position) {
           const index = Number(position) - 1;
-          if (index >= 0 && index <= tableData.length) {
-            tableData.splice(index, 0, newRow);
+          if (index >= 0 && index <= tableData1.length) {
+            tableData1.splice(index, 0, newRow);
+            tableData2.splice(index, 0, newRow);
             this.openDialog(
               `New row added at position ${
                 index + 1
-              } in "${tableChoice}"! You can now edit it.`
+              } in both tables! You can now edit it.`
             );
           } else {
             this.openDialog('Invalid position!');
@@ -552,9 +639,10 @@ combineData() {
         break;
     }
 
-    // Reassign serial numbers
-    tableData.forEach((row, index) => {
-      row.srNo = index + 1;
+    [tableData1, tableData2].forEach((tableData) => {
+      tableData.forEach((row, index) => {
+        row.srNo = index + 1;
+      });
     });
 
     this.cdr.detectChanges();
@@ -629,7 +717,9 @@ combineData() {
               this.cdr.detectChanges();
             }
           });
-          this.openDialog(`Row ${rowNum} Deleted Successfully from both tables!`);
+          this.openDialog(
+            `Row ${rowNum} Deleted Successfully from both tables!`
+          );
         } else {
           this.openDialog('Row Number Not Found!');
         }
@@ -658,7 +748,11 @@ combineData() {
                 (row) => row.srNo === endRowNum
               );
 
-              if (startIndex !== -1 && endIndex !== -1 && startIndex <= endIndex) {
+              if (
+                startIndex !== -1 &&
+                endIndex !== -1 &&
+                startIndex <= endIndex
+              ) {
                 tableData.splice(startIndex, endIndex - startIndex + 1);
                 this.updateSrNo(header); // Update Sr. No after deletion
                 this.cdr.detectChanges();
@@ -697,15 +791,19 @@ combineData() {
                 `Row numbers not found in ${header}: ${invalidRows.join(', ')}`
               );
             } else {
-              this.mappingRules[header] = [...tableData.filter(
-                (row) => !rowNumbers.includes(Number(row.srNo))
-              )];
+              this.mappingRules[header] = [
+                ...tableData.filter(
+                  (row) => !rowNumbers.includes(Number(row.srNo))
+                ),
+              ];
               this.updateSrNo(header);
               this.cdr.detectChanges();
             }
           });
 
-          this.openDialog(`Rows ${rowNumbers.join(', ')} Deleted Successfully!`);
+          this.openDialog(
+            `Rows ${rowNumbers.join(', ')} Deleted Successfully!`
+          );
         }
         break;
       }
@@ -878,9 +976,7 @@ combineData() {
         );
 
         if (!rangeInput || !/^\d+-\d+$/.test(rangeInput)) {
-          this.openDialog(
-            'Invalid Row Range!'
-          );
+          this.openDialog('Invalid Row Range!');
           return;
         }
 
@@ -888,9 +984,7 @@ combineData() {
           .split('-')
           .map((n) => parseInt(n.trim(), 10));
         if (start > end || start < 1 || end > selectedTable.length) {
-          this.openDialog(
-            'Invalid Row Range!'
-          );
+          this.openDialog('Invalid Row Range!');
           return;
         }
 
