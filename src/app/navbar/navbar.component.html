@@ -15,7 +15,7 @@
     </li>
   </ul>
   <div class="display:flex;">
-    <ul class="tabs" *ngIf="router.url === '/data-mapping-rule'">
+    <ul class="tabs" *ngIf="router.url.startsWith('/data-mapping-rule')">
       <li
         *ngFor="let tab of tabs"
         (click)="switchTab(tab)"

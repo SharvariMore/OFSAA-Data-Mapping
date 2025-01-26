@@ -26,7 +26,7 @@ export class NavbarComponent {
     });
 
     this.router.events.subscribe(() => {
-      if (this.router.url === '/data-mapping-rule') {
+      if (this.router.url.startsWith('/data-mapping-rule')) {
         this.showTabs();
       } else {
         this.hideTabs();
