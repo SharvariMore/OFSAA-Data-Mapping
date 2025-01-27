@@ -92,7 +92,21 @@
         <td>{{ row.ofsaaMappingChangeDate | date: 'shortDate' }}</td>
 
         <!-- OFSAA Stage Table Name (Auto-Generated) -->
-        <td>{{ row.ofsaaStageTableName }}</td>
+        <td>
+          <span
+            (click)="navigateToDataMappingRule(row.ofsaaStageTableName)"
+            style="cursor: pointer; color: blue;"
+          >
+            {{ row.ofsaaStageTableName }}
+          </span>
+        </td>        
+
+        <td>
+          <select *ngIf="editingRow === row" [(ngModel)]="row.stage" class="dropdownstyle">
+            <option *ngFor="let stage of stageOptions" [value]="stage">{{ stage }}</option>
+          </select>
+          <span *ngIf="editingRow !== row">{{ row.stage }}</span>
+        </td>
 
         <!-- Change Details (Editable Text Field) -->
         <td>
@@ -104,10 +118,10 @@
           />
           <span *ngIf="editingRow !== row">{{ row.changeDetails }}</span>
         </td>
-
+        
         <!-- OFSAA Change By (Dropdown) -->
         <td>
-          <select *ngIf="editingRow === row" [(ngModel)]="row.ofsaaChangeBy">
+          <select *ngIf="editingRow === row" [(ngModel)]="row.ofsaaChangeBy" class="dropdownstyle">
             <option *ngFor="let user of userOptions" [value]="user">{{ user }}</option>
           </select>
           <span *ngIf="editingRow !== row">{{ row.ofsaaChangeBy }}</span>
@@ -115,7 +129,7 @@
 
         <!-- ODI Build Status (Dropdown) -->
         <td>
-          <select *ngIf="editingRow === row" [(ngModel)]="row.odiBuildStatus">
+          <select *ngIf="editingRow === row" [(ngModel)]="row.odiBuildStatus" class="dropdownstyle">
             <option *ngFor="let status of buildStatusOptions" [value]="status">{{ status }}</option>
           </select>
           <span *ngIf="editingRow !== row">{{ row.odiBuildStatus }}</span>
@@ -126,7 +140,7 @@
 
         <!-- Verified (Yes/No) Dropdown -->
         <td>
-          <select *ngIf="editingRow === row" [(ngModel)]="row.verified_yn">
+          <select *ngIf="editingRow === row" [(ngModel)]="row.verified_yn" class="dropdownstyle">
             <option value="Yes">Yes</option>
             <option value="No">No</option>
           </select>
@@ -135,7 +149,7 @@
 
         <!-- Verified By (Dropdown) -->
         <td>
-          <select *ngIf="editingRow === row" [(ngModel)]="row.verifiedBy">
+          <select *ngIf="editingRow === row" [(ngModel)]="row.verifiedBy" class="dropdownstyle">
             <option *ngFor="let admin of adminOptions" [value]="admin">{{ admin }}</option>
           </select>
           <span *ngIf="editingRow !== row">{{ row.verifiedBy }}</span>

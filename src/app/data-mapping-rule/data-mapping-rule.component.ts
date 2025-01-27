@@ -51,6 +51,7 @@ export class DataMappingRuleComponent implements OnInit {
   isEditing: boolean = false;
   editingRow: MappingRow | null = null;
   ofsaaPhysicalNames: string | null = null;
+  ofsaaStageTableName: string | null = null;
   // selectedTableIndex: number = -1; // Keeps track of the selected table (0 or 1)
   // selectedRowIndex: number = -1; // Keeps track of the selected row index
   // editingRow: { [tableIndex: number]: MappingRow | null } = { 0: null, 1: null };
@@ -73,6 +74,9 @@ export class DataMappingRuleComponent implements OnInit {
 
     this.route.queryParams.subscribe((params) => {
       this.ofsaaPhysicalNames = params['ofsaaPhysicalNames'];
+    });
+    this.route.queryParams.subscribe(params => {
+       this.ofsaaStageTableName = params['ofsaaStageTableName'];
     });
   }
 

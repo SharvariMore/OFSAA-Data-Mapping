@@ -7,12 +7,14 @@ import { MatDialog } from '@angular/material/dialog';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { DialogComponent } from '../dialog/dialog.component';
 import { firstValueFrom, range } from 'rxjs';
+import { Router } from '@angular/router';
 
 export interface TableRow{
   [key: string]: string | number | boolean | Date;
   srNo: number;
   ofsaaMappingChangeDate: Date;
   ofsaaStageTableName: string;
+  stage:string;
   changeDetails: string;
   ofsaaChangeBy: string;
   odiBuildStatus: string;
@@ -45,6 +47,7 @@ export class ChangelogComponent {
   userOptions = ['User1', 'User2', 'User3'];
   buildStatusOptions = ['Pending', 'Completed'];
   adminOptions = ['Admin', 'SuperAdmin', 'Manager'];
+  stageOptions: string[] = ['FDS PreStage','FDS Stage','ID TP'];
   selected: any;
   selectedRows: any[] = [];
   isButtonsVisible: boolean = false;
@@ -55,6 +58,7 @@ export class ChangelogComponent {
       srNo: 1,
   ofsaaMappingChangeDate: new Date(12/12/2024),
   ofsaaStageTableName: 'Data Table',
+  stage:'FDS PreStage',
   changeDetails: 'Not Available',
   ofsaaChangeBy: 'User1',
   odiBuildStatus: 'Pending',
@@ -69,6 +73,7 @@ export class ChangelogComponent {
       srNo: 2,
   ofsaaMappingChangeDate: new Date(14/12/2024),
   ofsaaStageTableName: 'Source Table',
+  stage:'FDS Stage',
   changeDetails: 'Available',
   ofsaaChangeBy: 'User2',
   odiBuildStatus: 'Pending',
@@ -85,6 +90,7 @@ export class ChangelogComponent {
     {header: 'Sr. No.',field:'srNo'},
     {header: 'OFSAA Mapping Change Date',field:'ofsaaMappingChangeDate'},
     {header: 'OFSAA Stage Table Name',field:'ofsaaStageTableName'},
+    {header: 'Stage', field:'stage'},
     {header: 'Change Details',field:'changeDetails'},
     {header: 'OFSAA Change By',field:'ofsaaChangeBy'},
     {header: 'ODI Build Status',field:'odiBuildStatus'},
@@ -95,7 +101,13 @@ export class ChangelogComponent {
     {header: 'Comments',field:'comments'},
   ];
 
-  constructor(private roleService: RoleService,private cdr: ChangeDetectorRef,private dialog: MatDialog) {}
+  constructor(private roleService: RoleService,private cdr: ChangeDetectorRef,private dialog: MatDialog,private router: Router) {}
+
+  navigateToDataMappingRule(ofsaaStageTableName: string): void {
+    this.router.navigate(['/data-mapping-rule'], {
+      queryParams: { ofsaaStageTableName },
+    });
+  }  
 
   openDialog(message: string, title: string = 'Notification') {
     this.dialog.open(DialogComponent, {
@@ -292,6 +304,7 @@ export class ChangelogComponent {
       srNo: this.tableData.length +1,
       ofsaaMappingChangeDate: new (Date),
       ofsaaStageTableName: '',
+      stage:'',
       changeDetails: '',
       ofsaaChangeBy: '',
       odiBuildStatus: '',
@@ -368,6 +381,7 @@ export class ChangelogComponent {
       srNo: this.tableData.length +1,
       ofsaaMappingChangeDate: new (Date),
       ofsaaStageTableName: '',
+      stage:'',
       changeDetails: '',
       ofsaaChangeBy: '',
       odiBuildStatus: '',
