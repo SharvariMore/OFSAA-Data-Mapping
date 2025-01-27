@@ -16,6 +16,7 @@ export interface TableRow {
   tfsReq: string;
   release: string;
   ofsaaPhysicalNames: string;
+  stage: string;
   ofsaaLogicalEntityName: string;
   source: string;
   typeOfData: string;
@@ -63,6 +64,7 @@ export class IndexComponent {
 
   statusOptions: string[] = ['Not Started', 'In Progress', 'Complete'];
   usedInOptions = ['Y', 'N'];
+  stageOptions: string[] = ['FDS PreStage','FDS Stage','ID TP'];
 
   tableData: TableRow[] = this.loadFromStorage('tableData') || [
     {
@@ -70,6 +72,7 @@ export class IndexComponent {
       tfsReq: 'REQ-001',
       release: '1.0',
       ofsaaPhysicalNames: 'Table_1',
+      stage:'FDS PreStage',
       ofsaaLogicalEntityName: 'Entity_1',
       source: 'Source_1',
       typeOfData: 'Transactional',
@@ -92,6 +95,7 @@ export class IndexComponent {
       tfsReq: 'REQ-002',
       release: '2.0',
       ofsaaPhysicalNames: 'Table_2',
+      stage:'ID TP',
       ofsaaLogicalEntityName: 'Entity_2',
       source: 'Source_2',
       typeOfData: 'Master',
@@ -118,6 +122,7 @@ export class IndexComponent {
     { header: 'TFS Req.', field: 'tfsReq' },
     { header: 'Release', field: 'release' },
     { header: 'OFSAA Physical Names', field: 'ofsaaPhysicalNames' },
+    { header: 'Stage', field:'stage'},
     { header: 'OFSAA Logical Entity Name', field: 'ofsaaLogicalEntityName' },
     { header: 'Source', field: 'source' },
     { header: 'Type of Data', field: 'typeOfData' },
@@ -249,6 +254,7 @@ export class IndexComponent {
       tfsReq: 'NEW-REQ',
       release: '',
       ofsaaPhysicalNames: 'New Table',
+      stage: '',
       ofsaaLogicalEntityName: '',
       source: '',
       typeOfData: '',

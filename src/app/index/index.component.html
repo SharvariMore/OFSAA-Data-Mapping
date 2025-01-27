@@ -136,6 +136,7 @@
               </ng-container>
               <ng-container
                 *ngIf="
+                  column.field === 'stage' ||
                   column.field === 'mappingStatus' ||
                   column.field === 'odiBuildStatus' ||
                   column.field === 'reviewStatus' ||
@@ -153,6 +154,7 @@
                 *ngIf="
                   column.field !== 'ofsaaPhysicalNames' &&
                   !(
+                    column.field === 'stage' ||
                     column.field === 'mappingStatus' ||
                     column.field === 'odiBuildStatus' ||
                     column.field === 'reviewStatus' ||
@@ -175,6 +177,7 @@
                 isAdmin() &&
                 editingRow === row &&
                 !(
+                  column.field === 'stage' ||
                   column.field === 'mappingStatus' ||
                   column.field === 'odiBuildStatus' ||
                   column.field === 'reviewStatus' ||
@@ -209,6 +212,18 @@
             >
               <option *ngFor="let status of statusOptions" [value]="status">
                 {{ status }}
+              </option>
+            </select>
+            <select *ngIf="
+              isAdmin() &&
+              editingRow === row &&
+              (column.field === 'stage')
+            "
+              class="dropdownstyle"
+              [(ngModel)]="row[column.field]"
+              (change)="saveColumnData(row, column, $event)">
+              <option *ngFor="let stage of stageOptions" [value]="stage">
+                {{ stage }}
               </option>
             </select>
 
