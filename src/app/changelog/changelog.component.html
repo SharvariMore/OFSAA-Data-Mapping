@@ -79,103 +79,75 @@
         <th *ngIf="isAdmin()">Actions</th>
       </tr>
     </thead>
-     <tbody *ngFor="let row of filteredData() | paginate: { id: 'changelog-pagination', itemsPerPage: itemsPerPage, currentPage: currentPage }">
-      <tr>
-
+    <tbody>
+      <tr *ngFor="let row of filteredData() | paginate: { id: 'changelog-pagination', itemsPerPage: itemsPerPage, currentPage: currentPage }">
         <td>
-          <input type="checkbox" [(ngModel)]="row.isSelected"  (change)="updateSelectAll()" />
+          <input type="checkbox" [(ngModel)]="row.isSelected" (change)="updateSelectAll()" />
         </td>
-        
-        <td>{{ row.srNo }}</td>
-
-
-        <td>{{ row.ofsaaMappingChangeDate | date: 'shortDate' }}</td>
-
-        <!-- OFSAA Stage Table Name (Auto-Generated) -->
-        <td>
-          <span
-            (click)="navigateToDataMappingRule(row.ofsaaStageTableName)"
-            style="cursor: pointer; color: blue;"
-          >
-            {{ row.ofsaaStageTableName }}
+        <td *ngFor="let column of tableColumns" [ngSwitch]="column.field">
+          
+          <!-- Sr. No. -->
+          <span *ngSwitchCase="'srNo'">{{ row.srNo }}</span>
+    
+          <!-- OFSAA Mapping Change Date -->
+          <span *ngSwitchCase="'ofsaaMappingChangeDate'">{{ row.ofsaaMappingChangeDate | date: 'shortDate' }}</span>
+    
+          <!-- OFSAA Stage Table Name (Link) -->
+          <span *ngSwitchCase="'ofsaaStageTableName'">
+            <span (click)="navigateToDataMappingRule(row.ofsaaStageTableName)" style="cursor: pointer; color: blue;">
+              {{ row.ofsaaStageTableName }}
+            </span>
           </span>
-        </td>        
-
-        <td>
-          <select *ngIf="editingRow === row" [(ngModel)]="row.stage" class="dropdownstyle">
-            <option *ngFor="let stage of stageOptions" [value]="stage">{{ stage }}</option>
-          </select>
-          <span *ngIf="editingRow !== row">{{ row.stage }}</span>
-        </td>
-
-        <!-- Change Details (Editable Text Field) -->
-        <td>
-          <input
-            *ngIf="editingRow === row"
-            type="text"
-            [(ngModel)]="row.changeDetails"
-            placeholder="Enter Change Details"
-          />
-          <span *ngIf="editingRow !== row">{{ row.changeDetails }}</span>
+    
+          <!-- Stage (Custom Dropdown) -->
+          <div *ngSwitchCase="'stage'">
+            <span *ngIf="editingRow !== row">{{ getSelectedStages(row.srNo) }}</span>
+            <div *ngIf="editingRow === row">
+              <div class="dropdownstyle" (click)="toggleDropdown(row.srNo)">Select Stages</div>
+              <div class="dropdown-content" *ngIf="isDropdownOpen(row.srNo)">
+                <div *ngFor="let stage of stageOptions">
+                  <label>
+                    <input type="checkbox" [(ngModel)]="selectedStages[row.srNo][stage]" />
+                    {{ stage }}
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+    
+          <!-- Change Details (Input) -->
+          <div *ngSwitchCase="'changeDetails'">
+            <input *ngIf="editingRow === row" type="text" [(ngModel)]="row.changeDetails" />
+            <span *ngIf="editingRow !== row">{{ row.changeDetails }}</span>
+          </div>
+    
+          <!-- OFSAA Change By (Dropdown) -->
+          <div *ngSwitchCase="'ofsaaChangeBy'">
+            <select *ngIf="editingRow === row" [(ngModel)]="row.ofsaaChangeBy">
+              <option *ngFor="let user of userOptions" [value]="user">{{ user }}</option>
+            </select>
+            <span *ngIf="editingRow !== row">{{ row.ofsaaChangeBy }}</span>
+          </div>
+    
+          <!-- ODI Build Status (Dropdown) -->
+          <div *ngSwitchCase="'odiBuildStatus'">
+            <select *ngIf="editingRow === row" [(ngModel)]="row.odiBuildStatus">
+              <option *ngFor="let status of buildStatusOptions" [value]="status">{{ status }}</option>
+            </select>
+            <span *ngIf="editingRow !== row">{{ row.odiBuildStatus }}</span>
+          </div>
+    
+          <!-- Default Case for Other Columns -->
+          <span *ngSwitchDefault>{{ row[column.field] }}</span>
         </td>
         
-        <!-- OFSAA Change By (Dropdown) -->
-        <td>
-          <select *ngIf="editingRow === row" [(ngModel)]="row.ofsaaChangeBy" class="dropdownstyle">
-            <option *ngFor="let user of userOptions" [value]="user">{{ user }}</option>
-          </select>
-          <span *ngIf="editingRow !== row">{{ row.ofsaaChangeBy }}</span>
-        </td>
-
-        <!-- ODI Build Status (Dropdown) -->
-        <td>
-          <select *ngIf="editingRow === row" [(ngModel)]="row.odiBuildStatus" class="dropdownstyle">
-            <option *ngFor="let status of buildStatusOptions" [value]="status">{{ status }}</option>
-          </select>
-          <span *ngIf="editingRow !== row">{{ row.odiBuildStatus }}</span>
-        </td>
-
-        <!-- ODI Build Date (Auto-Generated) -->
-        <td>{{ row.odiBuildDate | date: 'shortDate' }}</td>
-
-        <!-- Verified (Yes/No) Dropdown -->
-        <td>
-          <select *ngIf="editingRow === row" [(ngModel)]="row.verified_yn" class="dropdownstyle">
-            <option value="Yes">Yes</option>
-            <option value="No">No</option>
-          </select>
-          <span *ngIf="editingRow !== row">{{ row.verified_yn }}</span>
-        </td>
-
-        <!-- Verified By (Dropdown) -->
-        <td>
-          <select *ngIf="editingRow === row" [(ngModel)]="row.verifiedBy" class="dropdownstyle">
-            <option *ngFor="let admin of adminOptions" [value]="admin">{{ admin }}</option>
-          </select>
-          <span *ngIf="editingRow !== row">{{ row.verifiedBy }}</span>
-        </td>
-
-        <!-- Verified Date (Auto-Generated) -->
-        <td>{{ row.verifiedDate | date: 'shortDate' }}</td>
-
-        <!-- Comments (Editable Text Field) -->
-        <td>
-          <textarea
-            *ngIf="editingRow === row"
-            [(ngModel)]="row.comments"
-            placeholder="Enter Comments"
-          ></textarea>
-          <span *ngIf="editingRow !== row">{{ row.comments }}</span>
-        </td>
-
-        <!-- Edit/Save Button -->
+        <!-- Actions Column (Fixed at the End) -->
         <td *ngIf="isAdmin()">
           <button (click)="toggleEdit(row)">
             {{ editingRow === row ? 'Save' : 'Edit' }}
           </button>
         </td>
       </tr>
-
     </tbody>
   </table>
   <pagination-controls
@@ -189,6 +161,6 @@
    <div *ngIf="isAdmin()" class="column-button">
     <button (click)="saveChanges()"> Save </button>
     <button (click)="exportToExcel()">Export</button>
-    <button>Undo Deletion</button> 
+    <button (click)="undoDeleteColumn()">Undo Deletion</button> 
   </div>
 </div>

@@ -48,6 +48,7 @@ export class ChangelogComponent {
   buildStatusOptions = ['Pending', 'Completed'];
   adminOptions = ['Admin', 'SuperAdmin', 'Manager'];
   stageOptions: string[] = ['FDS PreStage','FDS Stage','ID TP'];
+  selectedStages: { [key: number]: { [key: string]: boolean } } = {};
   selected: any;
   selectedRows: any[] = [];
   isButtonsVisible: boolean = false;
@@ -56,31 +57,31 @@ export class ChangelogComponent {
   tableData: TableRow[] = [
     {
       srNo: 1,
-  ofsaaMappingChangeDate: new Date(12/12/2024),
+  ofsaaMappingChangeDate: new Date(2024/12/10),
   ofsaaStageTableName: 'Data Table',
   stage:'FDS PreStage',
   changeDetails: 'Not Available',
   ofsaaChangeBy: 'User1',
   odiBuildStatus: 'Pending',
-  odiBuildDate:  new Date(12/12/2024),
+  odiBuildDate: new Date(2024/12/10),
   verified_yn: 'Yes',
   verifiedBy: 'Admin',
-  verifiedDate: new Date(12/12/2024),
+  verifiedDate: new Date(2024/12/10),
   comments: 'Not Available',
   isSelected: false,
     },
     {
       srNo: 2,
-  ofsaaMappingChangeDate: new Date(14/12/2024),
+  ofsaaMappingChangeDate: new Date(2024/12/10),
   ofsaaStageTableName: 'Source Table',
   stage:'FDS Stage',
   changeDetails: 'Available',
   ofsaaChangeBy: 'User2',
   odiBuildStatus: 'Pending',
-  odiBuildDate:  new Date(14/12/2024),
+  odiBuildDate:  new Date(2024/12/10),
   verified_yn: 'No',
   verifiedBy: 'Admin',
-  verifiedDate: new Date(14/12/2024),
+  verifiedDate: new Date(2024/12/10),
   comments: 'Not Available',
   isSelected: false,
     },
@@ -141,15 +142,16 @@ export class ChangelogComponent {
     // return dialogRef.afterClosed().toPromise();
     return firstValueFrom(dialogRef.afterClosed());
   }
-
+  
   ngOnInit(): void {
     this.updatePaginatedData();
+    this.initializeSelectedStages();
   }
 
   // loadFromStorage(key: string): any {
   //   const data = localStorage.getItem(key);
   //   return data ? JSON.parse(data) : null;
-  // }
+  // 
   
   isAdmin(): boolean {
     return this.roleService.getRole() === 'Admin';
@@ -161,6 +163,37 @@ export class ChangelogComponent {
     } else {
       this.editingRow = row;
     }
+  }
+
+  initializeSelectedStages() {
+    this.tableData.forEach(row => {
+      this.selectedStages[row.srNo] = {};
+      this.stageOptions.forEach(stage => {
+        this.selectedStages[row.srNo][stage] = row.stage === stage;
+      });
+    });
+  }
+  
+  isStageSelected(srNo: number, stage: string): boolean {
+    return this.selectedStages[srNo]?.[stage] || false;
+  }
+  
+  toggleStageSelection(srNo: number, stage: string) {
+    this.selectedStages[srNo][stage] = !this.selectedStages[srNo][stage];
+  }
+  
+openDropdowns: { [key: number]: boolean } = {};
+
+toggleDropdown(srNo: number) {
+  this.openDropdowns[srNo] = !this.openDropdowns[srNo];
+}
+
+isDropdownOpen(srNo: number): boolean {
+  return this.openDropdowns[srNo] || false;
+}
+
+ getSelectedStages(srNo: number): string {
+    return this.stageOptions.filter(stage => this.selectedStages[srNo][stage]).join(', ');
   }
 
   filteredData() {
@@ -212,79 +245,90 @@ export class ChangelogComponent {
     return false;
   }
 
+  toggleSelection(row: any, option: string) {
+    if (!row.selectedStages) {
+      row.selectedStages = [];
+    }
+  
+    const index = row.selectedStages.indexOf(option);
+    if (index === -1) {
+      row.selectedStages.push(option);
+    } else {
+      row.selectedStages.splice(index, 1);
+    }
+  }
+  async undoDeleteColumn() {
+    // Retrieve the backup of the original columns and data from localStorage
+    const backupTableColumns = JSON.parse(
+      localStorage.getItem('tableColumnsBackup') || '[]'
+    );
+    const backupTableData = JSON.parse(
+      localStorage.getItem('tableDataBackup') || '[]'
+    );
 
-  // async undoDeleteColumn() {
-  //   // Retrieve the backup of the original columns and data from localStorage
-  //   const backupTableColumns = JSON.parse(
-  //     localStorage.getItem('tableColumnsBackup') || '[]'
-  //   );
-  //   const backupTableData = JSON.parse(
-  //     localStorage.getItem('tableDataBackup') || '[]'
-  //   );
+    if (backupTableColumns.length > 0) {
+      // Restore the original tableColumns and tableData
+      this.tableColumns = backupTableColumns;
+      this.tableData = backupTableData;
 
-  //   if (backupTableColumns.length > 0) {
-  //     // Restore the original tableColumns and tableData
-  //     this.tableColumns = backupTableColumns;
-  //     this.tableData = backupTableData;
+      // Save the restored state back to localStorage
+      localStorage.setItem('tableColumns', JSON.stringify(this.tableColumns));
+      localStorage.setItem('tableData', JSON.stringify(this.tableData));
 
-  //     // Save the restored state back to localStorage
-  //     localStorage.setItem('tableColumns', JSON.stringify(this.tableColumns));
-  //     localStorage.setItem('tableData', JSON.stringify(this.tableData));
+      this.cdr.detectChanges();
 
-  //     this.cdr.detectChanges();
+      this.openDialog('All column Deletions have been undone!');
+    } else {
+      this.loadColumnsFromStorage();
+      this.openDialog('No previous column Deletions Found to undo!');
+    }
+  }
 
-  //     this.openDialog('All column Deletions have been undone!');
-  //   } else {
-  //     this.loadColumnsFromStorage();
-  //     this.openDialog('No previous column Deletions Found to undo!');
-  //   }
-  // }
+  loadColumnsFromStorage() {
+    // Retrieve tableColumns from localStorage
+    const storedTableColumns = JSON.parse(
+      localStorage.getItem('tableColumns') || '[]'
+    );
 
-  // loadColumnsFromStorage() {
-  //   // Retrieve tableColumns from localStorage
-  //   const storedTableColumns = JSON.parse(
-  //     localStorage.getItem('tableColumns') || '[]'
-  //   );
+    if (storedTableColumns.length === 0) {
+      // If not found in localStorage, save default columns
+      const defaultTableColumns = [
+        { header: 'Sr. No.', field: 'srNo' },
+        { header: 'TFS Req.', field: 'tfsReq' },
+        { header: 'Release', field: 'release' },
+        { header: 'OFSAA Physical Names', field: 'ofsaaPhysicalNames' },
+        {
+          header: 'OFSAA Logical Entity Name',
+          field: 'ofsaaLogicalEntityName',
+        },
+        { header: 'Source', field: 'source' },
+        { header: 'Type of Data', field: 'typeOfData' },
+        { header: 'Frequency', field: 'frequency' },
+        { header: 'Load Mode', field: 'loadMode' },
+        { header: 'Load Type', field: 'loadType' },
+        { header: 'Expected Volume', field: 'expectedVolume' },
+        { header: 'Mapping Status', field: 'mappingStatus' },
+        { header: 'ODI Build Status', field: 'odiBuildStatus' },
+        { header: 'Review Status', field: 'reviewStatus' },
+        { header: 'Used in EFRA', field: 'usedInEFRA' },
+        { header: 'Used in CECL', field: 'usedInCECL' },
+        { header: 'Used in AML', field: 'usedInAML' },
+        { header: 'Used in Onestream', field: 'usedInOnestream' },
+        { header: 'Used in CCAR', field: 'usedInCCAR' },
+        { header: 'Used in AXIOM', field: 'usedInAXIOM' },
+      ];
 
-  //   if (storedTableColumns.length === 0) {
-  //     // If not found in localStorage, save default columns
-  //     const defaultTableColumns = [
-  //       { header: 'Sr. No.', field: 'srNo' },
-  //       { header: 'TFS Req.', field: 'tfsReq' },
-  //       { header: 'Release', field: 'release' },
-  //       { header: 'OFSAA Physical Names', field: 'ofsaaPhysicalNames' },
-  //       {
-  //         header: 'OFSAA Logical Entity Name',
-  //         field: 'ofsaaLogicalEntityName',
-  //       },
-  //       { header: 'Source', field: 'source' },
-  //       { header: 'Type of Data', field: 'typeOfData' },
-  //       { header: 'Frequency', field: 'frequency' },
-  //       { header: 'Load Mode', field: 'loadMode' },
-  //       { header: 'Load Type', field: 'loadType' },
-  //       { header: 'Expected Volume', field: 'expectedVolume' },
-  //       { header: 'Mapping Status', field: 'mappingStatus' },
-  //       { header: 'ODI Build Status', field: 'odiBuildStatus' },
-  //       { header: 'Review Status', field: 'reviewStatus' },
-  //       { header: 'Used in EFRA', field: 'usedInEFRA' },
-  //       { header: 'Used in CECL', field: 'usedInCECL' },
-  //       { header: 'Used in AML', field: 'usedInAML' },
-  //       { header: 'Used in Onestream', field: 'usedInOnestream' },
-  //       { header: 'Used in CCAR', field: 'usedInCCAR' },
-  //       { header: 'Used in AXIOM', field: 'usedInAXIOM' },
-  //     ];
+      localStorage.setItem('tableColumns', JSON.stringify(defaultTableColumns));
+    }
 
-  //     localStorage.setItem('tableColumns', JSON.stringify(defaultTableColumns));
-  //   }
-
-  //   this.tableColumns = storedTableColumns;
-  //   this.cdr.detectChanges();
-  // }
-  // clearLocalStorage(): void {
-  //   localStorage.clear();
-  //   console.log('Local storage cleared');
-  //   alert('Local storage has been cleared!');
-  // }
+    this.tableColumns = storedTableColumns;
+    this.cdr.detectChanges();
+  }
+  clearLocalStorage(): void {
+    localStorage.clear();
+    console.log('Local storage cleared');
+    alert('Local storage has been cleared!');
+  }
   
   async addData(){
     if (!this.isAdmin()) return;
@@ -300,11 +344,13 @@ export class ChangelogComponent {
 
     if (!insertOption) return;
 
+    const selectedStages = await this.openStageSelectionDialog();
+    if (selectedStages) {
     const newRow: TableRow = {
       srNo: this.tableData.length +1,
       ofsaaMappingChangeDate: new (Date),
       ofsaaStageTableName: '',
-      stage:'',
+      stage:selectedStages.join(', '),
       changeDetails: '',
       ofsaaChangeBy: '',
       odiBuildStatus: '',
@@ -367,7 +413,30 @@ export class ChangelogComponent {
     this.updatePaginatedData();
     this.cdr.detectChanges();
   }
+  }
 
+  async openStageSelectionDialog(): Promise<string[] | null> {
+    const dialogRef = this.dialog.open(DialogComponent, {
+      width: '300px',
+      data: {
+        title: 'Select Stages',
+        message: 'Choose the stages for the new row:',
+        options: this.stageOptions, 
+        // selectLabel: 'Stages',
+        // selectedOption: [] 
+        useCheckboxes: true,
+      }
+    });
+  
+    const result = await dialogRef.afterClosed().toPromise();
+  
+    if (result) {
+      return result; 
+    } else {
+      return null; 
+    }
+  }
+  
   addChange() {
     if(!this.isAdmin()) return;
 
@@ -595,54 +664,50 @@ export class ChangelogComponent {
 
   addColumn() {
     if (!this.isAdmin()) return;
-  
-    const trimmedName = this.newColumnName.trim();
-    if (!trimmedName) {
-      alert('Please Enter Column Name!');
-      return;
+
+    console.log('New Column Name: ', this.newColumnName);
+
+    if (this.newColumnName.trim() !== '') {
+      const newField = this.newColumnName.replace(/\s+/g, '').toLowerCase();
+
+      const newColumn = {
+        header: this.newColumnName,
+        field: newField,
+      };
+
+      if (
+        this.tableColumns.some(
+          (colm: { field: string; header: string }) =>
+            colm.field === newField || colm.header === this.newColumnName
+        )
+      ) {
+        this.openDialog(`Column "${this.newColumnName}" Already exists!`);
+        return;
+      }
+
+      // this.tableColumns.push(newColumn);
+      this.tableColumns = [...this.tableColumns, newColumn];
+
+      //add new column to table with empty value
+      this.tableData.forEach((row) => {
+        row[newField] = '';
+      });
+
+      //trigger change detection to update table
+      this.cdr.detectChanges();
+
+      this.newColumnName = '';
+      // this.newColumnAdded = true;
+      this.saveToStorage('tableData', this.tableData);
+      this.openDialog(`New Column Added: "${newColumn.header}"!`);
+    } else {
+      this.openDialog('Please Enter Column Name!');
     }
-  
-    const newField = trimmedName.replace(/\s+/g, '').toLowerCase();
-  
-    // Validate column name
-    const validName = /^[a-zA-Z0-9_]+$/.test(newField);
-    if (!validName) {
-      alert('Column name can only contain letters, numbers, or underscores!');
-      return;
-    }
-  
-    // Check for duplicates
-    const isDuplicate = this.tableColumns.some(
-      (colm: { field: string; header: string; }) =>
-        colm.field.toLowerCase() === newField.toLowerCase() ||
-        colm.header.toLowerCase() === trimmedName.toLowerCase()
-    );
-    if (isDuplicate) {
-      alert(`Column "${this.newColumnName}" already exists!`);
-      return;
-    }
-  
-    // Add the column
-    const newColumn = {
-      header: trimmedName,
-      field: newField,
-    };
-    this.tableColumns.push(newColumn);
-  
-    // Add empty values for the new column in every row
-    this.tableData.forEach((row) => {
-      row[newField] = '';
-    });
-  
-    // Trigger change detection
-    this.tableColumns = [...this.tableColumns];
-    this.tableData = [...this.tableData];
-  
-    // Clear input and notify user
-    this.newColumnName = '';
-    alert(`New Column Added: "${newColumn.header}"!`);
   }
   
+  saveToStorage(key: string, data: any): void {
+    localStorage.setItem(key, JSON.stringify(data));
+  }
   
   saveColumnData(row: TableRow, column: any, event: Event) {
     if (!row || !column || !column.field) {
@@ -694,31 +759,130 @@ export class ChangelogComponent {
     this.paginatedData = this.tableData.slice(startPage, endPage);
   }
 
-  editColumnData() {
+  // editColumnData() {
+  //   if (!this.isAdmin()) return;
+
+  //   const colmnToEdit = prompt(`Select a column to Edit by Entering it's Header Name:\n`);
+  //   // ${this.tableColumns.map((col) => col.header).join(', ')}`);
+
+  //   if (!colmnToEdit) return;
+
+  //   const selectedColumn = this.tableColumns.find((colm: { header: string; }) => colm.header.toLowerCase() === colmnToEdit.toLowerCase());
+
+  //   if (!selectedColumn) {
+  //     alert('Invalid Column Name! Please Try Again.');
+  //     return;
+  //   }
+
+  //   const editOption = prompt(
+  //     `Choose an option for Editing "${selectedColumn.header}":\n1. Edit all rows\n2. Edit a series of rows\nEnter the number (1 or 2):`
+  //   );
+
+  //   if (!editOption) return;
+
+  //   switch (editOption.trim()) {
+  //     case '1': {
+  //       const newValue = prompt(
+  //         `Enter the new value for all rows in the "${selectedColumn.header}" column:`
+  //       );
+
+  //       if (newValue != null) {
+  //         this.tableData.forEach((row) => {
+  //           row[selectedColumn.field] = newValue;
+  //         });
+
+  //         alert(`All rows in the "${selectedColumn.header}" column updated with value: ${newValue}!`);
+  //         this.updatePaginatedData();
+  //         this.cdr.detectChanges();
+  //       }
+  //       break;
+  //     }
+
+  //     case '2': {
+  //       const rangeInput = prompt(
+  //         `Enter the starting and ending row numbers (separated by a hyphen [-]) to edit in the "${selectedColumn.header}" column:`
+  //       );
+
+  //       if (rangeInput) {
+  //         const[startRowNum, endRowNum] = rangeInput.split('-').map(num => num.trim());
+  //         const startIndex = this.tableData.findIndex(
+  //           (row) => row.srNo === Number(startRowNum)
+  //         );
+  //         const endIndex = this.tableData.findIndex(
+  //           (row) => row.srNo === Number(endRowNum)
+  //         );
+
+  //         if (startIndex !== -1 && endIndex !== -1 && startIndex <= endIndex) {
+  //           const newValue = prompt(
+  //             `Enter the new value for rows ${startRowNum} to ${endRowNum} in the "${selectedColumn.header}" column:`
+  //           );
+
+  //           if (newValue !== null) {
+  //             for (let i = startIndex; i <= endIndex; i++) {
+  //               this.tableData[i][selectedColumn.field] = newValue;
+  //             }
+
+  //             alert(
+  //               `Rows ${startRowNum} to ${endRowNum} in the "${selectedColumn.header}" column updated with value: ${newValue}!`
+  //             );
+  //             this.updatePaginatedData();
+  //             this.cdr.detectChanges();
+  //           }
+  //         }
+  //       } else {
+  //         alert('Invalid series of row numbers!');
+  //       }
+  //       break;
+  //     }
+
+  //     default:
+  //       alert('Invalid option! Please enter 1 or 2.');
+  //       break;
+  //   }
+  // }
+
+  async editColumnData() {
     if (!this.isAdmin()) return;
 
-    const colmnToEdit = prompt(`Select a column to Edit by Entering it's Header Name:\n`);
+    const colmnToEdit = await this.openInputDialog(
+      'Edit Row',
+      `Select a column to Edit by Entering it's exact Header Name: `,
+      'Header Name',
+      ''
+    );
     // ${this.tableColumns.map((col) => col.header).join(', ')}`);
 
     if (!colmnToEdit) return;
 
-    const selectedColumn = this.tableColumns.find((colm: { header: string; }) => colm.header.toLowerCase() === colmnToEdit.toLowerCase());
+    const selectedColumn = this.tableColumns.find(
+      (colm: { header: string }) =>
+        colm.header.toLowerCase() === colmnToEdit.toLowerCase()
+    );
 
     if (!selectedColumn) {
-      alert('Invalid Column Name! Please Try Again.');
+      this.openDialog('Invalid Column Name! Please Try Again.');
       return;
     }
 
-    const editOption = prompt(
-      `Choose an option for Editing "${selectedColumn.header}":\n1. Edit all rows\n2. Edit a series of rows\nEnter the number (1 or 2):`
+    const editOption = await this.openInputDialog(
+      'Select Editing Option',
+      `Choose an option for Editing "${selectedColumn.header}":`,
+      '',
+      '',
+      'Select Any Option: ',
+      ['Edit All rows', 'Edit a Series of Rows'],
+      'Edit All rows'
     );
 
     if (!editOption) return;
 
     switch (editOption.trim()) {
-      case '1': {
-        const newValue = prompt(
-          `Enter the new value for all rows in the "${selectedColumn.header}" column:`
+      case 'Edit All rows': {
+        const newValue = await this.openInputDialog(
+          'Enter Value',
+          `Enter new value for all rows in the "${selectedColumn.header}" column:`,
+          'Value',
+          ''
         );
 
         if (newValue != null) {
@@ -726,20 +890,27 @@ export class ChangelogComponent {
             row[selectedColumn.field] = newValue;
           });
 
-          alert(`All rows in the "${selectedColumn.header}" column updated with value: ${newValue}!`);
+          this.openDialog(
+            `All rows in the "${selectedColumn.header}" column Updated with value: ${newValue}!`
+          );
           this.updatePaginatedData();
           this.cdr.detectChanges();
         }
         break;
       }
 
-      case '2': {
-        const rangeInput = prompt(
-          `Enter the starting and ending row numbers (separated by a hyphen [-]) to edit in the "${selectedColumn.header}" column:`
+      case 'Edit a Series of Rows': {
+        const rangeInput = await this.openInputDialog(
+          'Enter Series',
+          `Enter the Starting and Ending Row Numbers (separated by a hyphen [-]) to Edit in the "${selectedColumn.header}" column:`,
+          'Series',
+          ''
         );
 
         if (rangeInput) {
-          const[startRowNum, endRowNum] = rangeInput.split('-').map(num => num.trim());
+          const [startRowNum, endRowNum] = rangeInput
+            .split('-')
+            .map((num) => num.trim());
           const startIndex = this.tableData.findIndex(
             (row) => row.srNo === Number(startRowNum)
           );
@@ -748,8 +919,11 @@ export class ChangelogComponent {
           );
 
           if (startIndex !== -1 && endIndex !== -1 && startIndex <= endIndex) {
-            const newValue = prompt(
-              `Enter the new value for rows ${startRowNum} to ${endRowNum} in the "${selectedColumn.header}" column:`
+            const newValue = await this.openInputDialog(
+              'Enter Value',
+              `Enter new value for rows ${startRowNum} to ${endRowNum} in the "${selectedColumn.header}" column:`,
+              'Value',
+              ''
             );
 
             if (newValue !== null) {
@@ -757,7 +931,7 @@ export class ChangelogComponent {
                 this.tableData[i][selectedColumn.field] = newValue;
               }
 
-              alert(
+              this.openDialog(
                 `Rows ${startRowNum} to ${endRowNum} in the "${selectedColumn.header}" column updated with value: ${newValue}!`
               );
               this.updatePaginatedData();
@@ -765,13 +939,13 @@ export class ChangelogComponent {
             }
           }
         } else {
-          alert('Invalid series of row numbers!');
+          this.openDialog('Invalid series of row numbers!');
         }
         break;
       }
 
       default:
-        alert('Invalid option! Please enter 1 or 2.');
+        this.openDialog('Invalid option!');
         break;
     }
   }
@@ -864,31 +1038,34 @@ toggleColumnActionsVisibility() {
 saveChanges(): void {
   if (!this.isAdmin()) return;
 
-  // Check if we are in editing mode
-  if (this.editingMode) {
-    // Validate rows
-    const requiredFields = this.tableColumns.map((colm: { field: any; }) => colm.field);
-    const invalidRows = this.tableData.filter((row) =>
-      requiredFields.some(
-        (field: string | number) => !row[field] || row[field].toString().trim() === ''
-      )
+  const requiredFields = this.tableColumns.map(
+    (column: { field: any }) => column.field
+  );
+
+  // Check for missing data in rows or columns
+  const hasInvalidData = this.tableData.some((row) => {
+    return requiredFields.some(
+      (field: string | number) =>
+        !row[field] || row[field].toString().trim() === ''
     );
+  });
 
-    if (invalidRows.length > 0) {
-      alert('Please fill in all missing data before saving!');
-      return;
-    }
+  if (hasInvalidData) {
+    this.openDialog('Please Fill in All Missing Fields in Rows or Columns Before Saving!');
+    return;
+  }
 
-    // Save changes and exit editing mode
+  if (this.editingMode) {
     this.editingMode = false;
     this.editingRow = null;
     this.cdr.detectChanges();
-    alert('All changes saved successfully!');
+    this.saveToStorage('tableData', this.tableData);
+    this.openDialog('Data Saved Successfully!');
   } else {
-    // Enable editing mode
     this.editingMode = true;
-    alert('You can now edit rows and columns. Click "Save" again to finalize changes.');
+    this.openDialog(
+      'You can Edit Rows and Columns Now! Click "Save Data" Again to Finalize Changes.'
+    );
   }
 }
-
 }

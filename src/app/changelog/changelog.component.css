@@ -38,9 +38,61 @@ button {
   width: 100%;
 }
 
-.dropdownstyle option:hover {
+/* .dropdownstyle option:hover {
   background-color: #071975 !important;
   color: white !important;
+} */
+
+/* Dropdown container */
+/* .dropdownstyle {
+  border: 1px solid #ccc;
+  padding: 8px;
+  border-radius: 5px;
+  font-size: 15px;
+  cursor: pointer;
+  box-sizing: border-box;
+  background-color: white;
+  position: relative;
+  width: 150px; /* Adjust width as needed */
+ 
+
+/* Dropdown content (hidden by default) */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 5px;
+}
+
+/* Show dropdown content when open */
+.dropdown-content {
+  display: block;
+}
+
+/* Style for each checkbox label */
+.dropdown-content label {
+  display: block;
+  padding: 8px 16px;
+  font-size: 14px;
+  color: black;
+  cursor: pointer;
+}
+
+/* Hover effect for dropdown options */
+.dropdown-content label:hover {
+  background-color: #071975;
+  color: white;
+}
+
+/* Checkbox styling */
+.dropdown-content input[type="checkbox"] {
+  margin-right: 8px;
 }
 
 button:hover {

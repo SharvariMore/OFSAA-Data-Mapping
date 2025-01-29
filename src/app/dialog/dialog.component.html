@@ -1,6 +1,8 @@
 <h1 mat-dialog-title>{{ data.title }}</h1>
 <div mat-dialog-content>
   <p>{{ data.message }}</p>
+
+
   <mat-form-field appearance="fill" *ngIf="data.input">
     <mat-label>{{ data.inputLabel }}</mat-label>
     <input matInput [(ngModel)]="data.inputValue" />
@@ -8,7 +10,7 @@
 
   <mat-form-field
     appearance="fill"
-    *ngIf="data.options && data.options.length > 0"
+    *ngIf="data.selectLabel && data.options && !data.useCheckboxes"
   >
     <mat-label>{{ data.selectLabel }}</mat-label>
     <mat-select [(value)]="data.selectedOption">
@@ -17,7 +19,16 @@
       }}</mat-option>
     </mat-select>
   </mat-form-field>
+
+  <div *ngIf="data.useCheckboxes && data.options">
+    <div *ngFor="let option of data.options">
+      <mat-checkbox [(ngModel)]="selectedOptions[option]">
+        {{ option }}
+      </mat-checkbox>
+    </div>
+  </div>
 </div>
+
 <div mat-dialog-actions>
   <button
     mat-button
@@ -27,7 +38,7 @@
     OK
   </button>
 
-  <!-- Show Cancel and Confirm buttons for input/select dialogs -->
+  <!-- Show Cancel and Confirm buttons for input/select dialogs --> 
   <ng-container *ngIf="data.input || data.selectLabel">
     <button mat-button (click)="onCancel()">Cancel</button>
     <button mat-button color="primary" (click)="onConfirm()">Confirm</button>
