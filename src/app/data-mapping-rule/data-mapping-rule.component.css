@@ -161,8 +161,8 @@ input {
 }
 
 .table-wrapper {
-  width: 48%;
-  overflow: visible;
+  max-width: 100%;
+  overflow-x: auto;
 }
 
 .table-wrapper.editing-mode {

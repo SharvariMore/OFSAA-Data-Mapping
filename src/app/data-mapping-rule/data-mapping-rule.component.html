@@ -48,7 +48,7 @@
         </optgroup>
 
         <!-- Group for Table 2 -->
-        <optgroup class="optgroup-t2" label="{{ getTableHeader(1) }}:">
+        <!-- <optgroup class="optgroup-t2" label="{{ getTableHeader(1) }}:">
           <option
             *ngFor="let column of getTableFormat(1)"
             [value]="column.field"
@@ -56,7 +56,7 @@
           >
             {{ column.header }}
           </option>
-        </optgroup>
+        </optgroup> -->
       </select>
     </div>
 
@@ -95,7 +95,7 @@
       </div>
     </div>
 
-    <div class="side-by-side-tables">
+    <!-- <div class="side-by-side-tables"> -->
       <!-- First Table -->
       <div class="table-wrapper" [ngClass]="{ 'editing-mode': isEditing }">
         <!-- <h3>{{ getTableHeader(0) }}</h3> -->
@@ -147,57 +147,7 @@
           </tbody>
         </table>
       </div>
-
-      <!-- Second Table -->
-      <div class="table-wrapper">
-        <!-- <h3>{{ getTableHeader(1) }}</h3> -->
-        <div *ngIf="filteredData(1).length === 0">
-          <p class="nodata">
-            No Data Found in {{ getTableHeader(1) }} for the entered search!
-          </p>
-        </div>
-        <table *ngIf="filteredData(1).length > 0" class="mapping-table">
-          <thead>
-            <th
-              [attr.colspan]="getTableFormat(1).length + (isAdmin() ? 1 : 0)"
-              style="padding: 10px"
-            >
-              {{ getTableHeader(1) }}
-            </th>
-            <tr>
-              <th *ngFor="let column of getTableFormat(1)">
-                {{ column.header }}
-              </th>
-              <!-- <th *ngIf="isAdmin()">Actions</th> -->
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let row of filteredData(1); let i = index">
-              <td
-                *ngFor="let column of getTableFormat(1)"
-                [ngClass]="{
-                  highlights: matchText(row[column.field], globalSearchText),
-                  'td-overflow': !isAdmin()
-                }"
-              >
-              <ng-container *ngIf="isEditing">
-                <!-- Show input field for editing when in edit mode -->
-                <input class="input-column" [(ngModel)]="row[column.field]" />
-              </ng-container>
-              <ng-container *ngIf="!isEditing">
-                <!-- Show the value when not in edit mode -->
-                {{ getRowValue(row, column) }}
-              </ng-container>
-                <!-- {{ getRowValue(row, column) }} -->
-              </td>
-              <!-- <td *ngIf="isAdmin()">
-                <button>Edit</button>
-              </td> -->
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <!-- </div> -->
   </div>
   <div *ngIf="isAdmin()" class="column-button">
     <button (click)="exportToExcel()">Export</button>
