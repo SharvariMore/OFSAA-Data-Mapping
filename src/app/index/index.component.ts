@@ -152,7 +152,6 @@ export class IndexComponent {
     });
   }
 
-
   openDialog(message: string, title: string = 'Notification') {
     this.dialog.open(DialogComponent, {
       data: { title: title, message: message },
@@ -166,6 +165,8 @@ export class IndexComponent {
     inputValue: string = '',
     selectLabel: string = '',
     options: string[] = [],
+    p0: string[] ,
+    useCheckboxes: boolean,
     selectedOption: string = ''
   ): Promise<string | null> {
     const dialogRef = this.dialog.open(DialogComponent, {
@@ -178,6 +179,8 @@ export class IndexComponent {
         selectLabel,
         options,
         selectedOption,
+        useCheckboxes,
+        selectedTables: p0,
       },
     });
 
@@ -225,13 +228,103 @@ export class IndexComponent {
     return false;
   }
 
+  // async addData() {
+  //   if (!this.isAdmin()) return;
+
+  //   // const insertOption = await this.openInputDialog( 'Insert Row',
+  //   //   'Where do you want to insert the new row?\n\n1. At the beginning\n2. At the end\n3. In between',
+  //   //    'Enter the number (1, 2, or 3):'
+  //   // );
+  //   const insertOption = await this.openInputDialog(
+  //     'Insert Row',
+  //     'Where do you want to Insert the New Row?',
+  //     '',
+  //     '',
+  //     'Select Any Option:',
+  //     ['At the Beginning', 'At the End', 'In Between'],
+  //     'At the Beginning'
+  //   );
+
+  //   if (!insertOption) return;
+
+  //   const newRow: TableRow = {
+  //     srNo: this.tableData.length + 1,
+  //     tfsReq: 'NEW-REQ',
+  //     release: '',
+  //     ofsaaPhysicalNames: 'New Table',
+  //     ofsaaLogicalEntityName: '',
+  //     source: '',
+  //     typeOfData: '',
+  //     frequency: '',
+  //     loadMode: '',
+  //     loadType: '',
+  //     expectedVolume: '',
+  //     mappingStatus: 'Not Started',
+  //     odiBuildStatus: 'Not Started',
+  //     reviewStatus: 'Not Started',
+  //     usedInEFRA: 'Y',
+  //     usedInCECL: 'Y',
+  //     usedInAML: 'N',
+  //     usedInOnestream: 'Y',
+  //     usedInCCAR: 'N',
+  //     usedInAXIOM: 'N',
+  //   };
+
+  //   switch (insertOption.trim()) {
+  //     case 'At the Beginning': {
+  //       this.tableData.unshift(newRow);
+  //       this.openDialog('New Row Added At Beginning! You can now Edit it.');
+  //       break;
+  //     }
+
+  //     case 'At the End': {
+  //       this.tableData.push(newRow);
+  //       this.openDialog('New Row Added At End! You can now Edit it.');
+  //       break;
+  //     }
+
+  //     case 'In Between': {
+  //       const position = await this.openInputDialog(
+  //         'Select Position',
+  //         `Enter the Position (1 to ${this.tableData.length}) where you want to Insert New Row:`,
+  //         'Position',
+  //         ''
+  //       );
+
+  //       if (position) {
+  //         const index = Number(position) - 1;
+  //         if (index >= 0 && index <= this.tableData.length) {
+  //           this.tableData.splice(index, 0, newRow);
+  //           this.openDialog(
+  //             `New Row Added at ${index + 1}! You can now Edit it.`
+  //           );
+  //         } else {
+  //           this.openDialog('Invalid Position!');
+  //         }
+  //       } else {
+  //         return;
+  //       }
+  //       break;
+  //     }
+
+  //     default:
+  //       this.openDialog('Invalid option!');
+  //       break;
+  //   }
+
+  //   this.tableData.forEach((row, index) => {
+  //     row.srNo = index + 1;
+  //   });
+
+  //   this.saveToStorage('tableData', this.tableData);
+
+  //   this.updatePaginatedData();
+  //   this.cdr.detectChanges();
+  // }
+
   async addData() {
     if (!this.isAdmin()) return;
 
-    // const insertOption = await this.openInputDialog( 'Insert Row',
-    //   'Where do you want to insert the new row?\n\n1. At the beginning\n2. At the end\n3. In between',
-    //    'Enter the number (1, 2, or 3):'
-    // );
     const insertOption = await this.openInputDialog(
       'Insert Row',
       'Where do you want to Insert the New Row?',
@@ -239,11 +332,13 @@ export class IndexComponent {
       '',
       'Select Any Option:',
       ['At the Beginning', 'At the End', 'In Between'],
-      'At the Beginning'
+      ['At the Beginning'],
+      false
     );
 
     if (!insertOption) return;
 
+    // Define the new row to insert
     const newRow: TableRow = {
       srNo: this.tableData.length + 1,
       tfsReq: 'NEW-REQ',
@@ -267,6 +362,7 @@ export class IndexComponent {
       usedInAXIOM: 'N',
     };
 
+    // Insert the row at the selected position
     switch (insertOption.trim()) {
       case 'At the Beginning': {
         this.tableData.unshift(newRow);
@@ -285,7 +381,11 @@ export class IndexComponent {
           'Select Position',
           `Enter the Position (1 to ${this.tableData.length}) where you want to Insert New Row:`,
           'Position',
-          ''
+          '',
+          '',
+          [],
+          [],
+          false
         );
 
         if (position) {
@@ -313,44 +413,120 @@ export class IndexComponent {
       row.srNo = index + 1;
     });
 
-    this.saveToStorage('tableData', this.tableData);
+    const useCheckboxes = true;
+    const selectedTables = await this.openInputDialog(
+      'Select Tables',
+      'Select the tables for this new row',
+      '',
+      '',
+      'Select Tables:',
+      ['Source Table', 'Pre-Stage Table', 'Stage Table', 'ID TP Table'],
+      [],
+      true
+    );
 
+    if (
+      !selectedTables ||
+      (typeof selectedTables === 'string' && selectedTables.trim() === '')
+    ) {
+      this.openDialog('No tables selected! Row not inserted into any table.');
+      return;
+    }
+
+    if (useCheckboxes && Array.isArray(selectedTables)) {
+      console.log('Selected tables (multiple):', selectedTables);
+      selectedTables.forEach((table: string) => {
+        this.insertRowIntoTable(newRow, table);
+      });
+    } else if (typeof selectedTables === 'string') {
+      console.log('Selected table (single):', selectedTables);
+      this.insertRowIntoTable(newRow, selectedTables);
+    }
+
+    this.saveToStorage('tableData', this.tableData);
     this.updatePaginatedData();
     this.cdr.detectChanges();
   }
 
-  // saveNewRow() {
-  //   if (!this.isAdmin()) return;
+  insertRowIntoTable(newRow: TableRow, table: string): void {
+    // Logic to insert the row into the specific table
+    // For now, log it to the console (replace with actual logic)
+    console.log(`Row inserted into ${table}:`, newRow);
 
-  //   if (this.editingMode) {
-  //     const requiredFields = this.tableColumns.map(
-  //       (column: { field: any }) => column.field
-  //     );
+    switch (table) {
+      case 'Source Table':
+        // Insert into Source Table logic
+        break;
+      case 'Pre-Stage Table':
+        // Insert into Pre-Stage Table logic
+        break;
+      case 'Stage Table':
+        // Insert into Stage Table logic
+        break;
+      case 'ID TP Table':
+        // Insert into ID TP Table logic
+        break;
+      default:
+        console.log('Unknown table:', table);
+    }
+  }
 
-  //     const inValidRows = this.tableData.filter((row) => {
-  //       return requiredFields.some(
-  //         (field: string | number) =>
-  //           row[field] || row[field].toString().trim() === ''
-  //       );
-  //     });
+  saveNewRow() {
+    if (!this.isAdmin()) return;
 
-  //     if (inValidRows.length > 0) {
-  //       this.openDialog('Please Fill All Missing Fields!');
-  //       return;
-  //     }
+    if (this.editingMode) {
+      const requiredFields = this.tableColumns.map(
+        (column: { field: any }) => column.field
+      );
 
-  //     this.editingMode = false;
-  //     this.editingRow = null;
-  //     this.cdr.detectChanges();
-  //     this.saveToStorage('tableData', this.tableData);
-  //     this.openDialog('All Rows Saved Successfully!');
-  //   } else {
-  //     this.editingMode = true;
-  //     this.openDialog(
-  //       'You can Edit rows now. Click "Save" again to finalize changes.'
-  //     );
-  //   }
-  // }
+      const inValidRows = this.tableData.filter((row) => {
+        return requiredFields.some(
+          (field: string | number) =>
+            row[field] || row[field].toString().trim() === ''
+        );
+      });
+
+      if (inValidRows.length > 0) {
+        this.openDialog('Please Fill All Missing Fields!');
+        return;
+      }
+
+      this.editingMode = false;
+      this.editingRow = null;
+      this.cdr.detectChanges();
+      this.saveToStorage('tableData', this.tableData);
+      this.openDialog('All Rows Saved Successfully!');
+    } else {
+      this.editingMode = true;
+      this.openDialog(
+        'You can Edit rows now. Click "Save" again to finalize changes.'
+      );
+    }
+  }
+
+  insertIntoDataMappingRuleTable(table: string, row: TableRow) {
+    switch (table) {
+      case 'Source Table':
+        // this.sourceTableData.push(row);
+        break;
+      case 'Pre-Stage Table':
+        // this.preStageTableData.push(row);
+        break;
+      case 'Stage Table':
+        // this.stageTableData.push(row);
+        break;
+      case 'ID TP Table':
+        // this.idTpTableData.push(row);
+        break;
+      default:
+        console.warn('Unknown table:', table);
+    }
+
+    this.saveToStorage(
+      `${table.replace(/\s/g, '')}Data`,
+      this[`${table.replace(/\s/g, '').toLowerCase()}Data`]
+    );
+  }
 
   addColumn() {
     if (!this.isAdmin()) return;
@@ -447,7 +623,8 @@ export class IndexComponent {
         'Delete multiple rows',
         'Delete all rows',
       ],
-      'Delete a specific row'
+      ['Delete a specific row'],
+      false
     );
 
     if (!deleteOption) return;
@@ -458,7 +635,11 @@ export class IndexComponent {
           'Select Position',
           'Enter the Row Number you want to Delete: ',
           'Row Number',
-          ''
+          '',
+          '',
+          [],
+          [],
+          false
         );
         if (rowNum) {
           const rowIndex = this.tableData.findIndex(
@@ -484,7 +665,11 @@ export class IndexComponent {
           'Select Range',
           'Enter the Starting and Ending Row Numbers (separated by hyphen [-] ):',
           'Range',
-          ''
+          '',
+          '',
+          [],
+          [],
+          false
         );
         if (rangeInput) {
           const [startRowNum, endRowNum] = rangeInput
@@ -516,7 +701,11 @@ export class IndexComponent {
           'Delete Multiple Rows',
           'Enter the Row Numbers you want to Delete, separated by commas(,):',
           'Row Numbers',
-          ''
+          '',
+          '',
+          [],
+          [],
+          false
         );
 
         if (rowsInput) {
@@ -550,7 +739,9 @@ export class IndexComponent {
           '',
           '',
           '',
-          []
+          [],
+          [],
+          false
         );
         if (rowAllDelete) {
           this.tableData = [];
@@ -590,7 +781,11 @@ export class IndexComponent {
       'Edit Row',
       `Select a column to Edit by Entering it's exact Header Name: `,
       'Header Name',
-      ''
+      '',
+      '',
+      [],
+      [],
+      false
     );
     // ${this.tableColumns.map((col) => col.header).join(', ')}`);
 
@@ -613,7 +808,8 @@ export class IndexComponent {
       '',
       'Select Any Option: ',
       ['Edit All rows', 'Edit a Series of Rows'],
-      'Edit All rows'
+      ['Edit All rows'],
+      false
     );
 
     if (!editOption) return;
@@ -624,7 +820,11 @@ export class IndexComponent {
           'Enter Value',
           `Enter new value for all rows in the "${selectedColumn.header}" column:`,
           'Value',
-          ''
+          '',
+          '',
+          [],
+          [],
+          false
         );
 
         if (newValue != null) {
@@ -646,7 +846,11 @@ export class IndexComponent {
           'Enter Series',
           `Enter the Starting and Ending Row Numbers (separated by a hyphen [-]) to Edit in the "${selectedColumn.header}" column:`,
           'Series',
-          ''
+          '',
+          '',
+          [],
+          [],
+          false
         );
 
         if (rangeInput) {
@@ -665,7 +869,11 @@ export class IndexComponent {
               'Enter Value',
               `Enter new value for rows ${startRowNum} to ${endRowNum} in the "${selectedColumn.header}" column:`,
               'Value',
-              ''
+              '',
+              '',
+              [],
+              [],
+              false
             );
 
             if (newValue !== null) {
@@ -741,7 +949,9 @@ export class IndexComponent {
     });
 
     if (hasInvalidData) {
-      this.openDialog('Please Fill in All Missing Fields in Rows or Columns Before Saving!');
+      this.openDialog(
+        'Please Fill in All Missing Fields in Rows or Columns Before Saving!'
+      );
       return;
     }
 
@@ -758,7 +968,6 @@ export class IndexComponent {
       );
     }
   }
-
 
   backupColumnsBeforeDeletion() {
     // Backing up the current state of tableColumns and tableData
@@ -785,7 +994,8 @@ export class IndexComponent {
         'Delete a Range of Columns',
         'Delete Multiple Columns',
       ],
-      'Delete a Specific Column'
+      ['Delete a Specific Column'],
+      false
     );
 
     if (!deleteOption) return;
@@ -796,7 +1006,11 @@ export class IndexComponent {
           'Select Column to Delete',
           'Enter exact Header Name of the Column you want to Delete: ',
           'Column Name',
-          ''
+          '',
+          '',
+          [],
+          [],
+          false
         );
 
         if (colName) {
@@ -829,7 +1043,11 @@ export class IndexComponent {
           'Select Range',
           'Enter the Starting and Ending column headers (separated by hyphen [-]) to Delete: ',
           'Range',
-          ''
+          '',
+          '',
+          [],
+          [],
+          false
         );
 
         if (rangeInput) {
@@ -876,7 +1094,11 @@ export class IndexComponent {
           'Select Multiple Columns',
           'Enter the Column Headers separated by comma (,) to Delete: ',
           'Columns',
-          ''
+          '',
+          '',
+          [],
+          [],
+          false
         );
 
         if (columnsInput) {

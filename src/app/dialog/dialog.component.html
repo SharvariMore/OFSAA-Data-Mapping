@@ -1,14 +1,28 @@
 <h1 mat-dialog-title>{{ data.title }}</h1>
 <div mat-dialog-content>
   <p>{{ data.message }}</p>
+
+
   <mat-form-field appearance="fill" *ngIf="data.input">
     <mat-label>{{ data.inputLabel }}</mat-label>
     <input matInput [(ngModel)]="data.inputValue" />
   </mat-form-field>
 
+  <div *ngIf="useCheckboxes && data.options && data.options.length > 0">
+    <p>{{ data.selectLabel }}</p>
+    <mat-checkbox
+      *ngFor="let option of data.options"
+      [value]="option"
+      [checked]="selectedOptions.includes(option)"
+      (change)="toggleSelection(option, $event)"
+    >
+      {{ option }}
+    </mat-checkbox>
+  </div>
+
   <mat-form-field
     appearance="fill"
-    *ngIf="data.options && data.options.length > 0"
+    *ngIf="!useCheckboxes && data.options && data.options.length > 0"
   >
     <mat-label>{{ data.selectLabel }}</mat-label>
     <mat-select [(value)]="data.selectedOption">
@@ -18,6 +32,7 @@
     </mat-select>
   </mat-form-field>
 </div>
+
 <div mat-dialog-actions>
   <button
     mat-button
