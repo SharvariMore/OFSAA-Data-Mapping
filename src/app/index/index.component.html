@@ -134,6 +134,13 @@
                   {{ row[column.field] }}
                 </span>
               </ng-container>
+
+              <ng-container *ngIf="column.field === 'mappedTables'">
+                <span>
+                  {{ row[column.field] ? row[column.field].join(', ') : 'No tables mapped' }}
+                </span>
+              </ng-container>
+
               <ng-container
                 *ngIf="
                   column.field === 'mappingStatus' ||
@@ -152,6 +159,7 @@
               <ng-container
                 *ngIf="
                   column.field !== 'ofsaaPhysicalNames' &&
+                   column.field !== 'mappedTables' &&
                   !(
                     column.field === 'mappingStatus' ||
                     column.field === 'odiBuildStatus' ||

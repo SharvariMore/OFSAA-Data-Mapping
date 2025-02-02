@@ -9,6 +9,7 @@ import { DialogComponent } from '../dialog/dialog.component';
 import { firstValueFrom } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { NgxPaginationModule } from 'ngx-pagination';
+import { TableRow } from '../index/index.component';
 
 export interface MappingRow {
   [key: string]: string | number | boolean | any;
@@ -79,6 +80,11 @@ export class DataMappingRuleComponent implements OnInit {
       this.ofsaaPhysicalNames = params['ofsaaPhysicalNames'];
     });
   }
+
+  sourceTable: TableRow[] = [];  // Source table array to store rows
+  preStageTable: TableRow[] = [];  // Pre-stage table array to store rows
+  stageTable: TableRow[] = [];  // Stage table array to store rows
+  idTpTable: TableRow[] = [];  // ID TP table array to store rows
 
   /**
    * Returns the table format for the current tab's tables.
@@ -422,6 +428,30 @@ getTableHeader(tableIndex: number): string {
       },
     ],
   };
+
+  insertIntoSourceTable(newRow: TableRow): void {
+    console.log('Inserting into Source Table:', newRow);
+    this.sourceTable.push(newRow);
+  }
+
+  // Method to handle insertion into the Pre-Stage Table
+  insertIntoPreStageTable(newRow: TableRow): void {
+    console.log('Inserting into Pre-Stage Table:', newRow);
+    this.preStageTable.push(newRow);
+  }
+
+  // Method to handle insertion into the Stage Table
+  insertIntoStageTable(newRow: TableRow): void {
+    console.log('Inserting into Stage Table:', newRow);
+    this.stageTable.push(newRow);
+  }
+
+  // Method to handle insertion into the ID TP Table
+  insertIntoIdTpTable(newRow: TableRow): void {
+    console.log('Inserting into ID TP Table:', newRow);
+    this.idTpTable.push(newRow);
+  }
+
 
   openDialog(message: string, title: string = 'Notification') {
     this.dialog.open(DialogComponent, {

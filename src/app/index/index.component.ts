@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { DialogComponent } from '../dialog/dialog.component';
 import { firstValueFrom, range } from 'rxjs';
 import { Router } from '@angular/router';
+import { DataMappingRuleComponent } from '../data-mapping-rule/data-mapping-rule.component';
 
 export interface TableRow {
   [key: string]: string | number | boolean | any; // Allow dynamic keys
@@ -32,6 +33,7 @@ export interface TableRow {
   usedInOnestream: string;
   usedInCCAR: string;
   usedInAXIOM: string;
+  mappedTables: string[];
 }
 
 @Component({
@@ -44,7 +46,9 @@ export interface TableRow {
     NgxPaginationModule,
     MatDialogModule,
     MatButtonModule,
+    DataMappingRuleComponent,
   ],
+  providers: [DataMappingRuleComponent],
   templateUrl: './index.component.html',
   styleUrl: './index.component.css',
 })
@@ -70,6 +74,7 @@ export class IndexComponent {
       tfsReq: 'REQ-001',
       release: '1.0',
       ofsaaPhysicalNames: 'Table_1',
+      mappedTables: [],
       ofsaaLogicalEntityName: 'Entity_1',
       source: 'Source_1',
       typeOfData: 'Transactional',
@@ -92,6 +97,7 @@ export class IndexComponent {
       tfsReq: 'REQ-002',
       release: '2.0',
       ofsaaPhysicalNames: 'Table_2',
+      mappedTables: [],
       ofsaaLogicalEntityName: 'Entity_2',
       source: 'Source_2',
       typeOfData: 'Master',
@@ -118,6 +124,7 @@ export class IndexComponent {
     { header: 'TFS Req.', field: 'tfsReq' },
     { header: 'Release', field: 'release' },
     { header: 'OFSAA Physical Names', field: 'ofsaaPhysicalNames' },
+    { header: 'Mapped Tables', field: 'mappedTables' },
     { header: 'OFSAA Logical Entity Name', field: 'ofsaaLogicalEntityName' },
     { header: 'Source', field: 'source' },
     { header: 'Type of Data', field: 'typeOfData' },
@@ -139,11 +146,13 @@ export class IndexComponent {
   tableColumnsBackup: Array<{ header: string; field: string }> | null = null;
   tableDataBackup: any[] | null = null;
 
+
   constructor(
     private roleService: RoleService,
     private cdr: ChangeDetectorRef,
     private dialog: MatDialog,
-    private router: Router
+    private router: Router,
+    private dataMappingRuleComponent: DataMappingRuleComponent
   ) {}
 
   navigateToDataMappingRule(ofsaaPhysicalNames: string): void {
@@ -345,6 +354,7 @@ export class IndexComponent {
       release: '',
       ofsaaPhysicalNames: 'New Table',
       ofsaaLogicalEntityName: '',
+      mappedTables: [],
       source: '',
       typeOfData: '',
       frequency: '',
@@ -436,10 +446,12 @@ export class IndexComponent {
     if (useCheckboxes && Array.isArray(selectedTables)) {
       console.log('Selected tables (multiple):', selectedTables);
       selectedTables.forEach((table: string) => {
+        newRow.mappedTables.push(table);
         this.insertRowIntoTable(newRow, table);
       });
     } else if (typeof selectedTables === 'string') {
       console.log('Selected table (single):', selectedTables);
+      newRow.mappedTables.push(selectedTables);
       this.insertRowIntoTable(newRow, selectedTables);
     }
 
@@ -456,15 +468,20 @@ export class IndexComponent {
     switch (table) {
       case 'Source Table':
         // Insert into Source Table logic
+        this.dataMappingRuleComponent.insertIntoSourceTable(newRow);
+        console.log("Source Tb");
         break;
       case 'Pre-Stage Table':
         // Insert into Pre-Stage Table logic
+        this.dataMappingRuleComponent.insertIntoPreStageTable(newRow);
         break;
       case 'Stage Table':
         // Insert into Stage Table logic
+        this.dataMappingRuleComponent.insertIntoStageTable(newRow);
         break;
       case 'ID TP Table':
         // Insert into ID TP Table logic
+        this.dataMappingRuleComponent.insertIntoIdTpTable(newRow);
         break;
       default:
         console.log('Unknown table:', table);
@@ -1185,6 +1202,7 @@ export class IndexComponent {
         { header: 'TFS Req.', field: 'tfsReq' },
         { header: 'Release', field: 'release' },
         { header: 'OFSAA Physical Names', field: 'ofsaaPhysicalNames' },
+        { header: 'Mapped Tables', field: 'mappedTables' },
         {
           header: 'OFSAA Logical Entity Name',
           field: 'ofsaaLogicalEntityName',
