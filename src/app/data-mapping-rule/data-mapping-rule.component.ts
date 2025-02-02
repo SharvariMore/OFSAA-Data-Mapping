@@ -10,6 +10,9 @@ import { firstValueFrom } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { TableRow } from '../index/index.component';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 export interface MappingRow {
   [key: string]: string | number | boolean | any;
@@ -39,7 +42,7 @@ export interface MappingRow {
 @Component({
   selector: 'app-data-mapping-rule',
   standalone: true,
-  imports: [NavbarComponent, CommonModule, FormsModule, NgxPaginationModule],
+  imports: [NavbarComponent, CommonModule, FormsModule, NgxPaginationModule, MatAutocompleteModule, MatFormFieldModule, MatInputModule],
   templateUrl: './data-mapping-rule.component.html',
   styleUrl: './data-mapping-rule.component.css',
 })
@@ -47,12 +50,15 @@ export class DataMappingRuleComponent implements OnInit {
   activeTab: string = '';
   globalSearchText: string = '';
   globalFilterColumn: string = '';
+  ruleSearchText: string = '';
   isButtonsVisible: boolean = false;
   isColumnActionsVisible: boolean = false;
   columnName: string = '';
   isEditing: boolean = false;
   editingRow: MappingRow | null = null;
-  ofsaaPhysicalNames: string | null = null;
+  // ofsaaPhysicalNames: string | null = null;
+  ofsaaPhysicalNamesList: string[] = [];
+  selectedOfsaaPhysicalNames?: string;
   // selectedTableIndex: number = -1; // Keeps track of the selected table (0 or 1)
   // selectedRowIndex: number = -1; // Keeps track of the selected row index
   // editingRow: { [tableIndex: number]: MappingRow | null } = { 0: null, 1: null };
@@ -76,9 +82,30 @@ export class DataMappingRuleComponent implements OnInit {
       this.activeTab = tab;
     });
 
-    this.route.queryParams.subscribe((params) => {
-      this.ofsaaPhysicalNames = params['ofsaaPhysicalNames'];
+    // this.route.queryParams.subscribe((params) => {
+    //   this.ofsaaPhysicalNames = params['ofsaaPhysicalNames'];
+    // });
+    this.route.queryParams.subscribe(params => {
+      this.selectedOfsaaPhysicalNames = params['ofsaaPhysicalNames'];
+
+      const ofsaaPhysicalNamesListStr = params['ofsaaPhysicalNamesList'];
+      if (ofsaaPhysicalNamesListStr) {
+        this.ofsaaPhysicalNamesList = JSON.parse(ofsaaPhysicalNamesListStr);
+      }
     });
+  }
+
+  get filteredOfsaaPhysicalNames(): string[] {
+    if (!this.ruleSearchText) {
+      return this.ofsaaPhysicalNamesList;
+    }
+    return this.ofsaaPhysicalNamesList.filter(name =>
+      name.toLowerCase().includes(this.ruleSearchText.toLowerCase())
+    );
+  }
+
+  onSelectOfsaaPhysicalName(name: string): void {
+    this.selectedOfsaaPhysicalNames = name;
   }
 
   sourceTable: TableRow[] = [];  // Source table array to store rows

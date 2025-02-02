@@ -123,6 +123,18 @@ input {
   font-weight: bold;
 }
 
+.rule-width {
+  width: 270px;
+  margin: 10px 0;
+  font-size: 15px;
+  height: 70px;
+  border-radius: 10px;
+}
+
+.filter-container {
+  margin: 10px 0;
+}
+
 .button-container {
   display: flex;
   align-items: center;

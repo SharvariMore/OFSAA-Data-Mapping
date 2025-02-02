@@ -155,10 +155,25 @@ export class IndexComponent {
     private dataMappingRuleComponent: DataMappingRuleComponent
   ) {}
 
-  navigateToDataMappingRule(ofsaaPhysicalNames: string): void {
-    this.router.navigate(['/data-mapping-rule'], {
-      queryParams: { ofsaaPhysicalNames },
-    });
+  navigateToDataMappingRule(ofsaaPhysicalNames?: string): void {
+    // this.router.navigate(['/data-mapping-rule'], {
+    //   queryParams: { ofsaaPhysicalNames },
+    // });
+    const queryParams: any = {};
+
+  // If a specific ofsaaPhysicalNames is provided, add it to the query parameters
+  if (ofsaaPhysicalNames) {
+    queryParams.ofsaaPhysicalNames = ofsaaPhysicalNames;
+  }
+
+  // Always pass the list of all ofsaaPhysicalNames
+  const ofsaaPhysicalNamesList = this.tableData.map(row => row.ofsaaPhysicalNames);
+  queryParams.ofsaaPhysicalNamesList = JSON.stringify(ofsaaPhysicalNamesList);
+
+  // Navigate with both query parameters
+  this.router.navigate(['/data-mapping-rule'], {
+    queryParams: queryParams,
+  });
   }
 
   openDialog(message: string, title: string = 'Notification') {

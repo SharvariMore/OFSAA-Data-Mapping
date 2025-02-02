@@ -1,7 +1,7 @@
-<app-navbar ></app-navbar>
+<app-navbar></app-navbar>
 
 <div class="datamap">
-  <h2>Data Mapping Rule for: {{ ofsaaPhysicalNames }}</h2>
+  <h2>Data Mapping Rule for: {{ selectedOfsaaPhysicalNames || 'Select a Rule'}}</h2>
 
   <!-- <ul class="tabs">
     <li
@@ -58,6 +58,29 @@
           </option>
         </optgroup> -->
       </select>
+
+      <div class="filter-container">
+        <label for="ofsaaPhysicalNamesFilter"
+          >Filter by Rule</label
+        >
+        <mat-form-field class="rule-width">
+          <input
+            matInput
+            [(ngModel)]="ruleSearchText"
+            [matAutocomplete]="auto"
+            placeholder="Search Rule"
+          />
+          <mat-autocomplete #auto="matAutocomplete">
+            <mat-option *ngFor="let name of filteredOfsaaPhysicalNames" [value]="name" (click)="onSelectOfsaaPhysicalName(name)">
+              {{ name }}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+      </div>
+
+      <div *ngIf="filteredOfsaaPhysicalNames.length === 0">
+        <p>No matching OFSAA Physical Names found.</p>
+      </div>
     </div>
 
     <div *ngIf="isAdmin()" class="admin-controld">
@@ -69,7 +92,9 @@
         </button>
         <div *ngIf="isButtonsVisible" class="stacked-buttons">
           <button (click)="addMap()">Add New Row</button>
-          <button (click)="editMap()">{{ isEditing ? 'Save Row' : 'Edit Row' }}</button>
+          <button (click)="editMap()">
+            {{ isEditing ? "Save Row" : "Edit Row" }}
+          </button>
           <button (click)="deleteMap()">Delete Row</button>
         </div>
       </div>
@@ -96,40 +121,40 @@
     </div>
 
     <!-- <div class="side-by-side-tables"> -->
-      <!-- First Table -->
-      <div class="table-wrapper" [ngClass]="{ 'editing-mode': isEditing }">
-        <!-- <h3>{{ getTableHeader(0) }}</h3> -->
-        <div *ngIf="filteredData(0).length === 0">
-          <p class="nodata">
-            No Data Found in {{ getTableHeader(0) }} for the entered search!
-          </p>
-        </div>
-        <table *ngIf="filteredData(0).length > 0" class="mapping-table">
-          <thead>
-            <tr>
-              <th
-                [attr.colspan]="getTableFormat(0).length + (isAdmin() ? 1 : 0)"
-                style="padding: 10px"
-              >
-                {{ getTableHeader(0) }}
-              </th>
-            </tr>
-            <tr>
-              <th *ngFor="let column of getTableFormat(0)">
-                {{ column.header }}
-              </th>
-              <!-- <th *ngIf="isAdmin()">Actions</th> -->
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let row of filteredData(0); let i = index">
-              <td
-                *ngFor="let column of getTableFormat(0)"
-                [ngClass]="{
-                  highlights: matchText(row[column.field], globalSearchText),
-                  'td-overflow': !isAdmin()
-                }"
-              >
+    <!-- First Table -->
+    <div class="table-wrapper" [ngClass]="{ 'editing-mode': isEditing }">
+      <!-- <h3>{{ getTableHeader(0) }}</h3> -->
+      <div *ngIf="filteredData(0).length === 0">
+        <p class="nodata">
+          No Data Found in {{ getTableHeader(0) }} for the entered search!
+        </p>
+      </div>
+      <table *ngIf="filteredData(0).length > 0" class="mapping-table">
+        <thead>
+          <tr>
+            <th
+              [attr.colspan]="getTableFormat(0).length + (isAdmin() ? 1 : 0)"
+              style="padding: 10px"
+            >
+              {{ getTableHeader(0) }}
+            </th>
+          </tr>
+          <tr>
+            <th *ngFor="let column of getTableFormat(0)">
+              {{ column.header }}
+            </th>
+            <!-- <th *ngIf="isAdmin()">Actions</th> -->
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of filteredData(0); let i = index">
+            <td
+              *ngFor="let column of getTableFormat(0)"
+              [ngClass]="{
+                highlights: matchText(row[column.field], globalSearchText),
+                'td-overflow': !isAdmin()
+              }"
+            >
               <ng-container *ngIf="isEditing">
                 <!-- Show input field for editing when in edit mode -->
                 <input class="input-column" [(ngModel)]="row[column.field]" />
@@ -138,15 +163,15 @@
                 <!-- Show the value when not in edit mode -->
                 {{ getRowValue(row, column) }}
               </ng-container>
-                <!-- {{ getRowValue(row, column) }} -->
-              </td>
-              <!-- <td *ngIf="isAdmin()">
+              <!-- {{ getRowValue(row, column) }} -->
+            </td>
+            <!-- <td *ngIf="isAdmin()">
                 <button>Edit</button>
               </td> -->
-            </tr>
-          </tbody>
-        </table>
-      </div>
+          </tr>
+        </tbody>
+      </table>
+    </div>
     <!-- </div> -->
   </div>
   <div *ngIf="isAdmin()" class="column-button">
