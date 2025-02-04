@@ -108,10 +108,10 @@ export class DataMappingRuleComponent implements OnInit {
     this.selectedOfsaaPhysicalNames = name;
   }
 
-  sourceTable: TableRow[] = [];  // Source table array to store rows
-  preStageTable: TableRow[] = [];  // Pre-stage table array to store rows
-  stageTable: TableRow[] = [];  // Stage table array to store rows
-  idTpTable: TableRow[] = [];  // ID TP table array to store rows
+  // sourceTable: TableRow[] = [];  // Source table array to store rows
+  // preStageTable: TableRow[] = [];  // Pre-stage table array to store rows
+  // stageTable: TableRow[] = [];  // Stage table array to store rows
+  // idTpTable: TableRow[] = [];  // ID TP table array to store rows
 
   /**
    * Returns the table format for the current tab's tables.
@@ -456,28 +456,28 @@ getTableHeader(tableIndex: number): string {
     ],
   };
 
-  insertIntoSourceTable(newRow: TableRow): void {
-    console.log('Inserting into Source Table:', newRow);
-    this.sourceTable.push(newRow);
-  }
+  // insertIntoSourceTable(newRow: TableRow): void {
+  //   console.log('Inserting into Source Table:', newRow);
+  //   this.sourceTable.push(newRow);
+  // }
 
-  // Method to handle insertion into the Pre-Stage Table
-  insertIntoPreStageTable(newRow: TableRow): void {
-    console.log('Inserting into Pre-Stage Table:', newRow);
-    this.preStageTable.push(newRow);
-  }
+  // // Method to handle insertion into the Pre-Stage Table
+  // insertIntoPreStageTable(newRow: TableRow): void {
+  //   console.log('Inserting into Pre-Stage Table:', newRow);
+  //   this.preStageTable.push(newRow);
+  // }
 
-  // Method to handle insertion into the Stage Table
-  insertIntoStageTable(newRow: TableRow): void {
-    console.log('Inserting into Stage Table:', newRow);
-    this.stageTable.push(newRow);
-  }
+  // // Method to handle insertion into the Stage Table
+  // insertIntoStageTable(newRow: TableRow): void {
+  //   console.log('Inserting into Stage Table:', newRow);
+  //   this.stageTable.push(newRow);
+  // }
 
-  // Method to handle insertion into the ID TP Table
-  insertIntoIdTpTable(newRow: TableRow): void {
-    console.log('Inserting into ID TP Table:', newRow);
-    this.idTpTable.push(newRow);
-  }
+  // // Method to handle insertion into the ID TP Table
+  // insertIntoIdTpTable(newRow: TableRow): void {
+  //   console.log('Inserting into ID TP Table:', newRow);
+  //   this.idTpTable.push(newRow);
+  // }
 
 
   openDialog(message: string, title: string = 'Notification') {

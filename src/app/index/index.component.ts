@@ -9,7 +9,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { DialogComponent } from '../dialog/dialog.component';
 import { firstValueFrom, range } from 'rxjs';
 import { Router } from '@angular/router';
-import { DataMappingRuleComponent } from '../data-mapping-rule/data-mapping-rule.component';
+import { DataMappingRuleComponent, MappingRow } from '../data-mapping-rule/data-mapping-rule.component';
+import { TabService } from '../tab.service';
 
 export interface TableRow {
   [key: string]: string | number | boolean | any; // Allow dynamic keys
@@ -64,9 +65,12 @@ export class IndexComponent {
   paginatedData: TableRow[] = []; // Holds current page data
   isButtonsVisible: boolean = false;
   isColumnActionsVisible: boolean = false;
+  activeTab: string = '';
 
   statusOptions: string[] = ['Not Started', 'In Progress', 'Complete'];
   usedInOptions = ['Y', 'N'];
+  availableTables: string[] = ['Source Table', 'Pre-Stage Table', 'Stage Table', 'ID TP Table'];
+
 
   tableData: TableRow[] = this.loadFromStorage('tableData') || [
     {
@@ -152,7 +156,8 @@ export class IndexComponent {
     private cdr: ChangeDetectorRef,
     private dialog: MatDialog,
     private router: Router,
-    private dataMappingRuleComponent: DataMappingRuleComponent
+    private dataMappingRuleComponent: DataMappingRuleComponent,
+    private tabService: TabService,
   ) {}
 
   navigateToDataMappingRule(ofsaaPhysicalNames?: string): void {
@@ -475,32 +480,39 @@ export class IndexComponent {
     this.cdr.detectChanges();
   }
 
-  insertRowIntoTable(newRow: TableRow, table: string): void {
+  insertRowIntoTable(newRow: MappingRow, table: string): void {
     // Logic to insert the row into the specific table
     // For now, log it to the console (replace with actual logic)
     console.log(`Row inserted into ${table}:`, newRow);
+    this.openDialog(`Row Inserted in : ${table}`);
 
     switch (table) {
       case 'Source Table':
         // Insert into Source Table logic
-        this.dataMappingRuleComponent.insertIntoSourceTable(newRow);
+        // this.dataMappingRuleComponent.insertIntoSourceTable(newRow);
+        this.dataMappingRuleComponent.mappingRules['sourceTable'].push(newRow);
         console.log("Source Tb");
         break;
       case 'Pre-Stage Table':
         // Insert into Pre-Stage Table logic
-        this.dataMappingRuleComponent.insertIntoPreStageTable(newRow);
+        // this.dataMappingRuleComponent.insertIntoPreStageTable(newRow);
+        this.dataMappingRuleComponent.mappingRules['fdsPreStageTable'].push(newRow);
         break;
       case 'Stage Table':
         // Insert into Stage Table logic
-        this.dataMappingRuleComponent.insertIntoStageTable(newRow);
+        // this.dataMappingRuleComponent.insertIntoStageTable(newRow);
+        this.dataMappingRuleComponent.mappingRules['fdsStageTable'].push(newRow);
         break;
       case 'ID TP Table':
         // Insert into ID TP Table logic
-        this.dataMappingRuleComponent.insertIntoIdTpTable(newRow);
+        // this.dataMappingRuleComponent.insertIntoIdTpTable(newRow);
+        this.dataMappingRuleComponent.mappingRules['tpMapTable'].push(newRow);
         break;
       default:
         console.log('Unknown table:', table);
     }
+    this.updatePaginatedData();
+    this.cdr.detectChanges();
   }
 
   saveNewRow() {
@@ -639,6 +651,7 @@ export class IndexComponent {
       this.editingRow = row;
     }
   }
+
 
   async deleteRow() {
     if (!this.isAdmin()) return;
