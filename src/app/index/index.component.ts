@@ -458,7 +458,7 @@ export class IndexComponent {
       '',
       '',
       'Select Tables:',
-      ['Pre-Stage Table', 'Stage Table', 'ID TP Table'],
+      ['Pre-Stage Table', 'Stage Table', 'Lookup Table'],
       [],
       true
     );
@@ -505,9 +505,9 @@ export class IndexComponent {
           newRow
         );
         break;
-      case 'ID TP Table':
+      case 'Lookup Table':
         // this.dataMappingRuleComponent.insertIntoIdTpTable(newRow);
-        this.dataMappingRuleComponent.mappingRules['tpMapTable'].push(newRow);
+        this.dataMappingRuleComponent.mappingRules['lookupMapTable'].push(newRow);
         break;
       default:
         console.log('Unknown table:', table);

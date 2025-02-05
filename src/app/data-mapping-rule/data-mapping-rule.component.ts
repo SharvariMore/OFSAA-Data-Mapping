@@ -111,7 +111,7 @@ export class DataMappingRuleComponent implements OnInit {
   // sourceTable: TableRow[] = [];  // Source table array to store rows
   // preStageTable: TableRow[] = [];  // Pre-stage table array to store rows
   // stageTable: TableRow[] = [];  // Stage table array to store rows
-  // idTpTable: TableRow[] = [];  // ID TP table array to store rows
+  // idTpTable: TableRow[] = [];  // Lookup Table array to store rows
 
   /**
    * Returns the table format for the current tab's tables.
@@ -127,9 +127,9 @@ export class DataMappingRuleComponent implements OnInit {
         this.tableFormats['fdsPreStageTable1'],
         this.tableFormats['fdsStageTable'],
       ],
-      'ID TP Table': [
+      'Lookup Table': [
         this.tableFormats['fdsgenerated'],
-        this.tableFormats['tpMapTable'],
+        this.tableFormats['lookupMapTable'],
       ],
     };
 
@@ -150,9 +150,9 @@ export class DataMappingRuleComponent implements OnInit {
         this.mappingRules['fdsPreStageTable1'],
         this.mappingRules['fdsStageTable'],
       ],
-      'ID TP Table': [
+      'Lookup Table': [
         this.mappingRules['fdsgenerated'],
-        this.mappingRules['tpMapTable'],
+        this.mappingRules['lookupMapTable'],
       ],
     };
 
@@ -167,7 +167,7 @@ export class DataMappingRuleComponent implements OnInit {
     const tabHeaders: Record<string, string[]> = {
       'Pre-Stage Table': ['Source Table', 'FDS Pre-Stage Table'],
       'Stage Table': ['FDS Pre-Stage Table', 'FDS Stage Table'],
-      'ID TP Table': ['Source Table', 'ID TP Table'],
+      'Lookup Table': ['Source Table', 'Lookup Table'],
     };
 
     return tabHeaders[this.activeTab]?.[tableIndex] || 'Table';
@@ -180,7 +180,7 @@ export class DataMappingRuleComponent implements OnInit {
     const tabHeaders: Record<string, string[]> = {
       'Pre-Stage Table': ['Source Table', 'FDS Pre-Stage Table'],
       'Stage Table': ['FDS Pre-Stage Table', 'FDS Stage Table'],
-      'ID TP Table': ['Source Table', 'ID TP Table'],
+      'Lookup Table': ['Source Table', 'Lookup Table'],
     };
 
     return tabHeaders[this.activeTab] || [];
@@ -200,9 +200,9 @@ export class DataMappingRuleComponent implements OnInit {
         'FDS Pre-Stage Table': this.mappingRules['fdsPreStageTable1'],
         'FDS Stage Table': this.mappingRules['fdsStageTable'],
       },
-      'ID TP Table': {
+      'Lookup Table': {
         'Source Table': this.mappingRules['fdsgenerated'],
-        'ID TP Table': this.mappingRules['tpMapTable'],
+        'Lookup Table': this.mappingRules['lookupMapTable'],
       },
     };
 
@@ -269,7 +269,7 @@ export class DataMappingRuleComponent implements OnInit {
       { header: 'Transformation', field: 'transformation' },
       { header: 'Comment', field: 'comment' },
     ],
-    tpMapTable: [
+    lookupMapTable: [
       { header: 'FDS Table', field: 'fdsTable' },
       { header: 'FDS Column', field: 'fdsColumn' },
       { header: 'Data Type', field: 'dataType' },
@@ -376,7 +376,7 @@ export class DataMappingRuleComponent implements OnInit {
         comment: 'CommentE',
       },
     ],
-    tpMapTable: [
+    lookupMapTable: [
       {
         srNo: 1,
         fdsTable: 'ID_Table1',
