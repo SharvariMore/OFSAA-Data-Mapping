@@ -15,7 +15,7 @@ export class NavbarComponent {
   isNavbarOpen: boolean = false;
   currentRole: string | undefined;
   dropdownOpen: boolean = false;
-  tabs: string[] = ['Source Table', 'Pre-Stage Table', 'Stage Table', 'ID TP Table'];
+  tabs: string[] = ['Pre-Stage Table', 'Stage Table', 'ID TP Table'];
   activeTab: string = this.tabs[0];
 
   constructor(private roleService: RoleService, private tabService: TabService, private activatedRoute: ActivatedRoute, public router: Router) {}

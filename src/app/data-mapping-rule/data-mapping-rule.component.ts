@@ -117,111 +117,70 @@ export class DataMappingRuleComponent implements OnInit {
    * Returns the table format for the current tab's tables.
    * @param tableIndex Index of the table (0 for first, 1 for second).
    */
-  // getTableFormat(tableIndex: number): { header: string; field: string }[] {
-  //   const tabFormats: Record<string, { header: string; field: string }[][]> = {
-  //     'Pre-Stage Table': [
-  //       this.tableFormats['sourceTable'],
-  //       this.tableFormats['fdsPreStageTable'],
-  //     ],
-  //     'Stage Table': [
-  //       this.tableFormats['fdsPreStageTable1'],
-  //       this.tableFormats['fdsStageTable'],
-  //     ],
-  //     'ID TP Table': [
-  //       this.tableFormats['fdsgenerated'],
-  //       this.tableFormats['tpMapTable'],
-  //     ],
-  //   };
-
-  //   return tabFormats[this.activeTab]?.[tableIndex] || [];
-  // }
   getTableFormat(tableIndex: number): { header: string; field: string }[] {
-    const tabFormats: Record<string, { header: string; field: string }[]> = {
-      'Source Table': this.tableFormats['sourceTable'],
-      'Pre-Stage Table': this.tableFormats['fdsPreStageTable'],
-      'Stage Table': this.tableFormats['fdsStageTable'],
-      'ID TP Table': this.tableFormats['tpMapTable'],
+    const tabFormats: Record<string, { header: string; field: string }[][]> = {
+      'Pre-Stage Table': [
+        this.tableFormats['sourceTable'],
+        this.tableFormats['fdsPreStageTable'],
+      ],
+      'Stage Table': [
+        this.tableFormats['fdsPreStageTable1'],
+        this.tableFormats['fdsStageTable'],
+      ],
+      'ID TP Table': [
+        this.tableFormats['fdsgenerated'],
+        this.tableFormats['tpMapTable'],
+      ],
     };
 
-    return tabFormats[this.activeTab] || [];
+    return tabFormats[this.activeTab]?.[tableIndex] || [];
   }
 
   /**
    * Returns the mapping rules for the current tab's tables.
    * @param tableIndex Index of the table (0 for first, 1 for second).
    */
-  // getMappingRules(tableIndex: number): MappingRow[] {
-  //   const tabRules: Record<string, MappingRow[][]> = {
-  //     'Pre-Stage Table': [
-  //       this.mappingRules['sourceTable'],
-  //       this.mappingRules['fdsPreStageTable'],
-  //     ],
-  //     'Stage Table': [
-  //       this.mappingRules['fdsPreStageTable1'],
-  //       this.mappingRules['fdsStageTable'],
-  //     ],
-  //     'ID TP Table': [
-  //       this.mappingRules['fdsgenerated'],
-  //       this.mappingRules['tpMapTable'],
-  //     ],
-  //   };
-
-  //   return tabRules[this.activeTab]?.[tableIndex] || [];
-  // }
   getMappingRules(tableIndex: number): MappingRow[] {
-    const tabRules: Record<string, MappingRow[]> = {
-      'Source Table': this.mappingRules['sourceTable'],
-      'Pre-Stage Table': this.mappingRules['fdsPreStageTable'],
-      'Stage Table': this.mappingRules['fdsStageTable'],
-      'ID TP Table': this.mappingRules['tpMapTable'],
+    const tabRules: Record<string, MappingRow[][]> = {
+      'Pre-Stage Table': [
+        this.mappingRules['sourceTable'],
+        this.mappingRules['fdsPreStageTable'],
+      ],
+      'Stage Table': [
+        this.mappingRules['fdsPreStageTable1'],
+        this.mappingRules['fdsStageTable'],
+      ],
+      'ID TP Table': [
+        this.mappingRules['fdsgenerated'],
+        this.mappingRules['tpMapTable'],
+      ],
     };
 
-    return tabRules[this.activeTab] || [];
+    return tabRules[this.activeTab]?.[tableIndex] || [];
   }
 
   /**
    * Returns the header name for a table based on its index and the active tab.
    * @param tableIndex Index of the table (0 for first, 1 for second).
    */
-//  getTableHeader(tableIndex: number): string {
-//     const tabHeaders: Record<string, string[]> = {
-//       'Pre-Stage Table': ['Source Table', 'FDS Pre-Stage Table'],
-//       'Stage Table': ['FDS Pre-Stage Table', 'FDS Stage Table'],
-//       'ID TP Table': ['Source Table', 'ID TP Table'],
-//     };
+ getTableHeader(tableIndex: number): string {
+    const tabHeaders: Record<string, string[]> = {
+      'Pre-Stage Table': ['Source Table', 'FDS Pre-Stage Table'],
+      'Stage Table': ['FDS Pre-Stage Table', 'FDS Stage Table'],
+      'ID TP Table': ['Source Table', 'ID TP Table'],
+    };
 
-//     return tabHeaders[this.activeTab]?.[tableIndex] || 'Table';
-//   }
+    return tabHeaders[this.activeTab]?.[tableIndex] || 'Table';
+  }
 
-getTableHeader(tableIndex: number): string {
-  const tabHeaders: Record<string, string[]> = {
-    'Source Table': ['Source Table'],
-    'Pre-Stage Table': ['FDS Pre-Stage Table'],
-    'Stage Table': ['FDS Stage Table'],
-    'ID TP Table': ['ID TP Table'],
-  };
-
-  return tabHeaders[this.activeTab]?.[tableIndex] || 'Table';
-}
   /**
    * Returns the headers of the tables for the active tab.
    */
-  // getActiveTabTableHeaders(): string[] {
-  //   const tabHeaders: Record<string, string[]> = {
-  //     'Pre-Stage Table': ['Source Table', 'FDS Pre-Stage Table'],
-  //     'Stage Table': ['FDS Pre-Stage Table', 'FDS Stage Table'],
-  //     'ID TP Table': ['Source Table', 'ID TP Table'],
-  //   };
-
-  //   return tabHeaders[this.activeTab] || [];
-  // }
-
   getActiveTabTableHeaders(): string[] {
     const tabHeaders: Record<string, string[]> = {
-      'Source Table': ['Source Table'],  // Only Source Table header
-      'Pre-Stage Table': ['FDS Pre-Stage Table'],  // Only Pre-Stage Table header
-      'Stage Table': ['FDS Stage Table'],  // Only Stage Table header
-      'ID TP Table': ['ID TP Table'],  // Only ID TP Table header
+      'Pre-Stage Table': ['Source Table', 'FDS Pre-Stage Table'],
+      'Stage Table': ['FDS Pre-Stage Table', 'FDS Stage Table'],
+      'ID TP Table': ['Source Table', 'ID TP Table'],
     };
 
     return tabHeaders[this.activeTab] || [];
@@ -231,37 +190,19 @@ getTableHeader(tableIndex: number): string {
    * Returns the mapping rules for the specified table header in the active tab.
    * @param tableHeader Header of the table.
    */
-  // getMappingRulesByHeader(tableHeader: string): MappingRow[] {
-  //   const tabRules: Record<string, Record<string, MappingRow[]>> = {
-  //     'Pre-Stage Table': {
-  //       'Source Table': this.mappingRules['sourceTable'],
-  //       'FDS Pre-Stage Table': this.mappingRules['fdsPreStageTable'],
-  //     },
-  //     'Stage Table': {
-  //       'FDS Pre-Stage Table': this.mappingRules['fdsPreStageTable1'],
-  //       'FDS Stage Table': this.mappingRules['fdsStageTable'],
-  //     },
-  //     'ID TP Table': {
-  //       'Source Table': this.mappingRules['fdsgenerated'],
-  //       'ID TP Table': this.mappingRules['tpMapTable'],
-  //     },
-  //   };
-
-  //   return tabRules[this.activeTab]?.[tableHeader] || [];
-  // }
   getMappingRulesByHeader(tableHeader: string): MappingRow[] {
     const tabRules: Record<string, Record<string, MappingRow[]>> = {
-      'Source Table': {
-        'Source Table': this.mappingRules['sourceTable'],  // Show mapping rules only for Source Table
-      },
       'Pre-Stage Table': {
-        'FDS Pre-Stage Table': this.mappingRules['fdsPreStageTable'],  // Show mapping rules only for Pre-Stage Table
+        'Source Table': this.mappingRules['sourceTable'],
+        'FDS Pre-Stage Table': this.mappingRules['fdsPreStageTable'],
       },
       'Stage Table': {
-        'FDS Stage Table': this.mappingRules['fdsStageTable'],  // Show mapping rules only for Stage Table
+        'FDS Pre-Stage Table': this.mappingRules['fdsPreStageTable1'],
+        'FDS Stage Table': this.mappingRules['fdsStageTable'],
       },
       'ID TP Table': {
-        'ID TP Table': this.mappingRules['tpMapTable'],  // Show mapping rules only for ID TP Table
+        'Source Table': this.mappingRules['fdsgenerated'],
+        'ID TP Table': this.mappingRules['tpMapTable'],
       },
     };
 
@@ -280,64 +221,12 @@ getTableHeader(tableIndex: number): string {
     });
   }
 
-  // tabs = [
-  //   'Source to FDS Pre-Stage Mapping Table',
-  //   'FDS Pre-Stage to FDS Stage Mapping Table',
-  //   'FDS Generated ID TP Mapping Table',
-  // ];
+  tabs = [
+    'Source to FDS Pre-Stage Mapping Table',
+    'FDS Pre-Stage to FDS Stage Mapping Table',
+    'FDS Generated ID TP Mapping Table',
+  ];
 
-  tabs = ['Source Table', 'Pre-Stage Table', 'Stage Table', 'ID TP Table'];
-
-  // tableFormats: { [key: string]: Array<{ header: string; field: string }> } = {
-  //   sourceTable: [
-  //     { header: 'Sr. No.', field: 'srNo' },
-  //     { header: 'Source Table', field: 'sourceTable' },
-  //     { header: 'Source Column', field: 'sourceColumn' },
-  //     { header: 'Transformation', field: 'transformation' },
-  //     { header: 'Comment', field: 'comment' },
-  //   ],
-  //   fdsPreStageTable: [
-  //     { header: 'FDS Table', field: 'fdsTable' },
-  //     { header: 'FDS Column', field: 'fdsColumn' },
-  //     { header: 'Data Type', field: 'dataType' },
-  //     { header: 'PK', field: 'pk' },
-  //     { header: 'Nullable', field: 'nullable' },
-  //     { header: 'Comment', field: 'fdsComment' },
-  //   ],
-  //   fdsPreStageTable1: [
-  //     { header: 'FDS Table', field: 'fdsTable' },
-  //     { header: 'FDS Column', field: 'fdsColumn' },
-  //     { header: 'Transformation', field: 'transformation' },
-  //     { header: 'Data Type', field: 'dataType' },
-  //     { header: 'PK', field: 'pk' },
-  //     { header: 'Nullable', field: 'nullable' },
-  //     { header: 'Comment', field: 'fdsComment' },
-  //   ],
-  //   fdsStageTable: [
-  //     { header: 'FDS Stage Table', field: 'fdsStageTable' },
-  //     { header: 'FDS Stage Column', field: 'fdsStageColumn' },
-  //     { header: 'Data Type', field: 'stageDataType' },
-  //     { header: 'PK', field: 'stagePk' },
-  //     { header: 'Nullable', field: 'stageNullable' },
-  //     { header: 'Custom', field: 'custom' },
-  //     { header: 'Comment', field: 'stageComment' },
-  //   ],
-  //   fdsgenerated: [
-  //     { header: 'Sr. No.', field: 'srNo' },
-  //     { header: 'Source Table', field: 'sourceTable' },
-  //     { header: 'Source Column', field: 'sourceColumn' },
-  //     { header: 'Transformation', field: 'transformation' },
-  //     { header: 'Comment', field: 'comment' },
-  //   ],
-  //   tpMapTable: [
-  //     { header: 'FDS Table', field: 'fdsTable' },
-  //     { header: 'FDS Column', field: 'fdsColumn' },
-  //     { header: 'Data Type', field: 'dataType' },
-  //     { header: 'PK', field: 'pk' },
-  //     { header: 'Nullable', field: 'nullable' },
-  //     { header: 'Comment', field: 'fdsComment' },
-  //   ],
-  // };
 
   tableFormats: { [key: string]: Array<{ header: string; field: string }> } = {
     sourceTable: [
@@ -355,6 +244,15 @@ getTableHeader(tableIndex: number): string {
       { header: 'Nullable', field: 'nullable' },
       { header: 'Comment', field: 'fdsComment' },
     ],
+    fdsPreStageTable1: [
+      { header: 'FDS Table', field: 'fdsTable' },
+      { header: 'FDS Column', field: 'fdsColumn' },
+      { header: 'Transformation', field: 'transformation' },
+      { header: 'Data Type', field: 'dataType' },
+      { header: 'PK', field: 'pk' },
+      { header: 'Nullable', field: 'nullable' },
+      { header: 'Comment', field: 'fdsComment' },
+    ],
     fdsStageTable: [
       { header: 'FDS Stage Table', field: 'fdsStageTable' },
       { header: 'FDS Stage Column', field: 'fdsStageColumn' },
@@ -363,6 +261,13 @@ getTableHeader(tableIndex: number): string {
       { header: 'Nullable', field: 'stageNullable' },
       { header: 'Custom', field: 'custom' },
       { header: 'Comment', field: 'stageComment' },
+    ],
+    fdsgenerated: [
+      { header: 'Sr. No.', field: 'srNo' },
+      { header: 'Source Table', field: 'sourceTable' },
+      { header: 'Source Column', field: 'sourceColumn' },
+      { header: 'Transformation', field: 'transformation' },
+      { header: 'Comment', field: 'comment' },
     ],
     tpMapTable: [
       { header: 'FDS Table', field: 'fdsTable' },
@@ -374,7 +279,6 @@ getTableHeader(tableIndex: number): string {
     ],
   };
 
-  //
   mappingRules: { [key: string]: MappingRow[] } = {
     sourceTable: [
       {
@@ -412,6 +316,28 @@ getTableHeader(tableIndex: number): string {
         fdsComment: 'CommentB',
       },
     ],
+    fdsPreStageTable1: [
+      {
+        srNo: 1,
+        fdsTable: 'FDS_Table1',
+        fdsColumn: 'FDS_Column1',
+        transformation: 'Transform2',
+        dataType: 'VARCHAR',
+        pk: 'Yes',
+        nullable: 'No',
+        fdsComment: 'CommentB',
+      },
+      {
+        srNo: 2,
+        fdsTable: 'FDS_Table2',
+        fdsColumn: 'FDS_Column2',
+        transformation: 'Transform3',
+        dataType: 'INT',
+        pk: 'No',
+        nullable: 'Yes',
+        fdsComment: 'CommentC',
+      },
+    ],
     fdsStageTable: [
       {
         srNo: 1,
@@ -432,6 +358,22 @@ getTableHeader(tableIndex: number): string {
         stageNullable: 'No',
         custom: 'CustomValue2',
         stageComment: 'CommentD',
+      },
+    ],
+    fdsgenerated: [
+      {
+        srNo: 1,
+        sourceTable: 'SourceID1',
+        sourceColumn: 'ID_Column1',
+        transformation: 'Transform3',
+        comment: 'CommentD',
+      },
+      {
+        srNo: 2,
+        sourceTable: 'SourceID2',
+        sourceColumn: 'ID_Column2',
+        transformation: 'Transform4',
+        comment: 'CommentE',
       },
     ],
     tpMapTable: [
@@ -455,29 +397,6 @@ getTableHeader(tableIndex: number): string {
       },
     ],
   };
-
-  // insertIntoSourceTable(newRow: TableRow): void {
-  //   console.log('Inserting into Source Table:', newRow);
-  //   this.sourceTable.push(newRow);
-  // }
-
-  // // Method to handle insertion into the Pre-Stage Table
-  // insertIntoPreStageTable(newRow: TableRow): void {
-  //   console.log('Inserting into Pre-Stage Table:', newRow);
-  //   this.preStageTable.push(newRow);
-  // }
-
-  // // Method to handle insertion into the Stage Table
-  // insertIntoStageTable(newRow: TableRow): void {
-  //   console.log('Inserting into Stage Table:', newRow);
-  //   this.stageTable.push(newRow);
-  // }
-
-  // // Method to handle insertion into the ID TP Table
-  // insertIntoIdTpTable(newRow: TableRow): void {
-  //   console.log('Inserting into ID TP Table:', newRow);
-  //   this.idTpTable.push(newRow);
-  // }
 
 
   openDialog(message: string, title: string = 'Notification') {
