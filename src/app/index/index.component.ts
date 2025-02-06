@@ -73,10 +73,9 @@ export class IndexComponent {
   statusOptions: string[] = ['Not Started', 'In Progress', 'Complete'];
   usedInOptions = ['Y', 'N'];
   availableTables: string[] = [
-    'Source Table',
     'Pre-Stage Table',
     'Stage Table',
-    'ID TP Table',
+    'Lookup Table',
   ];
 
   tableData: TableRow[] = this.loadFromStorage('tableData') || [
@@ -474,11 +473,13 @@ export class IndexComponent {
     if (useCheckboxes && Array.isArray(selectedTables)) {
       console.log('Selected tables (multiple):', selectedTables);
       selectedTables.forEach((table: string) => {
+        this.tabService.addSelectedTable(table);
         newRow.mappedTables.push(table);
         this.insertRowIntoTable(newRow, table);
       });
     } else if (typeof selectedTables === 'string') {
       console.log('Selected table (single):', selectedTables);
+      this.tabService.addSelectedTable(selectedTables);
       newRow.mappedTables.push(selectedTables);
       this.insertRowIntoTable(newRow, selectedTables);
     }
@@ -495,22 +496,32 @@ export class IndexComponent {
     switch (table) {
       case 'Pre-Stage Table':
         // this.dataMappingRuleComponent.insertIntoPreStageTable(newRow);
+        this.dataMappingRuleComponent.mappingRules['sourceTable'].push(
+          newRow
+        );
         this.dataMappingRuleComponent.mappingRules['fdsPreStageTable'].push(
           newRow
         );
         break;
       case 'Stage Table':
         // this.dataMappingRuleComponent.insertIntoStageTable(newRow);
+        this.dataMappingRuleComponent.mappingRules['fdsPreStageTable1'].push(
+          newRow
+        );
         this.dataMappingRuleComponent.mappingRules['fdsStageTable'].push(
           newRow
         );
         break;
       case 'Lookup Table':
         // this.dataMappingRuleComponent.insertIntoIdTpTable(newRow);
+        this.dataMappingRuleComponent.mappingRules['fdsgenerated'].push(
+          newRow
+        );
         this.dataMappingRuleComponent.mappingRules['lookupMapTable'].push(newRow);
         break;
       default:
-        console.log('Unknown table:', table);
+        this.openDialog('Invalid option!');
+        break;
     }
     this.updatePaginatedData();
     this.cdr.detectChanges();

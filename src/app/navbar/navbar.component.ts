@@ -17,6 +17,7 @@ export class NavbarComponent {
   dropdownOpen: boolean = false;
   tabs: string[] = ['Pre-Stage Table', 'Stage Table', 'Lookup Table'];
   activeTab: string = this.tabs[0];
+  selectedTables: string[] = [];
 
   constructor(private roleService: RoleService, private tabService: TabService, private activatedRoute: ActivatedRoute, public router: Router) {}
 
@@ -31,6 +32,10 @@ export class NavbarComponent {
       } else {
         this.hideTabs();
       }
+    });
+
+    this.tabService.selectedTables$.subscribe((selectedTables) => {
+      this.selectedTables = selectedTables;
     });
   }
 
@@ -53,8 +58,12 @@ export class NavbarComponent {
   }
 
   switchTab(tab: string): void {
-    this.activeTab = tab;
-    this.tabService.setActiveTab(tab);
+    // this.activeTab = tab;
+    // this.tabService.setActiveTab(tab);
+    if (this.selectedTables.includes(tab)) {
+      this.activeTab = tab;
+      this.tabService.setActiveTab(tab);
+    }
   }
 
   showTabs(): void {
@@ -63,5 +72,9 @@ export class NavbarComponent {
 
   hideTabs(): void {
     this.activeTab = '';
+  }
+
+  isTabDisabled(tab: string): boolean {
+    return !this.selectedTables.includes(tab);
   }
 }

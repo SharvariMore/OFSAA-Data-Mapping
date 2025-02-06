@@ -19,7 +19,8 @@
       <li
         *ngFor="let tab of tabs"
         (click)="switchTab(tab)"
-        [class.active]="activeTab === tab"
+         [ngClass]="{ 'disabled': isTabDisabled(tab) }"
+        [class.blur]="isTabDisabled(tab)"
       >
         {{ tab }}
       </li>

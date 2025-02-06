@@ -117,6 +117,15 @@ ul {
   font-weight: 640;
 }
 
+.tabs li.disabled {
+  pointer-events: none; /* Prevent clicks on the tab */
+  opacity: 0.5; /* Dim the tab to indicate it's disabled */
+}
+
+.tabs li.blurred {
+  filter: blur(2px); /* Blur the tab for a more visual cue */
+}
+
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   .nav-links {
