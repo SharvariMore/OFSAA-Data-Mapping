@@ -37,5 +37,4 @@ export class TabService {
     this.activeTabSubject.next(tab);
   }
 
-
 }

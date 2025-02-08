@@ -201,8 +201,8 @@ export class IndexComponent {
     inputValue: string = '',
     selectLabel: string = '',
     options: string[] = [],
-    p0: string[],
-    useCheckboxes: boolean,
+    // p0: string[],
+    // useCheckboxes: boolean,
     selectedOption: string = ''
   ): Promise<string | null> {
     const dialogRef = this.dialog.open(DialogComponent, {
@@ -215,8 +215,8 @@ export class IndexComponent {
         selectLabel,
         options,
         selectedOption,
-        useCheckboxes,
-        selectedTables: p0,
+        // useCheckboxes,
+        // selectedTables: p0,
       },
     });
 
@@ -368,8 +368,7 @@ export class IndexComponent {
       '',
       'Select Any Option:',
       ['At the Beginning', 'At the End', 'In Between'],
-      ['At the Beginning'],
-      false
+      'At the Beginning'
     );
 
     if (!insertOption) return;
@@ -418,11 +417,7 @@ export class IndexComponent {
           'Select Position',
           `Enter the Position (1 to ${this.tableData.length}) where you want to Insert New Row:`,
           'Position',
-          '',
-          '',
-          [],
-          [],
-          false
+          ''
         );
 
         if (position) {
@@ -458,31 +453,31 @@ export class IndexComponent {
       '',
       'Select Tables:',
       ['Pre-Stage Table', 'Stage Table', 'Lookup Table'],
-      [],
-      true
+      'Pre-Stage Table'
     );
 
-    if (
-      !selectedTables ||
-      (typeof selectedTables === 'string' && selectedTables.trim() === '')
-    ) {
-      this.openDialog('No tables selected! Row not inserted into any table.');
+    if (!selectedTables) {
+      this.openDialog('No tables selected! Row not inserted.');
       return;
     }
 
-    if (useCheckboxes && Array.isArray(selectedTables)) {
-      console.log('Selected tables (multiple):', selectedTables);
-      selectedTables.forEach((table: string) => {
-        this.tabService.addSelectedTable(table);
-        newRow.mappedTables.push(table);
-        this.insertRowIntoTable(newRow, table);
-      });
-    } else if (typeof selectedTables === 'string') {
-      console.log('Selected table (single):', selectedTables);
-      this.tabService.addSelectedTable(selectedTables);
-      newRow.mappedTables.push(selectedTables);
-      this.insertRowIntoTable(newRow, selectedTables);
-    }
+    // if (useCheckboxes && Array.isArray(selectedTables)) {
+    //   console.log('Selected tables (multiple):', selectedTables);
+    //   selectedTables.forEach((table: string) => {
+    //     this.tabService.addSelectedTable(table);
+    //     newRow.mappedTables.push(table);
+    //     this.insertRowIntoTable(newRow, table);
+    //   });
+    // } else if (typeof selectedTables === 'string') {
+    //   console.log('Selected table (single):', selectedTables);
+    //   this.tabService.addSelectedTable(selectedTables);
+    //   newRow.mappedTables.push(selectedTables);
+    //   this.insertRowIntoTable(newRow, selectedTables);
+    // }
+    console.log('Selected table:', selectedTables);
+    this.tabService.addSelectedTable(selectedTables);
+    newRow.mappedTables.push(selectedTables);
+    this.insertRowIntoTable(newRow, selectedTables);
 
     this.saveToStorage('tableData', this.tableData);
     this.updatePaginatedData();
@@ -496,9 +491,7 @@ export class IndexComponent {
     switch (table) {
       case 'Pre-Stage Table':
         // this.dataMappingRuleComponent.insertIntoPreStageTable(newRow);
-        this.dataMappingRuleComponent.mappingRules['sourceTable'].push(
-          newRow
-        );
+        this.dataMappingRuleComponent.mappingRules['sourceTable'].push(newRow);
         this.dataMappingRuleComponent.mappingRules['fdsPreStageTable'].push(
           newRow
         );
@@ -514,10 +507,10 @@ export class IndexComponent {
         break;
       case 'Lookup Table':
         // this.dataMappingRuleComponent.insertIntoIdTpTable(newRow);
-        this.dataMappingRuleComponent.mappingRules['fdsgenerated'].push(
+        this.dataMappingRuleComponent.mappingRules['fdsgenerated'].push(newRow);
+        this.dataMappingRuleComponent.mappingRules['lookupMapTable'].push(
           newRow
         );
-        this.dataMappingRuleComponent.mappingRules['lookupMapTable'].push(newRow);
         break;
       default:
         this.openDialog('Invalid option!');
@@ -559,7 +552,6 @@ export class IndexComponent {
       );
     }
   }
-
 
   addColumn() {
     if (!this.isAdmin()) return;
@@ -656,8 +648,7 @@ export class IndexComponent {
         'Delete multiple rows',
         'Delete all rows',
       ],
-      ['Delete a specific row'],
-      false
+      'Delete a specific row'
     );
 
     if (!deleteOption) return;
@@ -668,11 +659,7 @@ export class IndexComponent {
           'Select Position',
           'Enter the Row Number you want to Delete: ',
           'Row Number',
-          '',
-          '',
-          [],
-          [],
-          false
+          ''
         );
         if (rowNum) {
           const rowIndex = this.tableData.findIndex(
@@ -698,11 +685,7 @@ export class IndexComponent {
           'Select Range',
           'Enter the Starting and Ending Row Numbers (separated by hyphen [-] ):',
           'Range',
-          '',
-          '',
-          [],
-          [],
-          false
+          ''
         );
         if (rangeInput) {
           const [startRowNum, endRowNum] = rangeInput
@@ -734,11 +717,7 @@ export class IndexComponent {
           'Delete Multiple Rows',
           'Enter the Row Numbers you want to Delete, separated by commas(,):',
           'Row Numbers',
-          '',
-          '',
-          [],
-          [],
-          false
+          ''
         );
 
         if (rowsInput) {
@@ -772,9 +751,7 @@ export class IndexComponent {
           '',
           '',
           '',
-          [],
-          [],
-          false
+          []
         );
         if (rowAllDelete) {
           this.tableData = [];
@@ -814,11 +791,7 @@ export class IndexComponent {
       'Edit Row',
       `Select a column to Edit by Entering it's exact Header Name: `,
       'Header Name',
-      '',
-      '',
-      [],
-      [],
-      false
+      ''
     );
     // ${this.tableColumns.map((col) => col.header).join(', ')}`);
 
@@ -841,8 +814,7 @@ export class IndexComponent {
       '',
       'Select Any Option: ',
       ['Edit All rows', 'Edit a Series of Rows'],
-      ['Edit All rows'],
-      false
+      'Edit All rows'
     );
 
     if (!editOption) return;
@@ -853,11 +825,7 @@ export class IndexComponent {
           'Enter Value',
           `Enter new value for all rows in the "${selectedColumn.header}" column:`,
           'Value',
-          '',
-          '',
-          [],
-          [],
-          false
+          ''
         );
 
         if (newValue != null) {
@@ -879,11 +847,7 @@ export class IndexComponent {
           'Enter Series',
           `Enter the Starting and Ending Row Numbers (separated by a hyphen [-]) to Edit in the "${selectedColumn.header}" column:`,
           'Series',
-          '',
-          '',
-          [],
-          [],
-          false
+          ''
         );
 
         if (rangeInput) {
@@ -902,11 +866,7 @@ export class IndexComponent {
               'Enter Value',
               `Enter new value for rows ${startRowNum} to ${endRowNum} in the "${selectedColumn.header}" column:`,
               'Value',
-              '',
-              '',
-              [],
-              [],
-              false
+              ''
             );
 
             if (newValue !== null) {
@@ -1027,8 +987,7 @@ export class IndexComponent {
         'Delete a Range of Columns',
         'Delete Multiple Columns',
       ],
-      ['Delete a Specific Column'],
-      false
+      'Delete a Specific Column'
     );
 
     if (!deleteOption) return;
@@ -1039,11 +998,7 @@ export class IndexComponent {
           'Select Column to Delete',
           'Enter exact Header Name of the Column you want to Delete: ',
           'Column Name',
-          '',
-          '',
-          [],
-          [],
-          false
+          ''
         );
 
         if (colName) {
@@ -1076,11 +1031,7 @@ export class IndexComponent {
           'Select Range',
           'Enter the Starting and Ending column headers (separated by hyphen [-]) to Delete: ',
           'Range',
-          '',
-          '',
-          [],
-          [],
-          false
+          ''
         );
 
         if (rangeInput) {
@@ -1127,11 +1078,7 @@ export class IndexComponent {
           'Select Multiple Columns',
           'Enter the Column Headers separated by comma (,) to Delete: ',
           'Columns',
-          '',
-          '',
-          [],
-          [],
-          false
+          ''
         );
 
         if (columnsInput) {
