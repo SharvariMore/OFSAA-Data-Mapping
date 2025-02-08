@@ -24,9 +24,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
   styleUrl: './dialog.component.css',
 })
 export class DialogComponent {
-
-  useCheckboxes: boolean = false;// Default to dropdown
-  selectedOptions: string[] = [];  // For storing multiple selected options when checkboxes are used
+  useCheckboxes: boolean = false; // Default to dropdown
+  selectedOptions: string[] = []; // For storing multiple selected options when checkboxes are used
   selectedOption: string = '';
 
   constructor(
@@ -44,12 +43,14 @@ export class DialogComponent {
       selectedTables?: string[];
       useCheckboxes?: boolean;
     }
-  ) {}
+  ) {
+    this.dialogRef.disableClose = true;
+  }
 
   ngOnInit(): void {
     // Now safely access this.data and initialize useCheckboxes
     if (this.data && this.data.useCheckboxes !== undefined) {
-      this.useCheckboxes = this.data.useCheckboxes;  // Initialize based on passed data
+      this.useCheckboxes = this.data.useCheckboxes; // Initialize based on passed data
     }
 
     if (this.useCheckboxes && this.data?.selectedTables) {
@@ -71,7 +72,6 @@ export class DialogComponent {
       }
     }
   }
-
 
   onCancel(): void {
     this.dialogRef.close(null);

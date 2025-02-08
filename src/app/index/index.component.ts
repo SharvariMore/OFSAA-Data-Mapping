@@ -361,6 +361,22 @@ export class IndexComponent {
   async addData() {
     if (!this.isAdmin()) return;
 
+    // const useCheckboxes = true;
+    const selectedTables = await this.openInputDialog(
+      'Select Table',
+      'Select the Table for this New Row First',
+      '',
+      '',
+      'Select Tables:',
+      ['Pre-Stage Table', 'Stage Table', 'Lookup Table'],
+      'Pre-Stage Table'
+    );
+
+    if (!selectedTables) {
+      this.openDialog('No tables selected! Row not inserted.');
+      return;
+    }
+
     const insertOption = await this.openInputDialog(
       'Insert Row',
       'Where do you want to Insert the New Row?',
@@ -445,21 +461,6 @@ export class IndexComponent {
       row.srNo = index + 1;
     });
 
-    const useCheckboxes = true;
-    const selectedTables = await this.openInputDialog(
-      'Select Tables',
-      'Select the tables for this new row',
-      '',
-      '',
-      'Select Tables:',
-      ['Pre-Stage Table', 'Stage Table', 'Lookup Table'],
-      'Pre-Stage Table'
-    );
-
-    if (!selectedTables) {
-      this.openDialog('No tables selected! Row not inserted.');
-      return;
-    }
 
     // if (useCheckboxes && Array.isArray(selectedTables)) {
     //   console.log('Selected tables (multiple):', selectedTables);
