@@ -3,6 +3,7 @@ import { Component, Input } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { RoleService } from '../role.service';
 import { TabService } from '../tab.service';
+import { combineLatest } from 'rxjs';
 
 @Component({
   selector: 'app-navbar',
@@ -34,8 +35,19 @@ export class NavbarComponent {
       }
     });
 
-    this.tabService.selectedTables$.subscribe((selectedTables) => {
-      this.selectedTables = selectedTables;
+    // this.tabService.selectedTables$.subscribe((selectedTables) => {
+    //   this.selectedTables = selectedTables;
+    // });
+    // Subscribe to both current row ID and row-to-tables mapping
+    combineLatest([
+      this.tabService.currentRowId$,
+      this.tabService.selectedTables$
+    ]).subscribe(([rowId, mapping]) => {
+      if (rowId !== null) {
+        this.selectedTables = mapping[rowId] || [];
+      } else {
+        this.selectedTables = [];
+      }
     });
   }
 

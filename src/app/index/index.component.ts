@@ -264,100 +264,6 @@ export class IndexComponent {
     return false;
   }
 
-  // async addData() {
-  //   if (!this.isAdmin()) return;
-
-  //   // const insertOption = await this.openInputDialog( 'Insert Row',
-  //   //   'Where do you want to insert the new row?\n\n1. At the beginning\n2. At the end\n3. In between',
-  //   //    'Enter the number (1, 2, or 3):'
-  //   // );
-  //   const insertOption = await this.openInputDialog(
-  //     'Insert Row',
-  //     'Where do you want to Insert the New Row?',
-  //     '',
-  //     '',
-  //     'Select Any Option:',
-  //     ['At the Beginning', 'At the End', 'In Between'],
-  //     'At the Beginning'
-  //   );
-
-  //   if (!insertOption) return;
-
-  //   const newRow: TableRow = {
-  //     srNo: this.tableData.length + 1,
-  //     tfsReq: 'NEW-REQ',
-  //     release: '',
-  //     ofsaaPhysicalNames: 'New Table',
-  //     ofsaaLogicalEntityName: '',
-  //     source: '',
-  //     typeOfData: '',
-  //     frequency: '',
-  //     loadMode: '',
-  //     loadType: '',
-  //     expectedVolume: '',
-  //     mappingStatus: 'Not Started',
-  //     odiBuildStatus: 'Not Started',
-  //     reviewStatus: 'Not Started',
-  //     usedInEFRA: 'Y',
-  //     usedInCECL: 'Y',
-  //     usedInAML: 'N',
-  //     usedInOnestream: 'Y',
-  //     usedInCCAR: 'N',
-  //     usedInAXIOM: 'N',
-  //   };
-
-  //   switch (insertOption.trim()) {
-  //     case 'At the Beginning': {
-  //       this.tableData.unshift(newRow);
-  //       this.openDialog('New Row Added At Beginning! You can now Edit it.');
-  //       break;
-  //     }
-
-  //     case 'At the End': {
-  //       this.tableData.push(newRow);
-  //       this.openDialog('New Row Added At End! You can now Edit it.');
-  //       break;
-  //     }
-
-  //     case 'In Between': {
-  //       const position = await this.openInputDialog(
-  //         'Select Position',
-  //         `Enter the Position (1 to ${this.tableData.length}) where you want to Insert New Row:`,
-  //         'Position',
-  //         ''
-  //       );
-
-  //       if (position) {
-  //         const index = Number(position) - 1;
-  //         if (index >= 0 && index <= this.tableData.length) {
-  //           this.tableData.splice(index, 0, newRow);
-  //           this.openDialog(
-  //             `New Row Added at ${index + 1}! You can now Edit it.`
-  //           );
-  //         } else {
-  //           this.openDialog('Invalid Position!');
-  //         }
-  //       } else {
-  //         return;
-  //       }
-  //       break;
-  //     }
-
-  //     default:
-  //       this.openDialog('Invalid option!');
-  //       break;
-  //   }
-
-  //   this.tableData.forEach((row, index) => {
-  //     row.srNo = index + 1;
-  //   });
-
-  //   this.saveToStorage('tableData', this.tableData);
-
-  //   this.updatePaginatedData();
-  //   this.cdr.detectChanges();
-  // }
-
   async addData() {
     if (!this.isAdmin()) return;
 
@@ -461,23 +367,10 @@ export class IndexComponent {
       row.srNo = index + 1;
     });
 
-
-    // if (useCheckboxes && Array.isArray(selectedTables)) {
-    //   console.log('Selected tables (multiple):', selectedTables);
-    //   selectedTables.forEach((table: string) => {
-    //     this.tabService.addSelectedTable(table);
-    //     newRow.mappedTables.push(table);
-    //     this.insertRowIntoTable(newRow, table);
-    //   });
-    // } else if (typeof selectedTables === 'string') {
-    //   console.log('Selected table (single):', selectedTables);
-    //   this.tabService.addSelectedTable(selectedTables);
-    //   newRow.mappedTables.push(selectedTables);
-    //   this.insertRowIntoTable(newRow, selectedTables);
-    // }
     console.log('Selected table:', selectedTables);
-    this.tabService.addSelectedTable(selectedTables);
+    this.tabService.addSelectedTable(selectedTables, newRow.srNo);
     newRow.mappedTables.push(selectedTables);
+    this.tabService.setCurrentRowId(newRow.srNo);
     this.insertRowIntoTable(newRow, selectedTables);
 
     this.saveToStorage('tableData', this.tableData);
@@ -519,6 +412,11 @@ export class IndexComponent {
     }
     this.updatePaginatedData();
     this.cdr.detectChanges();
+  }
+
+  selectRow(row: TableRow): void {
+    this.editingRow = row;
+    this.tabService.setCurrentRowId(row.srNo);
   }
 
   saveNewRow() {
