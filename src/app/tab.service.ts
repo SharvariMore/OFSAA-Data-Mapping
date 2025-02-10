@@ -6,10 +6,10 @@ import { BehaviorSubject } from 'rxjs';
 })
 export class TabService {
   // private selectedTablesSubject = new BehaviorSubject<string[]>([]);
-  private selectedTablesSubject = new BehaviorSubject<{ [key: number]: string[] }>({});
+  private selectedTablesSubject = new BehaviorSubject<{ [key: string]: string[] }>({});
   selectedTables$ = this.selectedTablesSubject.asObservable();
 
-  private currentRowIdSubject = new BehaviorSubject<number | null>(null);
+  private currentRowIdSubject = new BehaviorSubject<string | null>(null);
   currentRowId$ = this.currentRowIdSubject.asObservable();
 
   private activeTabSubject = new BehaviorSubject<string>('Pre-Stage Table');
@@ -23,25 +23,25 @@ export class TabService {
   // }
 
   // Add a table to the selected list
-  addSelectedTable(table: string, rowId: number): void {
+  addSelectedTable(table: string, rowId: string): void {
     const currentMapping = this.selectedTablesSubject.getValue();
     const rowTables = currentMapping[rowId] || [];
-    if (!rowTables.includes(table)) {
-      rowTables.push(table);
-    }
-    currentMapping[rowId] = rowTables;
+    // if (!rowTables.includes(table)) {
+    //   rowTables.push(table);
+    // }
+    currentMapping[rowId] = [table];
     this.selectedTablesSubject.next({ ...currentMapping });
   }
 
   // Remove a table from the selected list
-  removeSelectedTableForRow(table: string, rowId: number): void {
+  removeSelectedTableForRow(table: string, rowId: string): void {
     const currentMapping = this.selectedTablesSubject.getValue();
     const rowTables = currentMapping[rowId] || [];
     currentMapping[rowId] = rowTables.filter(t => t !== table);
     this.selectedTablesSubject.next({ ...currentMapping });
   }
 
-  setCurrentRowId(rowId: number): void {
+  setCurrentRowId(rowId: string): void {
     this.currentRowIdSubject.next(rowId);
   }
 

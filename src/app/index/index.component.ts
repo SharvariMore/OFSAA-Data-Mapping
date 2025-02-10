@@ -16,6 +16,7 @@ import {
 import { TabService } from '../tab.service';
 
 export interface TableRow {
+  id: string;
   [key: string]: string | number | boolean | any; // Allow dynamic keys
   srNo: number;
   tfsReq: string;
@@ -80,6 +81,7 @@ export class IndexComponent {
 
   tableData: TableRow[] = this.loadFromStorage('tableData') || [
     {
+      id: 'existing-1',
       srNo: 1,
       tfsReq: 'REQ-001',
       release: '1.0',
@@ -103,6 +105,7 @@ export class IndexComponent {
       usedInAXIOM: 'Y',
     },
     {
+      id: 'existing-2',
       srNo: 2,
       tfsReq: 'REQ-002',
       release: '2.0',
@@ -295,8 +298,11 @@ export class IndexComponent {
 
     if (!insertOption) return;
 
+    const newId = Date.now().toString();
+
     // Define the new row to insert
     const newRow: TableRow = {
+      id: newId,
       srNo: this.tableData.length + 1,
       tfsReq: 'NEW-REQ',
       release: '',
@@ -368,9 +374,9 @@ export class IndexComponent {
     });
 
     console.log('Selected table:', selectedTables);
-    this.tabService.addSelectedTable(selectedTables, newRow.srNo);
+    this.tabService.addSelectedTable(selectedTables, newRow.id);
     newRow.mappedTables.push(selectedTables);
-    this.tabService.setCurrentRowId(newRow.srNo);
+    this.tabService.setCurrentRowId(newRow.id);
     this.insertRowIntoTable(newRow, selectedTables);
 
     this.saveToStorage('tableData', this.tableData);
@@ -416,7 +422,7 @@ export class IndexComponent {
 
   selectRow(row: TableRow): void {
     this.editingRow = row;
-    this.tabService.setCurrentRowId(row.srNo);
+    this.tabService.setCurrentRowId(row.id);
   }
 
   saveNewRow() {
