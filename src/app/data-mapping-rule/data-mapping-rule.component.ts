@@ -65,6 +65,7 @@ export class DataMappingRuleComponent implements OnInit {
   currentPage = 1;
   itemsPerPage = 10;
   paginatedData: MappingRow[] = [];
+  // paginatedData: { [key: string]: MappingRow[] } = {};
 
   constructor(
     private roleService: RoleService,
@@ -1150,16 +1151,23 @@ export class DataMappingRuleComponent implements OnInit {
     alert('Exporting data to Excel...');
   }
 
-  // onPageChange(page: number): void {
-  //   this.currentPage = page;
-  //   this.updatePaginatedData();
-  // }
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.updatePaginatedData();
+  }
 
-  // updatePaginatedData(): void {
-  //   const startPage = (this.currentPage - 1) * this.itemsPerPage;
-  //   const endPage = startPage + this.itemsPerPage;
-  //   this.paginatedData = this.mappingRules.slice(startPage, endPage);
-  // }
+updatePaginatedData(): void {
+  const combinedData = [
+    ...this.getMappingRules(0),
+    ...this.getMappingRules(1)
+  ]; // Combine data from both tables
+
+  const startPage = (this.currentPage - 1) * this.itemsPerPage;
+  const endPage = startPage + this.itemsPerPage;
+
+  this.paginatedData = combinedData.slice(startPage, endPage);
+
+}
 
   toggleButtonsVisibility() {
     this.isButtonsVisible = !this.isButtonsVisible;
