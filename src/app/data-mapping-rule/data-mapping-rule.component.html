@@ -157,7 +157,7 @@
               *ngFor="let column of getTableFormat(0)"
               [ngClass]="{
                 highlights: matchText(row[column.field], globalSearchText),
-                'td-overflow': !isAdmin()
+                'td-overflow': !(isAdmin() && isEditing)
               }"
             >
               <ng-container *ngIf="isEditing">
@@ -210,7 +210,7 @@
               *ngFor="let column of getTableFormat(1)"
               [ngClass]="{
                 highlights: matchText(row[column.field], globalSearchText),
-                'td-overflow': !isAdmin()
+                'td-overflow': !(isAdmin() && isEditing)
               }"
             >
             <ng-container *ngIf="isEditing">
