@@ -42,7 +42,15 @@ export interface MappingRow {
 @Component({
   selector: 'app-data-mapping-rule',
   standalone: true,
-  imports: [NavbarComponent, CommonModule, FormsModule, NgxPaginationModule, MatAutocompleteModule, MatFormFieldModule, MatInputModule],
+  imports: [
+    NavbarComponent,
+    CommonModule,
+    FormsModule,
+    NgxPaginationModule,
+    MatAutocompleteModule,
+    MatFormFieldModule,
+    MatInputModule,
+  ],
   templateUrl: './data-mapping-rule.component.html',
   styleUrl: './data-mapping-rule.component.css',
 })
@@ -65,7 +73,6 @@ export class DataMappingRuleComponent implements OnInit {
   currentPage = 1;
   itemsPerPage = 10;
   paginatedData: MappingRow[] = [];
-  // paginatedData: { [key: string]: MappingRow[] } = {};
 
   constructor(
     private roleService: RoleService,
@@ -86,7 +93,7 @@ export class DataMappingRuleComponent implements OnInit {
     // this.route.queryParams.subscribe((params) => {
     //   this.ofsaaPhysicalNames = params['ofsaaPhysicalNames'];
     // });
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams.subscribe((params) => {
       this.selectedOfsaaPhysicalNames = params['ofsaaPhysicalNames'];
 
       const ofsaaPhysicalNamesListStr = params['ofsaaPhysicalNamesList'];
@@ -100,7 +107,7 @@ export class DataMappingRuleComponent implements OnInit {
     if (!this.ruleSearchText) {
       return this.ofsaaPhysicalNamesList;
     }
-    return this.ofsaaPhysicalNamesList.filter(name =>
+    return this.ofsaaPhysicalNamesList.filter((name) =>
       name.toLowerCase().includes(this.ruleSearchText.toLowerCase())
     );
   }
@@ -164,7 +171,7 @@ export class DataMappingRuleComponent implements OnInit {
    * Returns the header name for a table based on its index and the active tab.
    * @param tableIndex Index of the table (0 for first, 1 for second).
    */
- getTableHeader(tableIndex: number): string {
+  getTableHeader(tableIndex: number): string {
     const tabHeaders: Record<string, string[]> = {
       'Pre-Stage Table': ['Source Table', 'FDS Pre-Stage Table'],
       'Stage Table': ['FDS Pre-Stage Table', 'FDS Stage Table'],
@@ -210,7 +217,6 @@ export class DataMappingRuleComponent implements OnInit {
     return tabRules[this.activeTab]?.[tableHeader] || [];
   }
 
-
   /**
    * Updates the `srNo` for rows in a given table header.
    * @param tableHeader Header of the table to update `srNo`.
@@ -227,7 +233,6 @@ export class DataMappingRuleComponent implements OnInit {
     'FDS Pre-Stage to FDS Stage Mapping Table',
     'FDS Generated ID TP Mapping Table',
   ];
-
 
   tableFormats: { [key: string]: Array<{ header: string; field: string }> } = {
     sourceTable: [
@@ -398,7 +403,6 @@ export class DataMappingRuleComponent implements OnInit {
       },
     ],
   };
-
 
   openDialog(message: string, title: string = 'Notification') {
     this.dialog.open(DialogComponent, {
@@ -992,8 +996,7 @@ export class DataMappingRuleComponent implements OnInit {
     );
 
     this.mappingRules = this.mappingRules || {};
-    this.mappingRules[tableChoice] =
-      this.mappingRules[tableChoice] || [];
+    this.mappingRules[tableChoice] = this.mappingRules[tableChoice] || [];
 
     switch (deleteOption.trim()) {
       case 'Delete a Specific Column': {
@@ -1094,8 +1097,6 @@ export class DataMappingRuleComponent implements OnInit {
             .map((col: { field: any }) => col.field);
 
           if (columnsFields.length > 0) {
-
-
             const updatedMappingRules: MappingRow[] = [];
 
             this.mappingRules[tableChoice].forEach((row: MappingRow) => {
@@ -1137,9 +1138,49 @@ export class DataMappingRuleComponent implements OnInit {
 
   saveMap() {
     if (!this.isAdmin()) return;
-    this.openDialog('Data Saved Successfully!');
-    this.isEditing = false;
-    this.editingRow = null;
+    // this.openDialog('Data Saved Successfully!');
+    // this.isEditing = false;
+    // this.editingRow = null;
+    const requiredFieldsByTable = this.getActiveTabTableHeaders().map(
+      (header) => ({
+        header,
+        requiredFields: this.getTableFormat(
+          this.getActiveTabTableHeaders().indexOf(header)
+        ).map((column) => column.field),
+      })
+    );
+
+    // Check for missing data in mapping rules
+    const hasInvalidData = requiredFieldsByTable.some(
+      ({ header, requiredFields }) =>
+        this.getMappingRulesByHeader(header).some((row) =>
+          requiredFields.some(
+            (field) =>
+              row[field] === undefined ||
+              row[field] === null ||
+              row[field].toString().trim() === ''
+          )
+        )
+    );
+
+    if (hasInvalidData) {
+      this.openDialog(
+        'Please Fill in All Missing Fields in Rows or Columns Before Saving!'
+      );
+      return;
+    }
+
+    if (this.isEditing) {
+      this.isEditing = false;
+      this.editingRow = null;
+      this.cdr.detectChanges();
+      this.openDialog('Mapping Data Saved Successfully!');
+    } else {
+      this.isEditing = true;
+      this.openDialog(
+        'You can Edit Rows and Columns Now! Click "Save All" Again to Finalize Changes.'
+      );
+    }
   }
 
   undoDeleteColumnMap() {
@@ -1156,18 +1197,17 @@ export class DataMappingRuleComponent implements OnInit {
     this.updatePaginatedData();
   }
 
-updatePaginatedData(): void {
-  const combinedData = [
-    ...this.getMappingRules(0),
-    ...this.getMappingRules(1)
-  ]; // Combine data from both tables
+  updatePaginatedData(): void {
+    const combinedData = [
+      ...this.getMappingRules(0),
+      ...this.getMappingRules(1),
+    ]; // Combine data from both tables
 
-  const startPage = (this.currentPage - 1) * this.itemsPerPage;
-  const endPage = startPage + this.itemsPerPage;
+    const startPage = (this.currentPage - 1) * this.itemsPerPage;
+    const endPage = startPage + this.itemsPerPage;
 
-  this.paginatedData = combinedData.slice(startPage, endPage);
-
-}
+    this.paginatedData = combinedData.slice(startPage, endPage);
+  }
 
   toggleButtonsVisibility() {
     this.isButtonsVisible = !this.isButtonsVisible;
