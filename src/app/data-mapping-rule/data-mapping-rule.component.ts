@@ -13,6 +13,8 @@ import { TableRow } from '../index/index.component';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 export interface MappingRow {
   [key: string]: string | number | boolean | any;
@@ -1185,11 +1187,137 @@ export class DataMappingRuleComponent implements OnInit {
 
   undoDeleteColumnMap() {
     if (!this.isAdmin()) return;
-    alert('Undo content clicked!');
+    this.openDialog('Undo content clicked!');
   }
 
   exportToExcel() {
-    alert('Exporting data to Excel...');
+    if (!this.activeTab) {
+      alert('No Active Tab Selected!');
+      return;
+    }
+
+    if (
+      !this.selectedOfsaaPhysicalNames ||
+      this.selectedOfsaaPhysicalNames.length === 0
+    ) {
+      alert(
+        'No Rule Selected! Please Select At Least One Rule Before Exporting.'
+      );
+      return;
+    }
+
+    const headers = this.getActiveTabTableHeaders();
+    if (!headers.length) {
+      alert('No Headers Available To Export!');
+      return;
+    }
+
+    const tables: any[][] = [];
+    let maxRows = 0;
+    const columnWidths: number[] = [];
+
+    // Prepare data for each table
+    headers.forEach((header) => {
+      const tableData = this.getMappingRulesByHeader(header);
+
+      if (tableData.length) {
+        const columnNames = Object.keys(tableData[0]);
+        const tableWidth = columnNames.length;
+
+        // Add the table header row (spanning across the table)
+        const tableHeaderRow = [header, ...Array(tableWidth - 1).fill('')];
+
+        // Add column headers row
+        const columnHeaderRow = [...columnNames];
+
+        // Convert table data to rows
+        const formattedTable = [
+          tableHeaderRow,
+          columnHeaderRow,
+          ...tableData.map((row) => Object.values(row)),
+        ];
+
+        tables.push(formattedTable);
+        maxRows = Math.max(maxRows, formattedTable.length);
+        columnWidths.push(tableWidth);
+      }
+    });
+
+    if (!tables.length) {
+      alert('No Data Available To Export!');
+      return;
+    }
+
+    // Prepare export data array
+    const exportData: any[][] = Array.from({ length: maxRows + 2 }, () => []); // +2 for title and spacing
+
+    let columnOffset = 0;
+    const merges: any[] = [];
+
+    tables.forEach((table, tableIndex) => {
+      table.forEach((row, rowIndex) => {
+        row.forEach((cell: any, cellIndex: number) => {
+          exportData[rowIndex + 1][columnOffset + cellIndex] = cell;
+        });
+      });
+
+      // Merge table name across its full width
+      merges.push({
+        s: { r: 1, c: columnOffset }, // Start merge at table header row
+        e: { r: 1, c: columnOffset + columnWidths[tableIndex] - 1 }, // End at the last column of the table
+      });
+
+      columnOffset += columnWidths[tableIndex] + 2; // Space between tables
+    });
+
+    // Insert `selectedOfsaaPhysicalNames` at the top spanning all columns
+    const totalColumns = columnOffset - 2;
+    exportData[0][0] = this.selectedOfsaaPhysicalNames;
+    for (let i = 1; i < totalColumns; i++) {
+      exportData[0][i] = '';
+    }
+
+    // Merge `selectedOfsaaPhysicalNames` across all columns
+    merges.push({
+      s: { r: 0, c: 0 },
+      e: { r: 0, c: totalColumns - 1 },
+    });
+
+    // Create the worksheet after all the merges and content preparation
+    const worksheet: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet(exportData);
+
+    // Add merge settings for `selectedOfsaaPhysicalNames`
+    worksheet['!merges'] = merges;
+
+    // Center align the `selectedOfsaaPhysicalNames` cell
+    const alignment = { horizontal: 'center', vertical: 'center' };
+
+    // Apply the alignment to the merged cell (first cell of the merged range)
+    for (let i = 0; i < totalColumns; i++) {
+      const cellRef = XLSX.utils.encode_cell({ r: 0, c: i });
+      if (!worksheet[cellRef]) worksheet[cellRef] = {};
+      worksheet[cellRef].s = worksheet[cellRef].s || {};
+      worksheet[cellRef].s.alignment = alignment;
+    }
+
+    // Now, create the workbook and append the worksheet
+    const workbook: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, this.activeTab);
+
+    // Export and save as Excel file
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: 'xlsx',
+      type: 'array',
+    });
+    const fileName = `${this.selectedOfsaaPhysicalNames.replace(
+      /\s+/g,
+      '_'
+    )}_Rule_Mapping.xlsx`;
+
+    saveAs(
+      new Blob([excelBuffer], { type: 'application/octet-stream' }),
+      fileName
+    );
   }
 
   onPageChange(page: number): void {
