@@ -15,6 +15,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import { SharedListService } from '../shared-list.service';
 
 export interface MappingRow {
   [key: string]: string | number | boolean | any;
@@ -81,7 +82,8 @@ export class DataMappingRuleComponent implements OnInit {
     private tabService: TabService,
     private cdr: ChangeDetectorRef,
     private dialog: MatDialog,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private sharedList: SharedListService
   ) {
     // this.initNewRow();
   }
@@ -95,13 +97,37 @@ export class DataMappingRuleComponent implements OnInit {
     // this.route.queryParams.subscribe((params) => {
     //   this.ofsaaPhysicalNames = params['ofsaaPhysicalNames'];
     // });
-    this.route.queryParams.subscribe((params) => {
-      this.selectedOfsaaPhysicalNames = params['ofsaaPhysicalNames'];
 
-      const ofsaaPhysicalNamesListStr = params['ofsaaPhysicalNamesList'];
-      if (ofsaaPhysicalNamesListStr) {
-        this.ofsaaPhysicalNamesList = JSON.parse(ofsaaPhysicalNamesListStr);
+    this.ofsaaPhysicalNamesList = this.sharedList.getOfsaaPhysicalNamesList();
+    if (this.ofsaaPhysicalNamesList.length > 0) {
+      this.selectedOfsaaPhysicalNames = this.ofsaaPhysicalNamesList[0];
+    }
+
+    this.sharedList.ofsaaPhysicalNamesList$.subscribe((list) => {
+      if (list.length > 0) {
+      this.ofsaaPhysicalNamesList = list;
+      if (!this.selectedOfsaaPhysicalNames) {
+        this.selectedOfsaaPhysicalNames = list[0];
       }
+      this.cdr.detectChanges();
+    }
+    });
+
+    this.route.queryParams.subscribe((params) => {
+      // this.selectedOfsaaPhysicalNames = params['ofsaaPhysicalNames'];
+      // this.cdr.detectChanges();
+      if (params['ofsaaPhysicalNames']) {
+        this.selectedOfsaaPhysicalNames = params['ofsaaPhysicalNames'];
+        this.cdr.detectChanges();
+      }
+      // const ofsaaPhysicalNamesListStr = params['ofsaaPhysicalNamesList'];
+      // if (ofsaaPhysicalNamesListStr) {
+      //   this.ofsaaPhysicalNamesList = JSON.parse(ofsaaPhysicalNamesListStr);
+
+      //   if (!this.selectedOfsaaPhysicalNames && this.ofsaaPhysicalNamesList.length > 0) {
+      //     this.selectedOfsaaPhysicalNames = this.ofsaaPhysicalNamesList[0];
+      //   }
+      // }
     });
   }
 

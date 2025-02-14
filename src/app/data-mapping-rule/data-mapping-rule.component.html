@@ -69,6 +69,7 @@
             [(ngModel)]="ruleSearchText"
             [matAutocomplete]="auto"
             placeholder="Search Rule"
+            [value]="selectedOfsaaPhysicalNames"
           />
           <mat-autocomplete #auto="matAutocomplete">
             <mat-option *ngFor="let name of filteredOfsaaPhysicalNames" [value]="name" (click)="onSelectOfsaaPhysicalName(name)">

@@ -14,6 +14,7 @@ import {
   MappingRow,
 } from '../data-mapping-rule/data-mapping-rule.component';
 import { TabService } from '../tab.service';
+import { SharedListService } from '../shared-list.service';
 
 export interface TableRow {
   id: string;
@@ -165,13 +166,18 @@ export class IndexComponent {
     private dialog: MatDialog,
     private router: Router,
     private dataMappingRuleComponent: DataMappingRuleComponent,
-    private tabService: TabService
+    private tabService: TabService,
+    private sharedList: SharedListService
   ) {}
 
+  passOfsaaPhysicalNamesList(): void {
+    const ofsaaPhysicalNamesList = this.tableData.map(
+      (row) => row.ofsaaPhysicalNames
+    );
+    this.sharedList.setOfsaaPhysicalNamesList(ofsaaPhysicalNamesList);
+  }
+
   navigateToDataMappingRule(ofsaaPhysicalNames?: string): void {
-    // this.router.navigate(['/data-mapping-rule'], {
-    //   queryParams: { ofsaaPhysicalNames },
-    // });
     const queryParams: any = {};
 
     // If a specific ofsaaPhysicalNames is provided, add it to the query parameters
@@ -180,12 +186,12 @@ export class IndexComponent {
     }
 
     // Always pass the list of all ofsaaPhysicalNames
-    const ofsaaPhysicalNamesList = this.tableData.map(
-      (row) => row.ofsaaPhysicalNames
-    );
-    queryParams.ofsaaPhysicalNamesList = JSON.stringify(ofsaaPhysicalNamesList);
+    // const ofsaaPhysicalNamesList = this.tableData.map(
+    //   (row) => row.ofsaaPhysicalNames
+    // );
+    // queryParams.ofsaaPhysicalNamesList = JSON.stringify(ofsaaPhysicalNamesList);
 
-    // Navigate with both query parameters
+    // Navigate with query parameters
     this.router.navigate(['/data-mapping-rule'], {
       queryParams: queryParams,
     });
@@ -228,6 +234,7 @@ export class IndexComponent {
   }
 
   ngOnInit(): void {
+    this.passOfsaaPhysicalNamesList();
     this.updatePaginatedData();
   }
 
