@@ -76,6 +76,8 @@ export class DataMappingRuleComponent implements OnInit {
   currentPage = 1;
   itemsPerPage = 10;
   paginatedData: MappingRow[] = [];
+  ansiJoinCondition: string = '';
+  filterByCondition: string = '';
 
   constructor(
     private roleService: RoleService,
@@ -105,12 +107,12 @@ export class DataMappingRuleComponent implements OnInit {
 
     this.sharedList.ofsaaPhysicalNamesList$.subscribe((list) => {
       if (list.length > 0) {
-      this.ofsaaPhysicalNamesList = list;
-      if (!this.selectedOfsaaPhysicalNames) {
-        this.selectedOfsaaPhysicalNames = list[0];
+        this.ofsaaPhysicalNamesList = list;
+        if (!this.selectedOfsaaPhysicalNames) {
+          this.selectedOfsaaPhysicalNames = list[0];
+        }
+        this.cdr.detectChanges();
       }
-      this.cdr.detectChanges();
-    }
     });
 
     this.route.queryParams.subscribe((params) => {
@@ -256,11 +258,7 @@ export class DataMappingRuleComponent implements OnInit {
     });
   }
 
-  tabs = [
-    'Source to FDS Pre-Stage Mapping Table',
-    'FDS Pre-Stage to FDS Stage Mapping Table',
-    'FDS Generated ID TP Mapping Table',
-  ];
+  tabs = ['Pre-Stage Table', 'Stage Table', 'Lookup Table'];
 
   tableFormats: { [key: string]: Array<{ header: string; field: string }> } = {
     sourceTable: [
@@ -492,21 +490,85 @@ export class DataMappingRuleComponent implements OnInit {
     return row[propertyName] || '';
   }
 
-  filteredData(tableIndex: number): any[] {
-    const searchText = this.globalSearchText?.toLowerCase().trim();
-    const filterColumn = this.globalFilterColumn;
-    const data = this.getMappingRules(tableIndex);
+  // filteredData(tableIndex: number): any[] {
+  //   const searchText = this.globalSearchText?.toLowerCase().trim();
+  //   const filterColumn = this.globalFilterColumn;
+  //   const data = this.getMappingRules(tableIndex);
 
-    if (!searchText) return data;
+  //   if (!searchText) return data;
+
+  //   return data.filter((row) => {
+  //     if (filterColumn) {
+  //       return this.matchText(row[filterColumn], searchText);
+  //     } else {
+  //       return Object.values(row).some((val) =>
+  //         this.matchText(val, searchText)
+  //       );
+  //     }
+  //   });
+  // }
+
+  filteredData(tableIndex: number): any[] {
+    let searchText = this.globalSearchText?.toLowerCase().trim();
+    let filterColumn = this.globalFilterColumn;
+    let data = this.getMappingRules(tableIndex);
+
+    // Step 1: Apply Global Search Filtering
+    if (searchText) {
+      data = data.filter((row) => {
+        if (filterColumn) {
+          return this.matchText(row[filterColumn], searchText);
+        } else {
+          return Object.values(row).some((val) =>
+            this.matchText(val, searchText)
+          );
+        }
+      });
+    }
+
+    // Step 2: Apply ANSI Join if provided
+    if (this.ansiJoinCondition) {
+      data = this.applyAnsiJoin(data);
+    }
+
+    // Step 3: Apply Filter By (WHERE Clause) if provided
+    if (this.filterByCondition) {
+      data = this.applyFilterByCondition(data);
+    }
+
+    return data;
+  }
+
+  applyAnsiJoin(data: MappingRow[]): MappingRow[] {
+    let joinCondition = this.ansiJoinCondition.toLowerCase();
+
+    if (!joinCondition) return data;
 
     return data.filter((row) => {
-      if (filterColumn) {
-        return this.matchText(row[filterColumn], searchText);
-      } else {
-        return Object.values(row).some((val) =>
-          this.matchText(val, searchText)
-        );
+      if (joinCondition.includes('inner join')) {
+        return row.sourceTable && row.fdsTable; // Example: Match non-empty rows
       }
+      if (joinCondition.includes('left join')) {
+        return row.sourceTable !== undefined;
+      }
+      if (joinCondition.includes('right join')) {
+        return row.fdsTable !== undefined;
+      }
+      if (joinCondition.includes('outer join')) {
+        return row.sourceTable || row.fdsTable;
+      }
+      return true; // Default, return all rows if no condition is met
+    });
+  }
+
+  applyFilterByCondition(data: MappingRow[]): MappingRow[] {
+    let condition = this.filterByCondition.toLowerCase();
+
+    if (!condition) return data;
+
+    return data.filter((row) => {
+      let rowString = JSON.stringify(row).toLowerCase();
+      return rowString.includes(condition);
     });
   }
 

@@ -1,7 +1,9 @@
 <app-navbar></app-navbar>
 
 <div class="datamap">
-  <h2>Data Mapping Rule for: {{ selectedOfsaaPhysicalNames || 'Select a Rule'}}</h2>
+  <h2>
+    Data Mapping Rule for: {{ selectedOfsaaPhysicalNames || "Select a Rule" }}
+  </h2>
 
   <!-- <ul class="tabs">
     <li
@@ -60,9 +62,7 @@
       </select>
 
       <div class="filter-container">
-        <label for="ofsaaPhysicalNamesFilter"
-          >Filter by Rule</label
-        >
+        <label for="ofsaaPhysicalNamesFilter">Select Rule </label>
         <mat-form-field class="rule-width">
           <input
             matInput
@@ -72,12 +72,37 @@
             [value]="selectedOfsaaPhysicalNames"
           />
           <mat-autocomplete #auto="matAutocomplete">
-            <mat-option *ngFor="let name of filteredOfsaaPhysicalNames" [value]="name" (click)="onSelectOfsaaPhysicalName(name)">
+            <mat-option
+              *ngFor="let name of filteredOfsaaPhysicalNames"
+              [value]="name"
+              (click)="onSelectOfsaaPhysicalName(name)"
+            >
               {{ name }}
             </mat-option>
           </mat-autocomplete>
         </mat-form-field>
       </div>
+
+      <label for="globalSearch">ANSI Join</label>
+      <textarea
+        type="text"
+        id="ansiJoin"
+        [(ngModel)]="ansiJoinCondition"
+        placeholder="Enter Join Condition..."
+        rows="5"
+        cols="33"
+      ></textarea>
+
+      <br />
+      <br />
+
+      <label for="globalSearch">Filter By </label>
+      <input
+        type="text"
+        id="filterBy"
+        [(ngModel)]="filterByCondition"
+        placeholder="Enter Filter Condition..."
+      />
 
       <div *ngIf="filteredOfsaaPhysicalNames.length === 0">
         <p class="nodata">No Matching Rules Found!</p>
@@ -122,122 +147,134 @@
     </div>
 
     <div class="side-by-side-tables">
-    <!-- First Table -->
-    <div class="table-wrapper" [ngClass]="{ 'editing-mode': isEditing }">
-      <!-- <h3>{{ getTableHeader(0) }}</h3> -->
-      <div *ngIf="filteredData(0).length === 0">
-        <p class="nodata">
-          No Data Found in {{ getTableHeader(0) }} for the entered search!
-        </p>
-      </div>
-      <table *ngIf="filteredData(0).length > 0" class="mapping-table">
-        <thead>
-          <tr>
-            <th
-              [attr.colspan]="getTableFormat(0).length + (isAdmin() ? 1 : 0)"
-              style="padding: 10px"
+      <!-- First Table -->
+      <div class="table-wrapper" [ngClass]="{ 'editing-mode': isEditing }">
+        <!-- <h3>{{ getTableHeader(0) }}</h3> -->
+        <div *ngIf="filteredData(0).length === 0">
+          <p class="nodata">
+            No Data Found in {{ getTableHeader(0) }} for the entered search!
+          </p>
+        </div>
+        <table *ngIf="filteredData(0).length > 0" class="mapping-table">
+          <thead>
+            <tr>
+              <th
+                [attr.colspan]="getTableFormat(0).length + (isAdmin() ? 1 : 0)"
+                style="padding: 10px"
+              >
+                {{ getTableHeader(0) }}
+              </th>
+            </tr>
+            <tr>
+              <th *ngFor="let column of getTableFormat(0)">
+                {{ column.header }}
+              </th>
+              <!-- <th *ngIf="isAdmin()">Actions</th> -->
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="
+                let row of filteredData(0)
+                  | paginate
+                    : {
+                        id: 'common-pagination',
+                        itemsPerPage: itemsPerPage,
+                        currentPage: currentPage
+                      };
+                let i = index
+              "
             >
-              {{ getTableHeader(0) }}
-            </th>
-          </tr>
-          <tr>
-            <th *ngFor="let column of getTableFormat(0)">
-              {{ column.header }}
-            </th>
-            <!-- <th *ngIf="isAdmin()">Actions</th> -->
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let row of filteredData(0) | paginate
-              : {
-                  id: 'common-pagination',
-                  itemsPerPage: itemsPerPage,
-                  currentPage: currentPage
-                }; let i = index">
-            <td
-              *ngFor="let column of getTableFormat(0)"
-              [ngClass]="{
-                highlights: matchText(row[column.field], globalSearchText),
-                'td-overflow': !(isAdmin() && isEditing)
-              }"
-            >
-              <ng-container *ngIf="isEditing">
-                <!-- Show input field for editing when in edit mode -->
-                <input class="input-column" [(ngModel)]="row[column.field]" />
-              </ng-container>
-              <ng-container *ngIf="!isEditing">
-                <!-- Show the value when not in edit mode -->
-                {{ getRowValue(row, column) }}
-              </ng-container>
-              <!-- {{ getRowValue(row, column) }} -->
-            </td>
-            <!-- <td *ngIf="isAdmin()">
+              <td
+                *ngFor="let column of getTableFormat(0)"
+                [ngClass]="{
+                  highlights: matchText(row[column.field], globalSearchText),
+                  'td-overflow': !(isAdmin() && isEditing)
+                }"
+              >
+                <ng-container *ngIf="isEditing">
+                  <!-- Show input field for editing when in edit mode -->
+                  <input class="input-column" [(ngModel)]="row[column.field]" />
+                </ng-container>
+                <ng-container *ngIf="!isEditing">
+                  <!-- Show the value when not in edit mode -->
+                  {{ getRowValue(row, column) }}
+                </ng-container>
+                <!-- {{ getRowValue(row, column) }} -->
+              </td>
+              <!-- <td *ngIf="isAdmin()">
                 <button>Edit</button>
               </td> -->
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="table-wrapper">
-      <!-- <h3>{{ getTableHeader(1) }}</h3> -->
-      <div *ngIf="filteredData(1).length === 0">
-        <p class="nodata">
-          No Data Found in {{ getTableHeader(1) }} for the entered search!
-        </p>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <table *ngIf="filteredData(1).length > 0" class="mapping-table">
-        <thead>
-          <th
-            [attr.colspan]="getTableFormat(1).length + (isAdmin() ? 1 : 0)"
-            style="padding: 10px"
-          >
-            {{ getTableHeader(1) }}
-          </th>
-          <tr>
-            <th *ngFor="let column of getTableFormat(1)">
-              {{ column.header }}
-            </th>
-            <!-- <th *ngIf="isAdmin()">Actions</th> -->
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let row of filteredData(1) | paginate
-              : {
-                  id: 'common-pagination',
-                  itemsPerPage: itemsPerPage,
-                  currentPage: currentPage
-                }; let i = index ">
-            <td
-              *ngFor="let column of getTableFormat(1)"
-              [ngClass]="{
-                highlights: matchText(row[column.field], globalSearchText),
-                'td-overflow': !(isAdmin() && isEditing)
-              }"
+      <div class="table-wrapper">
+        <!-- <h3>{{ getTableHeader(1) }}</h3> -->
+        <div *ngIf="filteredData(1).length === 0">
+          <p class="nodata">
+            No Data Found in {{ getTableHeader(1) }} for the entered search!
+          </p>
+        </div>
+        <table *ngIf="filteredData(1).length > 0" class="mapping-table">
+          <thead>
+            <th
+              [attr.colspan]="getTableFormat(1).length + (isAdmin() ? 1 : 0)"
+              style="padding: 10px"
             >
-            <ng-container *ngIf="isEditing">
-              <!-- Show input field for editing when in edit mode -->
-              <input class="input-column" [(ngModel)]="row[column.field]" />
-            </ng-container>
-            <ng-container *ngIf="!isEditing">
-              <!-- Show the value when not in edit mode -->
-              {{ getRowValue(row, column) }}
-            </ng-container>
-              <!-- {{ getRowValue(row, column) }} -->
-            </td>
-            <!-- <td *ngIf="isAdmin()">
+              {{ getTableHeader(1) }}
+            </th>
+            <tr>
+              <th *ngFor="let column of getTableFormat(1)">
+                {{ column.header }}
+              </th>
+              <!-- <th *ngIf="isAdmin()">Actions</th> -->
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="
+                let row of filteredData(1)
+                  | paginate
+                    : {
+                        id: 'common-pagination',
+                        itemsPerPage: itemsPerPage,
+                        currentPage: currentPage
+                      };
+                let i = index
+              "
+            >
+              <td
+                *ngFor="let column of getTableFormat(1)"
+                [ngClass]="{
+                  highlights: matchText(row[column.field], globalSearchText),
+                  'td-overflow': !(isAdmin() && isEditing)
+                }"
+              >
+                <ng-container *ngIf="isEditing">
+                  <!-- Show input field for editing when in edit mode -->
+                  <input class="input-column" [(ngModel)]="row[column.field]" />
+                </ng-container>
+                <ng-container *ngIf="!isEditing">
+                  <!-- Show the value when not in edit mode -->
+                  {{ getRowValue(row, column) }}
+                </ng-container>
+                <!-- {{ getRowValue(row, column) }} -->
+              </td>
+              <!-- <td *ngIf="isAdmin()">
               <button>Edit</button>
             </td> -->
-          </tr>
-        </tbody>
-      </table>
-    </div>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
     <pagination-controls
-  id="common-pagination"
-  [autoHide]="true"
-  [maxSize]="5"
-  (pageChange)="onPageChange($event)"
-></pagination-controls>
+      id="common-pagination"
+      [autoHide]="true"
+      [maxSize]="5"
+      (pageChange)="onPageChange($event)"
+    ></pagination-controls>
   </div>
   <div *ngIf="isAdmin()" class="column-button">
     <button (click)="exportToExcel()">Export</button>
