@@ -73,14 +73,54 @@ input {
   font-size: 15px;
 }
 
+.joincondition {
+  display: flex;
+}
+
+label[for="ansiJoin"] {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  background-color: #071975;
+  color: white;
+  font-weight: 500;
+}
+
 textarea {
   border: 1px solid #ccc;
-  height: 55px;
+  height: 75px;
   padding: 8px;
   border-radius: 5px;
   font-size: 15px;
+  display: flex;
+  justify-content: flex-start;
+  background-color: #071975;
+  color: white;
+  width: 100%;
+  overflow: auto;
 }
 
+.filtercondition {
+  display: flex;
+}
+
+#filterBy {
+  display: flex;
+  justify-content: flex-start;
+  background-color: #071975;
+  color: white;
+  width: 100%;
+  height: 50px;
+}
+
+label[for="filterBy"] {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  background-color: #071975;
+  color: white;
+  font-weight: 500;
+}
 
 #globalFilter {
   width: 270px;

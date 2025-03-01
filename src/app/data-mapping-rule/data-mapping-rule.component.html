@@ -83,26 +83,37 @@
         </mat-form-field>
       </div>
 
-      <label for="globalSearch">ANSI Join</label>
+      <br/>
+      <br/>
+      <br/>
+      <br/>
+
+      <div class="joincondition">
+      <label for="ansiJoin">ANSI Join</label>
       <textarea
         type="text"
         id="ansiJoin"
         [(ngModel)]="ansiJoinCondition"
         placeholder="Enter Join Condition..."
-        rows="5"
+        rows="6"
         cols="33"
       ></textarea>
+    </div>
+    <br/>
 
-      <br />
-      <br />
-
-      <label for="globalSearch">Filter By </label>
+      <div class="filtercondition">
+      <label for="filterBy">Filter Condition </label>
       <input
         type="text"
         id="filterBy"
         [(ngModel)]="filterByCondition"
         placeholder="Enter Filter Condition..."
       />
+    </div>
+
+      <br/>
+
+      <button (click)="executeAnsiJoin()">Generate SQL Query</button>
 
       <div *ngIf="filteredOfsaaPhysicalNames.length === 0">
         <p class="nodata">No Matching Rules Found!</p>
