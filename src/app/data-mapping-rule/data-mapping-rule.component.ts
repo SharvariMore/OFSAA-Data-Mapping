@@ -536,112 +536,125 @@ export class DataMappingRuleComponent implements OnInit {
 
 
 ansiJoin(): string {
+  // Ensure the user has entered a valid ANSI join condition
   if (!this.ansiJoinCondition.trim()) {
-    this.openDialog('Please Enter a Valid Join Condition.');
+    this.openDialog('Please Enter a Valid Join Condition');
     return '';
   }
 
-  const joinRegex = /\b(?:INNER|LEFT|RIGHT|FULL)\s+JOIN\s*\b.*\s+ON\s+.*\s*(?:WHERE\s+.*)?/i;
+  // Extract SQL query components
+  const sqlQuery = this.ansiJoinCondition.trim();
 
-  if (!joinRegex.test(this.ansiJoinCondition)) {
-    this.openDialog('Invalid SQL Join Query! Please enter valid SQL structure with only whitespaces after JOIN, ON & WHERE clauses');
+  // Extract the join type (INNER, LEFT, RIGHT, FULL)
+  const joinType = sqlQuery.match(/\b(INNER|LEFT|RIGHT|FULL)\b/i);
+  if (!joinType) {
+    this.openDialog('Invalid Join Type. Supported join types: INNER, LEFT, RIGHT, FULL.');
     return '';
   }
 
+  // Extract tables and the ON condition
+  const joinCondition = sqlQuery.split('ON')[1]?.trim(); // Get the part after 'ON'
+  const table1 = sqlQuery.split('FROM')[1].split('JOIN')[0].trim().split(' ')[0];
+  const table2 = sqlQuery.split('JOIN')[1]?.split('ON')[0].trim().split(' ')[0];
+
+  // Ensure there are at least two tables
   const selectedRows = this.mappingRules['sourceTable'];
   if (selectedRows.length < 2) {
     this.openDialog('At Least Two Tables Are Required For Join');
     return '';
   }
 
-  // Extract names of all available tables
+  // Extract names of all available tables from the mapping rules
   const tableNames = selectedRows.map(row => row.sourceTable);
   const uniqueTableNames = [...new Set(tableNames)];
-  const selectedTableNames = prompt(
-    `Enter the names of two tables to use for the join. Available tables: ${tableNames.join(', ')}`
-  );
 
-  if (!selectedTableNames) {
-    this.openDialog('You must select two tables!');
+  // Validate if both tables are selected and exist in the source tables
+  if (!uniqueTableNames.includes(table1) || !uniqueTableNames.includes(table2)) {
+    this.openDialog('Invalid Tables in the Join Condition');
     return '';
   }
 
-  // Parse and validate the user input
-  const tables = selectedTableNames
-    .split(',')
-    .map(name => name.trim())
-    .filter(name => uniqueTableNames.includes(name));
+  // Filter the rows based on the selected tables
+  const table1Rows = selectedRows.filter(row => row.sourceTable === table1);
+  const table2Rows = selectedRows.filter(row => row.sourceTable === table2);
 
-  if (tables.length !== 2) {
-    this.openDialog("Invalid Selection! Please Enter Two Valid Table Names.");
+  if (table1Rows.length === 0 || table2Rows.length === 0) {
+    this.openDialog('No matching rows found for the selected tables');
     return '';
   }
 
-  const table1 = tables[0];
-  const table2 = tables[1];
+  // Parse the ON condition to extract the columns involved in the join
+  const [leftColumn, rightColumn] = joinCondition.split('=').map(item => item.trim());
 
-  // Ensure both tables are available in the selection
-  if (!table1 || !table2) {
-    this.openDialog('Both tables must be selected for the join.');
-    return '';
-  }
+  // Debugging: Checking the condition and column names
+  console.log(`Joining tables: ${table1} and ${table2}`);
+  console.log(`Using columns: ${leftColumn} and ${rightColumn}`);
 
-    // Filter the rows based on the selected tables
-    const table1Rows = selectedRows.filter(row => row.sourceTable === table1);
-    const table2Rows = selectedRows.filter(row => row.sourceTable === table2);
+  // Perform the join logic (matching the rows based on the ON condition)
+  let joinedRows: string | any[] = [];
 
-    if (table1Rows.length === 0 || table2Rows.length === 0) {
-      this.openDialog('No matching rows found for the selected tables.');
-      return '';
-    }
+  if (joinType[0].toUpperCase() === 'INNER') {
+    // INNER JOIN: Include rows only if there's a match in both tables
+    joinedRows = table1Rows.map(row1 => {
+      // Match the row from table1 with the row from table2 based on the join condition
+      const matchingRow = table2Rows.find(row2 => row1[leftColumn] === row2[rightColumn]);
+      // Only return rows if a match is found
+      if (matchingRow) {
+        return { ...row1, ...matchingRow }; // Merge rows if they match
+      }
+      return null; // Do not include non-matching rows
+    }).filter(row => row !== null); // Remove null values from non-matching rows
 
-
-  //Construct SQL Query
-  // let sqlQuery = `
-  //   SELECT ${table1}.*, ${table2}.*
-  //   FROM ${table1}
-  //   ${this.ansiJoinCondition} ${table2}
-  //   ON ${table1}.sourceColumn = ${table2}.sourceColumn
-  // `;
-
-
-  let sqlQuery = `
-    ${this.ansiJoinCondition}
-  `;
-
-  //Apply WHERE clause if a filter condition exists
-  // if (this.filterByCondition.trim()) {
-  //   sqlQuery += ` WHERE ${this.filterByCondition}`;
-  // }
-
-  if (this.filterByCondition.trim()) {
-    // return `${sqlQuery} ${this.filterByCondition}`;
-    sqlQuery += `${this.filterByCondition}`;
-  }
-
-  this.paginatedData = this.mergeFilteredRows(table1Rows, table2Rows);  // Store filtered rows in the paginated data
-  this.cdr.detectChanges();  // Trigger change detection for UI update
-
-  return sqlQuery;
-}
-
-mergeFilteredRows(table1Rows: MappingRow[], table2Rows: MappingRow[]): MappingRow[] {
-  // Combine rows from both tables (you can customize the join logic here based on your needs)
-  const mergedRows: MappingRow[] = [];
-
-  table1Rows.forEach(row1 => {
-    table2Rows.forEach(row2 => {
-      // Customize the merge logic (for now, we're just combining rows)
-      mergedRows.push({
-        ...row1,
-        ...row2
-      });
+    // Debugging: Checking the join result
+    console.log("INNER JOIN Result: ", joinedRows);
+  } else if (joinType[0].toUpperCase() === 'LEFT') {
+    // LEFT JOIN: Include all rows from the left table that have a match in the right table
+    joinedRows = table1Rows.map(row1 => {
+      const matchingRow = table2Rows.find(row2 => row1[leftColumn] === row2[rightColumn]);
+      return matchingRow ? { ...row1, ...matchingRow } : { ...row1, sourceColumn: null }; // Include even if no match
     });
-  });
+  } else if (joinType[0].toUpperCase() === 'RIGHT') {
+    // RIGHT JOIN: Include all rows from the right table that have a match in the left table
+    joinedRows = table2Rows.map(row2 => {
+      const matchingRow = table1Rows.find(row1 => row1[leftColumn] === row2[rightColumn]);
+      return matchingRow ? { ...matchingRow, ...row2 } : { ...row2, sourceColumn: null }; // Include even if no match
+    });
+  } else if (joinType[0].toUpperCase() === 'FULL') {
+    // FULL JOIN: Only include rows that have a match in either table
+    joinedRows = [
+      ...table1Rows.map(row1 => {
+        const matchingRow = table2Rows.find(row2 => row1[leftColumn] === row2[rightColumn]);
+        return matchingRow ? { ...row1, ...matchingRow } : null;
+      }),
+      ...table2Rows.map(row2 => {
+        const matchingRow = table1Rows.find(row1 => row1[leftColumn] === row2[rightColumn]);
+        return matchingRow ? { ...matchingRow, ...row2 } : null;
+      }),
+    ].filter(row => row !== null); // Remove rows without matches
+  }
 
-  return mergedRows;
+  // Debugging: Checking the join result
+  console.log("Joined Rows: ", joinedRows);
+
+  // If no rows are joined, display a message
+  if (joinedRows.length === 0) {
+    this.openDialog('No matching rows found for the join condition.');
+    return '';
+  }
+
+  // Construct the final SQL query (assuming it's based on the ANSI SQL provided)
+  let constructedQuery = `${sqlQuery}`;
+
+  // Apply WHERE clause if a filter condition exists
+  if (this.filterByCondition.trim()) {
+    constructedQuery += ` ${this.filterByCondition}`;
+  }
+
+  // Display the final SQL query and the join result
+  this.openDialog(`Join Result:\n${JSON.stringify(joinedRows, null, 2)}`);
+
+  return constructedQuery;
 }
-
 
 executeAnsiJoin() {
   const query = this.ansiJoin();
