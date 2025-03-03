@@ -3,13 +3,22 @@ import { NavbarComponent } from '../navbar/navbar.component';
 import { RoleService } from '../role.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { DialogComponent } from '../dialog/dialog.component';
 import { firstValueFrom, range } from 'rxjs';
+import { Router } from '@angular/router';
+import {
+  DataMappingRuleComponent,
+  MappingRow,
+} from '../data-mapping-rule/data-mapping-rule.component';
+import { TabService } from '../tab.service';
+import { SharedListService } from '../shared-list.service';
+import { MatButtonModule } from '@angular/material/button';
 
 export interface TableRow{
-  [key: string]: string | number | boolean | Date;
+  id: string
+  [key: string]: string | number | boolean | Date | any;
   srNo: number;
   ofsaaMappingChangeDate: Date;
   ofsaaStageTableName: string;
@@ -27,7 +36,15 @@ export interface TableRow{
 @Component({
   selector: 'app-changelog',
   standalone: true,
-  imports: [NavbarComponent, CommonModule,FormsModule,NgxPaginationModule],
+  imports: [NavbarComponent,
+     CommonModule,
+     FormsModule,
+     NgxPaginationModule,
+     MatDialogModule,
+    MatButtonModule,
+    DataMappingRuleComponent
+    ],
+    providers: [DataMappingRuleComponent],
   templateUrl: './changelog.component.html',
   styleUrl: './changelog.component.css'
 })
@@ -41,47 +58,49 @@ export class ChangelogComponent {
   currentPage = 1;
   itemsPerPage = 10;
   paginatedData: TableRow[] = [];
+  isButtonsVisible: boolean = false;
+  isColumnActionsVisible: boolean = false;
+  activeTab: string = '';
+
   verifiedOptions: string[] = ['Yes','No'];
   userOptions = ['User1', 'User2', 'User3'];
   buildStatusOptions = ['Pending', 'Completed'];
   adminOptions = ['Admin', 'SuperAdmin', 'Manager'];
-  selected: any;
-  selectedRows: any[] = [];
-  isButtonsVisible: boolean = false;
-  isColumnActionsVisible: boolean = false;
-  selectAll = false; 
+
   tableData: TableRow[] = [
     {
+      id: 'existing-1',
       srNo: 1,
-  ofsaaMappingChangeDate: new Date(12/12/2024),
+  ofsaaMappingChangeDate: new Date(7/1/2024),
   ofsaaStageTableName: 'Data Table',
   changeDetails: 'Not Available',
   ofsaaChangeBy: 'User1',
   odiBuildStatus: 'Pending',
-  odiBuildDate:  new Date(12/12/2024),
+  odiBuildDate:  new Date(7/1/2024),
   verified_yn: 'Yes',
   verifiedBy: 'Admin',
-  verifiedDate: new Date(12/12/2024),
+  verifiedDate: new Date(7/1/2024),
   comments: 'Not Available',
   isSelected: false,
     },
     {
+      id: 'existing-2',
       srNo: 2,
-  ofsaaMappingChangeDate: new Date(14/12/2024),
+  ofsaaMappingChangeDate: new Date(7/1/2024),
   ofsaaStageTableName: 'Source Table',
   changeDetails: 'Available',
   ofsaaChangeBy: 'User2',
   odiBuildStatus: 'Pending',
-  odiBuildDate:  new Date(14/12/2024),
+  odiBuildDate:  new Date(7/1/2024),
   verified_yn: 'No',
   verifiedBy: 'Admin',
-  verifiedDate: new Date(14/12/2024),
+  verifiedDate: new Date(7/1/2024),
   comments: 'Not Available',
   isSelected: false,
     },
   ];
 
-  tableColumns = [
+  tableColumns : Array<{ header: string; field: string }> = [
     {header: 'Sr. No.',field:'srNo'},
     {header: 'OFSAA Mapping Change Date',field:'ofsaaMappingChangeDate'},
     {header: 'OFSAA Stage Table Name',field:'ofsaaStageTableName'},
@@ -95,14 +114,38 @@ export class ChangelogComponent {
     {header: 'Comments',field:'comments'},
   ];
 
-  constructor(private roleService: RoleService,private cdr: ChangeDetectorRef,private dialog: MatDialog) {}
+  constructor(private roleService: RoleService,
+    private cdr: ChangeDetectorRef,
+    private dialog: MatDialog,
+    private router: Router,
+    private dataMappingRuleComponent: DataMappingRuleComponent,
+    private tabService: TabService,
+    private sharedList: SharedListService
+  ) {}
+
+  passofsaaStageTableNameList() : void {
+    const ofsaaStageTableNameList = this.tableData.map(
+      (row) => row.ofsaaStageTableName
+    );
+    this.sharedList.setofsaaStageTableNameList(ofsaaStageTableNameList);
+  }
+  
+  navigateToDataMappingRule(ofsaaStageTableName?: string): void {
+    const queryParams: any = {};
+
+    if (ofsaaStageTableName) {
+      queryParams.ofsaaStageTableName = ofsaaStageTableName;
+    }
+    this.router.navigate(['/data-mapping-rule'], {
+      queryParams: queryParams,
+    });
+  }
 
   openDialog(message: string, title: string = 'Notification') {
     this.dialog.open(DialogComponent, {
       data: { title: title, message: message },
     });
   }
-  
 
   async openInputDialog(
     title: string,
@@ -130,6 +173,7 @@ export class ChangelogComponent {
   }
 
   ngOnInit(): void {
+    this.passofsaaStageTableNameList();
     this.updatePaginatedData();
   }
   
@@ -137,13 +181,13 @@ export class ChangelogComponent {
     return this.roleService.getRole() === 'Admin';
   }
 
-  toggleEdit(row: TableRow): void {
-    if (this.editingRow === row) {
-      this.editingRow = null;
-    } else {
-      this.editingRow = row;
-    }
-  }
+  // toggleEdit(row: TableRow): void {
+  //   if (this.editingRow === row) {
+  //     this.editingRow = null;
+  //   } else {
+  //     this.editingRow = row;
+  //   }
+  // }
 
   filteredData() {
     if (!this.searchText) return this.tableData;
@@ -159,10 +203,10 @@ export class ChangelogComponent {
   }
 
 
-  updateTableData(): void {
-    this.updatePaginatedData();
-    this.cdr.detectChanges();
-  }
+  // updateTableData(): void {
+  //   this.updatePaginatedData();
+  //   this.cdr.detectChanges();
+  // }
 
   matchText(value: any): boolean {
     if (value && this.searchText.trim() !== '') {
@@ -173,6 +217,242 @@ export class ChangelogComponent {
     }
     return false;
   }
+
+  async addData(){
+    if (!this.isAdmin()) return;
+    const insertOption = await this.openInputDialog(
+      'Insert Row',
+      'Where do you want to Insert the New Row?',
+      '',
+      '',
+      'Select Any Option:',
+      ['At the Beginning', 'At the End', 'In Between'],
+      'At the Beginning'
+    );
+
+    if (!insertOption) return;
+    const newId = Date.now().toString();
+
+    const newRow: TableRow = {
+      id: newId,
+      srNo: this.tableData.length +1,
+      ofsaaMappingChangeDate: new (Date),
+      ofsaaStageTableName: '',
+      changeDetails: '',
+      ofsaaChangeBy: '',
+      odiBuildStatus: '',
+      odiBuildDate: new (Date),
+      verified_yn: '',
+      verifiedBy: '',
+      verifiedDate: new (Date),
+      comments: '',
+      isSelected: false
+    };
+
+    switch(insertOption.trim()){
+      case 'At the Beginning': {
+        this.tableData.unshift(newRow);
+        this.openDialog('New Row Added At Beginning! You can now Edit it.');
+        break;
+      }
+
+      case 'At the End': {
+        this.tableData.push(newRow);
+        this.openDialog('New Row Added At End! You can now Edit it.');
+        break;
+      }
+
+      case 'In Between': {
+        const position = await this.openInputDialog(
+          'Select Position',
+          `Enter the Position (1 to ${this.tableData.length}) where you want to Insert New Row:`,
+          'Position',
+          ''
+        );
+
+        if (position) {
+          const index = Number(position) - 1;
+          if (index >= 0 && index <= this.tableData.length) {
+            this.tableData.splice(index, 0, newRow);
+            this.openDialog(
+              `New Row Added at ${index + 1}! You can now Edit it.`
+            );
+          } else {
+            this.openDialog('Invalid Position!');
+          }
+        } else {
+          return;
+        }
+        break;
+      }
+
+      default:
+        this.openDialog('Invalid option!');
+        break;
+    }
+
+    this.tableData.forEach((row, index) => {
+      row.srNo = index + 1;
+    });
+
+    //this.saveToStorage('tableData', this.tableData);
+
+    this.updatePaginatedData();
+    this.cdr.detectChanges();
+  }
+
+  insertRowIntoTable(newRow: MappingRow, table: string): void {
+    console.log(`Row inserted into ${table}:`, newRow);
+    this.openDialog(`Row Inserted in : ${table}`);
+
+    switch (table) {
+      case 'Pre-Stage Table':
+        // this.dataMappingRuleComponent.insertIntoPreStageTable(newRow);
+        this.dataMappingRuleComponent.mappingRules['sourceTable'].push(newRow);
+        this.dataMappingRuleComponent.mappingRules['fdsPreStageTable'].push(
+          newRow
+        );
+        break;
+      case 'Stage Table':
+        // this.dataMappingRuleComponent.insertIntoStageTable(newRow);
+        this.dataMappingRuleComponent.mappingRules['fdsPreStageTable1'].push(
+          newRow
+        );
+        this.dataMappingRuleComponent.mappingRules['fdsStageTable'].push(
+          newRow
+        );
+        break;
+      case 'Lookup Table':
+        // this.dataMappingRuleComponent.insertIntoIdTpTable(newRow);
+        this.dataMappingRuleComponent.mappingRules['fdsgenerated'].push(newRow);
+        this.dataMappingRuleComponent.mappingRules['lookupMapTable'].push(
+          newRow
+        );
+        break;
+      default:
+        this.openDialog('Invalid option!');
+        break;
+    }
+    this.updatePaginatedData();
+    this.cdr.detectChanges();
+  }
+  
+  selectRow(row: TableRow): void {
+    this.editingRow = row;
+    this.tabService.setCurrentRowId(row.id);
+  }
+
+  saveNewRow() {
+    if (!this.isAdmin()) return;
+
+    if (this.editingMode) {
+      const requiredFields = this.tableColumns.map(
+        (column: { field: any }) => column.field
+      );
+
+      const inValidRows = this.tableData.filter((row) => {
+        return requiredFields.some(
+          (field: string | number) =>
+            row[field] || row[field].toString().trim() === ''
+        );
+      });
+
+      if (inValidRows.length > 0) {
+        this.openDialog('Please Fill All Missing Fields!');
+        return;
+      }
+
+      this.editingMode = false;
+      this.editingRow = null;
+      this.cdr.detectChanges();
+      // this.saveToStorage('tableData', this.tableData);
+      this.openDialog('All Rows Saved Successfully!');
+    } else {
+      this.editingMode = true;
+      this.openDialog(
+        'You can Edit rows now. Click "Save" again to finalize changes.'
+      );
+    }
+  }
+
+  addColumn() {
+    if (!this.isAdmin()) return;
+
+    console.log('New Column Name: ', this.newColumnName);
+
+    if (this.newColumnName.trim() !== '') {
+      const newField = this.newColumnName.replace(/\s+/g, '').toLowerCase();
+
+      const newColumn = {
+        header: this.newColumnName,
+        field: newField,
+      };
+
+      if (
+        this.tableColumns.some(
+          (colm: { field: string; header: string }) =>
+            colm.field === newField || colm.header === this.newColumnName
+        )
+      ) {
+        this.openDialog(`Column "${this.newColumnName}" Already exists!`);
+        return;
+      }
+
+      // this.tableColumns.push(newColumn);
+      this.tableColumns = [...this.tableColumns, newColumn];
+
+      //add new column to table with empty value
+      this.tableData.forEach((row) => {
+        row[newField] = '';
+      });
+
+      //trigger change detection to update table
+      this.cdr.detectChanges();
+
+      this.newColumnName = '';
+      // this.newColumnAdded = true;
+      this.openDialog(`New Column Added: "${newColumn.header}"!`);
+    } else {
+      this.openDialog('Please Enter Column Name!');
+    }
+  }
+
+  saveColumnData(row: TableRow, column: any, event: Event) {
+    if (!row || !column || !column.field) {
+      alert('Invalid row or column data');
+      return;
+    }
+
+    const inputElement = event.target as HTMLInputElement;
+    if (!inputElement || inputElement.value === undefined) {
+      alert('Invalid input element');
+      return;
+    }
+
+    const newValue = inputElement.value;
+
+    row[column.field] = newValue;
+
+    // this.newColumnAdded = false;
+    row[column.field + '_dirty'] = newValue !== '';
+
+    console.log(`Updated column '${column.field}' with value: ${newValue}`);
+    alert(`Data for column '${column.header}' Added with value: ${newValue}!`);
+  }
+
+  editData(row: TableRow): void {
+    if (!this.isAdmin()) return;
+
+    if (this.editingRow === row) {
+      //save changes and exit
+      this.editingRow = null;
+      this.openDialog(`Edited Data Sucessfully!`);
+    } else {
+      //enable edit mode
+      this.editingRow = row;
+    }
+  }
+
 
   async deleteRow() {
     if (!this.isAdmin()) return;
@@ -305,380 +585,6 @@ export class ChangelogComponent {
     }
   }
   
-  async addData(){
-    if (!this.isAdmin()) return;
-    const insertOption = await this.openInputDialog(
-      'Insert Row',
-      'Where do you want to Insert the New Row?',
-      '',
-      '',
-      'Select Any Option:',
-      ['At the Beginning', 'At the End', 'In Between'],
-      'At the Beginning'
-    );
-
-    if (!insertOption) return;
-
-    const newRow: TableRow = {
-      srNo: this.tableData.length +1,
-      ofsaaMappingChangeDate: new (Date),
-      ofsaaStageTableName: '',
-      changeDetails: '',
-      ofsaaChangeBy: '',
-      odiBuildStatus: '',
-      odiBuildDate: new (Date),
-      verified_yn: '',
-      verifiedBy: '',
-      verifiedDate: new (Date),
-      comments: '',
-      isSelected: false
-    };
-
-    switch(insertOption.trim()){
-      case 'At the Beginning': {
-        this.tableData.unshift(newRow);
-        this.openDialog('New Row Added At Beginning! You can now Edit it.');
-        break;
-      }
-
-      case 'At the End': {
-        this.tableData.push(newRow);
-        this.openDialog('New Row Added At End! You can now Edit it.');
-        break;
-      }
-
-      case 'In Between': {
-        const position = await this.openInputDialog(
-          'Select Position',
-          `Enter the Position (1 to ${this.tableData.length}) where you want to Insert New Row:`,
-          'Position',
-          ''
-        );
-
-        if (position) {
-          const index = Number(position) - 1;
-          if (index >= 0 && index <= this.tableData.length) {
-            this.tableData.splice(index, 0, newRow);
-            this.openDialog(
-              `New Row Added at ${index + 1}! You can now Edit it.`
-            );
-          } else {
-            this.openDialog('Invalid Position!');
-          }
-        } else {
-          return;
-        }
-        break;
-      }
-
-      default:
-        this.openDialog('Invalid option!');
-        break;
-    }
-
-    this.tableData.forEach((row, index) => {
-      row.srNo = index + 1;
-    });
-
-    //this.saveToStorage('tableData', this.tableData);
-
-    this.updatePaginatedData();
-    this.cdr.detectChanges();
-  }
-
-  addChange() {
-    if(!this.isAdmin()) return;
-
-    const insertOption = prompt(
-      'Where do you want to insert the new row?\n1. At the beginning\n2. At the end\n3. In between\nEnter the number (1, 2, or 3):'
-    );
-
-    if(!insertOption) return;
-
-    const newRow: TableRow ={
-      srNo: this.tableData.length +1,
-      ofsaaMappingChangeDate: new (Date),
-      ofsaaStageTableName: '',
-      changeDetails: '',
-      ofsaaChangeBy: '',
-      odiBuildStatus: '',
-      odiBuildDate: new (Date),
-      verified_yn: '',
-      verifiedBy: '',
-      verifiedDate: new (Date),
-      comments: '',
-      isSelected: false
-    };
-
-    switch (insertOption.trim()) {
-      case '1': {
-        this.tableData.unshift(newRow);
-        alert('New Row Added At Beginning! You can now Edit it.');
-        break;
-      }
-
-      case '2': {
-        this.tableData.push(newRow);
-        alert('New Row Added At End! You can now Edit it.');
-        break;
-      }
-
-      case '3': {
-        const position = prompt(
-          `Enter the position (1 to ${this.tableData.length}) where you want to insert the new row:`
-        );
-
-        if (position) {
-          const index = Number(position) - 1;
-          if (index >= 0 && index <= this.tableData.length) {
-            this.tableData.splice(index, 0, newRow);
-            alert(`New Row Added at ${index + 1}! You can now Edit it.`);
-          } else {
-            alert('Invalid Position!');
-          }
-        } else {
-          return;
-        }
-        break;
-      }
-
-      default:
-        alert('Invalid option! Please enter 1, 2, or 3.');
-        break;
-    }
-    this.tableData.forEach((row, index) => {
-      row.srNo = index + 1;
-    });
-
-    this.updatePaginatedData();
-    this.cdr.detectChanges();
-  }
-
-  backupColumnsBeforeDeletion() {
-    // Backing up the current state of tableColumns and tableData
-    localStorage.setItem(
-      'tableColumnsBackup',
-      JSON.stringify(this.tableColumns)
-    );
-    localStorage.setItem('tableDataBackup', JSON.stringify(this.tableData));
-  }
-  async deleteColumn() {
-    if (!this.isAdmin()) return;
-  
-    this.backupColumnsBeforeDeletion();
-  
-    const deleteOption = await this.openInputDialog(
-      'Delete Column',
-      'Choose an option for column Deletion:',
-      '',
-      '',
-      'Select Any Option',
-      [
-        'Delete a Specific Column',
-        'Delete a Range of Columns',
-        'Delete Multiple Columns',
-      ],
-      'Delete a Specific Column'
-    );
-  
-    if (!deleteOption) return;
-  
-    switch (deleteOption.trim()) {
-      case 'Delete a Specific Column': {
-        const colName = await this.openInputDialog(
-          'Select Column to Delete',
-          'Enter the exact Header Name of the Column you want to delete:',
-          'Column Name',
-          ''
-        );
-        if (colName) {
-          this.removeColumns([colName]);
-        }
-        break;
-      }
-  
-      case 'Delete a Range of Columns': {
-        const rangeInput = await this.openInputDialog(
-          'Select Range',
-          'Enter the Starting and Ending column headers (separated by a hyphen [-]):',
-          'Range',
-          ''
-        );
-  
-        if (rangeInput) {
-          const [startColumn, endColumn] = rangeInput
-            .split('-')
-            .map((col) => col.trim());
-          const startIndex = this.tableColumns.findIndex(
-            (col) => col.header.toLowerCase() === startColumn.toLowerCase()
-          );
-          const endIndex = this.tableColumns.findIndex(
-            (col) => col.header.toLowerCase() === endColumn.toLowerCase()
-          );
-  
-          if (startIndex !== -1 && endIndex !== -1 && startIndex <= endIndex) {
-            const columnsToDelete = this.tableColumns
-              .slice(startIndex, endIndex + 1)
-              .map((col) => col.header);
-            this.removeColumns(columnsToDelete);
-          } else {
-            this.openDialog('Invalid Range of Columns!');
-          }
-        }
-        break;
-      }
-  
-      case 'Delete Multiple Columns': {
-        const columnsInput = await this.openInputDialog(
-          'Select Multiple Columns',
-          'Enter the Column Headers separated by commas (,) to Delete:',
-          'Columns',
-          ''
-        );
-  
-        if (columnsInput) {
-          const columnsToDelete = columnsInput.split(',').map((col) => col.trim());
-          this.removeColumns(columnsToDelete);
-        }
-        break;
-      }
-  
-      default:
-        this.openDialog('Invalid Option!');
-        break;
-    }
-  }
-  
-  removeColumns(columnsToDelete: string[]) {
-    const fieldsToDelete: string[] = [];
-  
-    this.tableColumns = this.tableColumns.filter((col) => {
-      if (columnsToDelete.includes(col.header)) {
-        fieldsToDelete.push(col.field);
-        return false;
-      }
-      return true;
-    });
-  
-    if (fieldsToDelete.length > 0) {
-      this.tableData.forEach((row) => {
-        fieldsToDelete.forEach((field) => delete row[field]);
-      });
-      this.cdr.detectChanges();
-      this.openDialog(`Columns "${columnsToDelete.join(', ')}" Deleted Successfully!`);
-    } else {
-      this.openDialog('No matching columns found to delete.');
-    }
-  }
-  
-  saveNewRow() {
-    if (!this.isAdmin()) return;
-
-    if (this.editingMode) {
-      const requiredFields = this.tableColumns.map((column: { field: any; }) => column.field);
-
-      const inValidRows = this.tableData.filter((row) => {
-        return requiredFields.some(
-          (field: string | number) => !row[field] || row[field].toString().trim() === ''
-        );
-      });
-
-      if (inValidRows.length > 0) {
-        alert('Please Fill All Missing Fields!');
-        return;
-      }
-
-      this.editingMode = false;
-      this.editingRow = null;
-      this.cdr.detectChanges();
-      alert('All Rows Saved Successfully!');
-    } else {
-      this.editingMode = true;
-      alert('You can edit rows now. Click "Save" again to finalize changes.');
-    }
-  }
-
-
-
-
-  addColumn() {
-    if (!this.isAdmin()) return;
-
-    console.log('New Column Name: ', this.newColumnName);
-
-    if (this.newColumnName.trim() !== '') {
-      const newField = this.newColumnName.replace(/\s+/g, '').toLowerCase();
-
-      const newColumn = {
-        header: this.newColumnName,
-        field: newField,
-      };
-
-      if (
-        this.tableColumns.some(
-          (colm: { field: string; header: string }) =>
-            colm.field === newField || colm.header === this.newColumnName
-        )
-      ) {
-        this.openDialog(`Column "${this.newColumnName}" Already exists!`);
-        return;
-      }
-
-      // this.tableColumns.push(newColumn);
-      this.tableColumns = [...this.tableColumns, newColumn];
-
-      //add new column to table with empty value
-      this.tableData.forEach((row) => {
-        row[newField] = '';
-      });
-
-      //trigger change detection to update table
-      this.cdr.detectChanges();
-
-      this.newColumnName = '';
-      // this.newColumnAdded = true;
-      this.openDialog(`New Column Added: "${newColumn.header}"!`);
-    } else {
-      this.openDialog('Please Enter Column Name!');
-    }
-  }
-
-  
-  
-  saveColumnData(row: TableRow, column: any, event: Event) {
-    if (!row || !column || !column.field) {
-      alert('Invalid row or column data');
-      return;
-    }
-
-    const inputElement = event.target as HTMLInputElement;
-    if (!inputElement || inputElement.value === undefined) {
-      alert('Invalid input element');
-      return;
-    }
-
-    const newValue = inputElement.value;
-
-    row[column.field] = newValue;
-
-    // this.newColumnAdded = false;
-    row[column.field + '_dirty'] = newValue !== '';
-
-    console.log(`Updated column '${column.field}' with value: ${newValue}`);
-    alert(`Data for column '${column.header}' Added with value: ${newValue}!`);
-  }
-
-  editChange(row: TableRow): void {
-    if(!this.isAdmin()) return;
-
-    if (this.editingRow === row) {
-      this.editingRow = null;
-      alert(`Edited Data Sucessfully!`);
-    } else {
-      this.editingRow = row;
-    }
-  }
-
   isEllipsisActive(element: HTMLElement | null): boolean {
     if (!element) return false;
     return element.offsetWidth < element.scrollWidth;
@@ -804,115 +710,198 @@ export class ChangelogComponent {
     }
   }
 
-  saveAllColumns(): void {
-    if(!this.isAdmin()) return;
+  saveData(): void {
+    if (!this.isAdmin()) return;
 
-    if (this.editingMode) {
-      const requiredFields = this.tableColumns.map((colm: { field: any; }) => colm.field);
-
-      const inValidRows = this.tableData.filter((row) => {
-        return requiredFields.some((field: string | number) => !row[field] || row[field].toString().trim() === '');
-      });
-
-      if (inValidRows.length > 0) {
-        alert('Please fill in All Missing Column Data Before Saving!');
-        return;
-      }
-
-      this.editingMode = false;
-      this.cdr.detectChanges();
-      alert('All Columns Saved Successfully!')
-    } else {
-      this.editingMode = true;
-      alert('You can Edit All Columns Now! Click "Save All Columns" Again to Finalize Changes.');
-    }
-  }
-
-// Toggles the 'selected' property for all rows when 'Select All' is checked
-toggleSelectAll(): void {
-  this.tableData.forEach((row) => (row.isSelected = this.selectAll));
-  this.updateSelectedRows();
-  this.updatePaginatedData(); // Update pagination after any changes
-}
-
-updateSelectAll(): void {
-  this.selectAll = this.tableData.every((row) => row.isSelected);
-  this.updateSelectedRows();
-}
-
-updateSelectedRows(): void {
-  this.selectedRows = this.tableData.filter((row) => row.isSelected);
-  console.log('Selected Rows:', this.selectedRows);
-}
-
-
-deleteSelectedRows(): void {
-  if (!this.isAdmin()) return;
-
-  // Collect selected rows
-  const selectedRows = this.tableData.filter((row) => row.isSelected);
-
-  if (selectedRows.length === 0) {
-    alert('No rows selected for deletion.');
-    return;
-  }
-
-  // Confirm deletion
-  const confirmDelete = confirm(
-    `Are you sure you want to delete ${selectedRows.length} selected row(s)?`
-  );
-  if (confirmDelete) {
-    // Remove selected rows
-    this.tableData = this.tableData.filter((row) => !row.isSelected);
-
-    // Reset selection states
-    this.selectAll = false;
-    this.selectedRows = []; // Clear the selected rows array
-
-    // Update UI and pagination
-    this.updatePaginatedData();
-    this.cdr.detectChanges();
-
-   // alert('Selected rows deleted successfully!');
-  }
-}
-
-toggleButtonsVisibility() {
-  this.isButtonsVisible = !this.isButtonsVisible;
-}
-
-toggleColumnActionsVisibility() {
-  this.isColumnActionsVisible = !this.isColumnActionsVisible;
-}
-
-saveChanges(): void {
-  if (!this.isAdmin()) return;
-
-  // Check if we are in editing mode
-  if (this.editingMode) {
-    // Validate rows
-    const requiredFields = this.tableColumns.map((colm: { field: any; }) => colm.field);
-    const invalidRows = this.tableData.filter((row) =>
-      requiredFields.some(
-        (field: string | number) => !row[field] || row[field].toString().trim() === ''
-      )
+    const requiredFields = this.tableColumns.map(
+      (column: { field: any }) => column.field
     );
 
-    if (invalidRows.length > 0) {
-      alert('Please fill in all missing data before saving!');
+    // Check for missing data in rows or columns
+    const hasInvalidData = this.tableData.some((row) => {
+      return requiredFields.some(
+        (field: string | number) =>
+          !row[field] || row[field].toString().trim() === ''
+      );
+    });
+
+    if (hasInvalidData) {
+      this.openDialog(
+        'Please Fill in All Missing Fields in Rows or Columns Before Saving!'
+      );
       return;
     }
 
-    // Save changes and exit editing mode
-    this.editingMode = false;
-    this.editingRow = null;
-    this.cdr.detectChanges();
-    alert('All changes saved successfully!');
-  } else {
-    // Enable editing mode
-    this.editingMode = true;
-    alert('You can now edit rows and columns. Click "Save" again to finalize changes.');
+    if (this.editingMode) {
+      this.editingMode = false;
+      this.editingRow = null;
+      this.cdr.detectChanges();
+      // this.saveToStorage('tableData', this.tableData);
+      this.openDialog('Data Saved Successfully!');
+    } else {
+      this.editingMode = true;
+      this.openDialog(
+        'You can Edit Rows and Columns Now! Click "Save Data" Again to Finalize Changes.'
+      );
+    }
   }
-}
+
+  async deleteColumn() {
+    if (!this.isAdmin()) return;
+
+    // this.backupColumnsBeforeDeletion();
+
+    const deleteOption = await this.openInputDialog(
+      'Delete Column',
+      'Choose an option for column Deletion:',
+      '',
+      '',
+      'Select Any Option',
+      [
+        'Delete a Specific Column',
+        'Delete a Range of Columns',
+        'Delete Multiple Columns',
+      ],
+      'Delete a Specific Column'
+    );
+
+    if (!deleteOption) return;
+
+    switch (deleteOption.trim()) {
+      case 'Delete a Specific Column': {
+        const colName = await this.openInputDialog(
+          'Select Column to Delete',
+          'Enter exact Header Name of the Column you want to Delete: ',
+          'Column Name',
+          ''
+        );
+
+        if (colName) {
+          const columnIndex = this.tableColumns.findIndex(
+            (col: { header: string }) =>
+              col.header.toLowerCase() === colName.toLowerCase()
+          );
+
+          if (columnIndex !== -1) {
+            const columnDelete = this.tableColumns[columnIndex].field;
+
+            this.tableColumns.splice(columnIndex, 1);
+
+            this.tableData.forEach((row) => {
+              delete row[columnDelete];
+            });
+            // this.saveToStorage('tableData', this.tableData);
+            // this.saveToStorage('tableColumns', this.tableColumns);
+            this.cdr.detectChanges();
+            this.openDialog(`Column "${colName}" Deleted Successfully!`);
+          } else {
+            this.openDialog('Invalid Column!');
+          }
+        }
+        break;
+      }
+
+      case 'Delete a Range of Columns': {
+        const rangeInput = await this.openInputDialog(
+          'Select Range',
+          'Enter the Starting and Ending column headers (separated by hyphen [-]) to Delete: ',
+          'Range',
+          ''
+        );
+
+        if (rangeInput) {
+          const [startColumn, endColumn] = rangeInput
+            .split('-')
+            .map((col) => col.trim());
+
+          const startIndex = this.tableColumns.findIndex(
+            (col: { header: string }) =>
+              col.header.toLowerCase() === startColumn.toLowerCase()
+          );
+          const endIndex = this.tableColumns.findIndex(
+            (col: { header: string }) =>
+              col.header.toLowerCase() === endColumn.toLowerCase()
+          );
+
+          if (startIndex !== -1 && endIndex !== -1 && startIndex <= endIndex) {
+            const columnToDelete = this.tableColumns
+              .splice(startIndex, endIndex + 1)
+              .map((col: { field: any }) => col.field);
+
+            this.tableColumns.splice(startIndex, endIndex - startIndex + 1);
+
+            this.tableData.forEach((row) => {
+              columnToDelete.forEach(
+                (field: string | number) => delete row[field]
+              );
+            });
+            // this.saveToStorage('tableData', this.tableData);
+            // this.saveToStorage('tableColumns', this.tableColumns);
+            this.cdr.detectChanges();
+            this.openDialog(
+              `Columns from "${startColumn}" to "${endColumn}" Deleted Successfully!`
+            );
+          } else {
+            this.openDialog('Invalid Range of Columns!');
+          }
+        }
+        break;
+      }
+
+      case 'Delete Multiple Columns': {
+        const columnsInput = await this.openInputDialog(
+          'Select Multiple Columns',
+          'Enter the Column Headers separated by comma (,) to Delete: ',
+          'Columns',
+          ''
+        );
+
+        if (columnsInput) {
+          const columnsDelete = columnsInput
+            .split(',')
+            .map((col) => col.trim())
+            .map((colName) => colName.toLowerCase());
+
+          const columnsFields = this.tableColumns
+            .filter((col: { header: string }) =>
+              columnsDelete.includes(col.header.toLowerCase())
+            )
+            .map((col: { field: any }) => col.field);
+
+          if (columnsFields.length > 0) {
+            this.tableColumns = this.tableColumns.filter(
+              (col: { header: string }) =>
+                !columnsDelete.includes(col.header.toLowerCase())
+            );
+
+            this.tableData.forEach((row) => {
+              columnsFields.forEach(
+                (field: string | number) => delete row[field]
+              );
+            });
+            // this.saveToStorage('tableData', this.tableData);
+            // this.saveToStorage('tableColumns', this.tableColumns);
+            this.cdr.detectChanges();
+            this.openDialog(`Columns "${columnsInput}" Deleted Successfully!`);
+          } else {
+            this.openDialog('Invalid Columns!');
+          }
+        }
+        break;
+      }
+
+      default:
+        this.openDialog('Invalid Option!');
+        break;
+    }
+  }
+
+  toggleButtonsVisibility() {
+    this.isButtonsVisible = !this.isButtonsVisible;
+  }
+
+  toggleColumnActionsVisibility() {
+    this.isColumnActionsVisible = !this.isColumnActionsVisible;
+  }
 
 }
