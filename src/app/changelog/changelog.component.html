@@ -38,9 +38,7 @@
     </button>
     <div *ngIf="isButtonsVisible" class="stacked-buttons">
        <button (click)="addData()">Add New Row</button>
-       <button *ngIf="isAdmin()" (click)="deleteSelectedRows()" [disabled]="!selectedRows.length">
-        <i class="fas fa-trash"></i>
-      </button>
+       <button (click)="deleteRow()">Delete Row</button>
     </div>
   </div>
     <div class="button-container">
@@ -61,9 +59,6 @@
   <table *ngIf="filteredData().length > 0">
     <thead>
       <tr>
-        <th>
-          <input type="checkbox" [(ngModel)]="selectAll" (change)="toggleSelectAll()" />
-        </th>
         <!-- <th>Sr. No.</th>
         <th>OFSAA Mapping Change Date</th>
         <th>OFSAA Stage Table Name</th>
@@ -81,10 +76,6 @@
     </thead>
      <tbody *ngFor="let row of filteredData() | paginate: { id: 'changelog-pagination', itemsPerPage: itemsPerPage, currentPage: currentPage }">
       <tr>
-
-        <td>
-          <input type="checkbox" [(ngModel)]="row.isSelected"  (change)="updateSelectAll()" />
-        </td>
         
         <td>{{ row.srNo }}</td>
 
@@ -174,7 +165,5 @@
   </div>
    <div *ngIf="isAdmin()" class="column-button">
     <button (click)="saveChanges()"> Save </button>
-    <button (click)="exportToExcel()">Export</button>
-    <button>Undo Deletion</button> 
   </div>
 </div>
