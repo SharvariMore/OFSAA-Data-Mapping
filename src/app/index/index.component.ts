@@ -80,7 +80,7 @@ export class IndexComponent {
     'Lookup Table',
   ];
 
-  tableData: TableRow[] = this.loadFromStorage('tableData') || [
+  tableData: TableRow[] = [
     {
       id: 'existing-1',
       srNo: 1,
@@ -131,9 +131,7 @@ export class IndexComponent {
     },
   ];
 
-  tableColumns: Array<{ header: string; field: string }> = this.loadFromStorage(
-    'tableColumns'
-  ) || [
+  tableColumns: Array<{ header: string; field: string }> = [
     { header: 'Sr. No.', field: 'srNo' },
     { header: 'TFS Req.', field: 'tfsReq' },
     { header: 'Release', field: 'release' },
@@ -157,8 +155,6 @@ export class IndexComponent {
     { header: 'Used in AXIOM', field: 'usedInAXIOM' },
   ];
 
-  tableColumnsBackup: Array<{ header: string; field: string }> | null = null;
-  tableDataBackup: any[] | null = null;
 
   constructor(
     private roleService: RoleService,
@@ -242,10 +238,10 @@ export class IndexComponent {
   //   localStorage.setItem(key, JSON.stringify(data));
   // }
 
-  loadFromStorage(key: string): any {
-    const data = localStorage.getItem(key);
-    return data ? JSON.parse(data) : null;
-  }
+  // loadFromStorage(key: string): any {
+  //   const data = localStorage.getItem(key);
+  //   return data ? JSON.parse(data) : null;
+  // }
 
   isAdmin(): boolean {
     return this.roleService.getRole() === 'Admin';
@@ -386,7 +382,7 @@ export class IndexComponent {
     this.tabService.setCurrentRowId(newRow.id);
     this.insertRowIntoTable(newRow, selectedTables);
 
-    this.saveToStorage('tableData', this.tableData);
+    // this.saveToStorage('tableData', this.tableData);
     this.updatePaginatedData();
     this.cdr.detectChanges();
   }
@@ -455,7 +451,7 @@ export class IndexComponent {
       this.editingMode = false;
       this.editingRow = null;
       this.cdr.detectChanges();
-      this.saveToStorage('tableData', this.tableData);
+      // this.saveToStorage('tableData', this.tableData);
       this.openDialog('All Rows Saved Successfully!');
     } else {
       this.editingMode = true;
@@ -501,7 +497,7 @@ export class IndexComponent {
 
       this.newColumnName = '';
       // this.newColumnAdded = true;
-      this.saveToStorage('tableData', this.tableData);
+      // this.saveToStorage('tableData', this.tableData);
       this.openDialog(`New Column Added: "${newColumn.header}"!`);
     } else {
       this.openDialog('Please Enter Column Name!');
@@ -581,7 +577,7 @@ export class IndexComponent {
           if (rowIndex !== -1) {
             this.tableData.splice(rowIndex, 1);
             this.cdr.detectChanges();
-            this.saveToStorage('tableData', this.tableData);
+            // this.saveToStorage('tableData', this.tableData);
             this.openDialog(`Row ${rowNum} Deleted Successfully!`);
           } else {
             this.openDialog('Row Number Not Found!');
@@ -613,7 +609,7 @@ export class IndexComponent {
           if (startIndex !== -1 && endIndex !== -1 && startIndex <= endIndex) {
             this.tableData.splice(startIndex, endIndex - startIndex + 1);
             this.cdr.detectChanges();
-            this.saveToStorage('tableData', this.tableData);
+            // this.saveToStorage('tableData', this.tableData);
             this.openDialog(
               `Rows ${startRowNum} to ${endRowNum} Deleted SuccessFully!`
             );
@@ -647,7 +643,7 @@ export class IndexComponent {
               (row) => !rowNumbers.includes(row.srNo)
             );
             this.cdr.detectChanges();
-            this.saveToStorage('tableData', this.tableData);
+            // this.saveToStorage('tableData', this.tableData);
             this.openDialog(
               `Rows ${rowNumbers.join(', ')} Deleted Successfully!`
             );
@@ -668,7 +664,7 @@ export class IndexComponent {
         if (rowAllDelete) {
           this.tableData = [];
           this.cdr.detectChanges();
-          this.saveToStorage('tableData', this.tableData);
+          // this.saveToStorage('tableData', this.tableData);
           this.openDialog('All Rows Deleted Successfully!');
         }
         break;
@@ -864,7 +860,7 @@ export class IndexComponent {
       this.editingMode = false;
       this.editingRow = null;
       this.cdr.detectChanges();
-      this.saveToStorage('tableData', this.tableData);
+      // this.saveToStorage('tableData', this.tableData);
       this.openDialog('Data Saved Successfully!');
     } else {
       this.editingMode = true;
@@ -874,19 +870,19 @@ export class IndexComponent {
     }
   }
 
-  backupColumnsBeforeDeletion() {
-    // Backing up the current state of tableColumns and tableData
-    localStorage.setItem(
-      'tableColumnsBackup',
-      JSON.stringify(this.tableColumns)
-    );
-    localStorage.setItem('tableDataBackup', JSON.stringify(this.tableData));
-  }
+  // backupColumnsBeforeDeletion() {
+  //   // Backing up the current state of tableColumns and tableData
+  //   localStorage.setItem(
+  //     'tableColumnsBackup',
+  //     JSON.stringify(this.tableColumns)
+  //   );
+  //   localStorage.setItem('tableDataBackup', JSON.stringify(this.tableData));
+  // }
 
   async deleteColumn() {
     if (!this.isAdmin()) return;
 
-    this.backupColumnsBeforeDeletion();
+    // this.backupColumnsBeforeDeletion();
 
     const deleteOption = await this.openInputDialog(
       'Delete Column',
@@ -927,8 +923,8 @@ export class IndexComponent {
             this.tableData.forEach((row) => {
               delete row[columnDelete];
             });
-            this.saveToStorage('tableData', this.tableData);
-            this.saveToStorage('tableColumns', this.tableColumns);
+            // this.saveToStorage('tableData', this.tableData);
+            // this.saveToStorage('tableColumns', this.tableColumns);
             this.cdr.detectChanges();
             this.openDialog(`Column "${colName}" Deleted Successfully!`);
           } else {
@@ -972,8 +968,8 @@ export class IndexComponent {
                 (field: string | number) => delete row[field]
               );
             });
-            this.saveToStorage('tableData', this.tableData);
-            this.saveToStorage('tableColumns', this.tableColumns);
+            // this.saveToStorage('tableData', this.tableData);
+            // this.saveToStorage('tableColumns', this.tableColumns);
             this.cdr.detectChanges();
             this.openDialog(
               `Columns from "${startColumn}" to "${endColumn}" Deleted Successfully!`
@@ -1016,8 +1012,8 @@ export class IndexComponent {
                 (field: string | number) => delete row[field]
               );
             });
-            this.saveToStorage('tableData', this.tableData);
-            this.saveToStorage('tableColumns', this.tableColumns);
+            // this.saveToStorage('tableData', this.tableData);
+            // this.saveToStorage('tableColumns', this.tableColumns);
             this.cdr.detectChanges();
             this.openDialog(`Columns "${columnsInput}" Deleted Successfully!`);
           } else {
@@ -1033,78 +1029,78 @@ export class IndexComponent {
     }
   }
 
-  async undoDeleteColumn() {
-    // Retrieve the backup of the original columns and data from localStorage
-    const backupTableColumns = JSON.parse(
-      localStorage.getItem('tableColumnsBackup') || '[]'
-    );
-    const backupTableData = JSON.parse(
-      localStorage.getItem('tableDataBackup') || '[]'
-    );
+  // async undoDeleteColumn() {
+  //   // Retrieve the backup of the original columns and data from localStorage
+  //   const backupTableColumns = JSON.parse(
+  //     localStorage.getItem('tableColumnsBackup') || '[]'
+  //   );
+  //   const backupTableData = JSON.parse(
+  //     localStorage.getItem('tableDataBackup') || '[]'
+  //   );
 
-    if (backupTableColumns.length > 0) {
-      // Restore the original tableColumns and tableData
-      this.tableColumns = backupTableColumns;
-      this.tableData = backupTableData;
+  //   if (backupTableColumns.length > 0) {
+  //     // Restore the original tableColumns and tableData
+  //     this.tableColumns = backupTableColumns;
+  //     this.tableData = backupTableData;
 
-      // Save the restored state back to localStorage
-      localStorage.setItem('tableColumns', JSON.stringify(this.tableColumns));
-      localStorage.setItem('tableData', JSON.stringify(this.tableData));
+  //     // Save the restored state back to localStorage
+  //     localStorage.setItem('tableColumns', JSON.stringify(this.tableColumns));
+  //     localStorage.setItem('tableData', JSON.stringify(this.tableData));
 
-      this.cdr.detectChanges();
+  //     this.cdr.detectChanges();
 
-      this.openDialog('All column Deletions have been undone!');
-    } else {
-      this.loadColumnsFromStorage();
-      this.openDialog('No previous column Deletions Found to undo!');
-    }
-  }
+  //     this.openDialog('All column Deletions have been undone!');
+  //   } else {
+  //     this.loadColumnsFromStorage();
+  //     this.openDialog('No previous column Deletions Found to undo!');
+  //   }
+  // }
 
-  saveToStorage(key: string, data: any): void {
-    localStorage.setItem(key, JSON.stringify(data));
-  }
+  // saveToStorage(key: string, data: any): void {
+  //   localStorage.setItem(key, JSON.stringify(data));
+  // }
 
-  loadColumnsFromStorage() {
-    // Retrieve tableColumns from localStorage
-    const storedTableColumns = JSON.parse(
-      localStorage.getItem('tableColumns') || '[]'
-    );
+  // loadColumnsFromStorage() {
+  //   // Retrieve tableColumns from localStorage
+  //   const storedTableColumns = JSON.parse(
+  //     localStorage.getItem('tableColumns') || '[]'
+  //   );
 
-    if (storedTableColumns.length === 0) {
-      // If not found in localStorage, save default columns
-      const defaultTableColumns = [
-        { header: 'Sr. No.', field: 'srNo' },
-        { header: 'TFS Req.', field: 'tfsReq' },
-        { header: 'Release', field: 'release' },
-        { header: 'OFSAA Physical Names', field: 'ofsaaPhysicalNames' },
-        { header: 'Mapped Tables', field: 'mappedTables' },
-        {
-          header: 'OFSAA Logical Entity Name',
-          field: 'ofsaaLogicalEntityName',
-        },
-        { header: 'Source', field: 'source' },
-        { header: 'Type of Data', field: 'typeOfData' },
-        { header: 'Frequency', field: 'frequency' },
-        { header: 'Load Mode', field: 'loadMode' },
-        { header: 'Load Type', field: 'loadType' },
-        { header: 'Expected Volume', field: 'expectedVolume' },
-        { header: 'Mapping Status', field: 'mappingStatus' },
-        { header: 'ODI Build Status', field: 'odiBuildStatus' },
-        { header: 'Review Status', field: 'reviewStatus' },
-        { header: 'Used in EFRA', field: 'usedInEFRA' },
-        { header: 'Used in CECL', field: 'usedInCECL' },
-        { header: 'Used in AML', field: 'usedInAML' },
-        { header: 'Used in Onestream', field: 'usedInOnestream' },
-        { header: 'Used in CCAR', field: 'usedInCCAR' },
-        { header: 'Used in AXIOM', field: 'usedInAXIOM' },
-      ];
+  //   if (storedTableColumns.length === 0) {
+  //     // If not found in localStorage, save default columns
+  //     const defaultTableColumns = [
+  //       { header: 'Sr. No.', field: 'srNo' },
+  //       { header: 'TFS Req.', field: 'tfsReq' },
+  //       { header: 'Release', field: 'release' },
+  //       { header: 'OFSAA Physical Names', field: 'ofsaaPhysicalNames' },
+  //       { header: 'Mapped Tables', field: 'mappedTables' },
+  //       {
+  //         header: 'OFSAA Logical Entity Name',
+  //         field: 'ofsaaLogicalEntityName',
+  //       },
+  //       { header: 'Source', field: 'source' },
+  //       { header: 'Type of Data', field: 'typeOfData' },
+  //       { header: 'Frequency', field: 'frequency' },
+  //       { header: 'Load Mode', field: 'loadMode' },
+  //       { header: 'Load Type', field: 'loadType' },
+  //       { header: 'Expected Volume', field: 'expectedVolume' },
+  //       { header: 'Mapping Status', field: 'mappingStatus' },
+  //       { header: 'ODI Build Status', field: 'odiBuildStatus' },
+  //       { header: 'Review Status', field: 'reviewStatus' },
+  //       { header: 'Used in EFRA', field: 'usedInEFRA' },
+  //       { header: 'Used in CECL', field: 'usedInCECL' },
+  //       { header: 'Used in AML', field: 'usedInAML' },
+  //       { header: 'Used in Onestream', field: 'usedInOnestream' },
+  //       { header: 'Used in CCAR', field: 'usedInCCAR' },
+  //       { header: 'Used in AXIOM', field: 'usedInAXIOM' },
+  //     ];
 
-      localStorage.setItem('tableColumns', JSON.stringify(defaultTableColumns));
-    }
+  //     localStorage.setItem('tableColumns', JSON.stringify(defaultTableColumns));
+  //   }
 
-    this.tableColumns = storedTableColumns;
-    this.cdr.detectChanges();
-  }
+  //   this.tableColumns = storedTableColumns;
+  //   this.cdr.detectChanges();
+  // }
 
   toggleButtonsVisibility() {
     this.isButtonsVisible = !this.isButtonsVisible;
