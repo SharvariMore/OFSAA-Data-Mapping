@@ -78,6 +78,7 @@ export class DataMappingRuleComponent implements OnInit {
   paginatedData: MappingRow[] = [];
   ansiJoinCondition: string = '';
   filterByCondition: string = '';
+  isEditingAnsiJoin: boolean = false;
 
   constructor(
     private roleService: RoleService,
@@ -468,7 +469,6 @@ export class DataMappingRuleComponent implements OnInit {
 
   newMappingRow: MappingRow = {};
 
-
   switchTab(tab: string) {
     if (!this.tabs.includes(tab)) {
       console.warn(`Invalid tab: ${tab}`);
@@ -483,197 +483,23 @@ export class DataMappingRuleComponent implements OnInit {
     return row[propertyName] || '';
   }
 
-  // filteredData(tableIndex: number): any[] {
-  //   const searchText = this.globalSearchText?.toLowerCase().trim();
-  //   const filterColumn = this.globalFilterColumn;
-  //   const data = this.getMappingRules(tableIndex);
-
-  //   if (!searchText) return data;
-
-  //   return data.filter((row) => {
-  //     if (filterColumn) {
-  //       return this.matchText(row[filterColumn], searchText);
-  //     } else {
-  //       return Object.values(row).some((val) =>
-  //         this.matchText(val, searchText)
-  //       );
-  //     }
-  //   });
-  // }
-
   filteredData(tableIndex: number): any[] {
-    let searchText = this.globalSearchText?.toLowerCase().trim();
-    let filterColumn = this.globalFilterColumn;
-    let data = this.getMappingRules(tableIndex);
+    const searchText = this.globalSearchText?.toLowerCase().trim();
+    const filterColumn = this.globalFilterColumn;
+    const data = this.getMappingRules(tableIndex);
 
+    if (!searchText) return data;
 
-
-    // Step 1: Apply Global Search Filtering
-    if (searchText) {
-      data = data.filter((row) => {
-        if (filterColumn) {
-          return this.matchText(row[filterColumn], searchText);
-        } else {
-          return Object.values(row).some((val) =>
-            this.matchText(val, searchText)
-          );
-        }
-      });
-    }
-
-    // // Step 2: Apply ANSI Join if provided
-    // if (this.ansiJoinCondition) {
-    //   data = this.applyAnsiJoin(data);
-    // }
-
-    // // Step 3: Apply Filter By (WHERE Clause) if provided
-    // if (this.filterByCondition) {
-    //   data = this.applyFilterByCondition(data);
-    // }
-
-    return data;
-  }
-
-
-ansiJoin(): string {
-  // Ensure the user has entered a valid ANSI join condition
-  if (!this.ansiJoinCondition.trim()) {
-    this.openDialog('Please Enter a Valid Join Condition');
-    return '';
-  }
-
-  // Extract SQL query components
-  const sqlQuery = this.ansiJoinCondition.trim();
-
-  // Extract the join type (INNER, LEFT, RIGHT, FULL)
-  const joinType = sqlQuery.match(/\b(INNER|LEFT|RIGHT|FULL)\b/i);
-  if (!joinType) {
-    this.openDialog('Invalid Join Type. Supported join types: INNER, LEFT, RIGHT, FULL.');
-    return '';
-  }
-
-  // Extract tables and the ON condition
-  const joinCondition = sqlQuery.split('ON')[1]?.trim(); // Get the part after 'ON'
-  const table1 = sqlQuery.split('FROM')[1].split('JOIN')[0].trim().split(' ')[0];
-  const table2 = sqlQuery.split('JOIN')[1]?.split('ON')[0].trim().split(' ')[0];
-
-  // Ensure there are at least two tables
-  const selectedRows = this.mappingRules['sourceTable'];
-  if (selectedRows.length < 2) {
-    this.openDialog('At Least Two Tables Are Required For Join');
-    return '';
-  }
-
-  // Extract names of all available tables from the mapping rules
-  const tableNames = selectedRows.map(row => row.sourceTable);
-  const uniqueTableNames = [...new Set(tableNames)];
-
-  // Validate if both tables are selected and exist in the source tables
-  if (!uniqueTableNames.includes(table1) || !uniqueTableNames.includes(table2)) {
-    this.openDialog('Invalid Tables in the Join Condition');
-    return '';
-  }
-
-  // Filter the rows based on the selected tables
-  const table1Rows = selectedRows.filter(row => row.sourceTable === table1);
-  const table2Rows = selectedRows.filter(row => row.sourceTable === table2);
-
-  if (table1Rows.length === 0 || table2Rows.length === 0) {
-    this.openDialog('No matching rows found for the selected tables');
-    return '';
-  }
-
-  // Parse the ON condition to extract the columns involved in the join
-  const [leftColumn, rightColumn] = joinCondition.split('=').map(item => item.trim());
-
-  // Debugging: Checking the condition and column names
-  console.log(`Joining tables: ${table1} and ${table2}`);
-  console.log(`Using columns: ${leftColumn} and ${rightColumn}`);
-
-  // Perform the join logic (matching the rows based on the ON condition)
-  let joinedRows: string | any[] = [];
-
-  if (joinType[0].toUpperCase() === 'INNER') {
-    // INNER JOIN: Include rows only if there's a match in both tables
-    joinedRows = table1Rows.map(row1 => {
-      // Match the row from table1 with the row from table2 based on the join condition
-      const matchingRow = table2Rows.find(row2 => row1[leftColumn] === row2[rightColumn]);
-      // Only return rows if a match is found
-      if (matchingRow) {
-        return { ...row1, ...matchingRow }; // Merge rows if they match
+    return data.filter((row) => {
+      if (filterColumn) {
+        return this.matchText(row[filterColumn], searchText);
+      } else {
+        return Object.values(row).some((val) =>
+          this.matchText(val, searchText)
+        );
       }
-      return null; // Do not include non-matching rows
-    }).filter(row => row !== null); // Remove null values from non-matching rows
-
-    // Debugging: Checking the join result
-    console.log("INNER JOIN Result: ", joinedRows);
-  } else if (joinType[0].toUpperCase() === 'LEFT') {
-    // LEFT JOIN: Include all rows from the left table that have a match in the right table
-    joinedRows = table1Rows.map(row1 => {
-      const matchingRow = table2Rows.find(row2 => row1[leftColumn] === row2[rightColumn]);
-      return matchingRow ? { ...row1, ...matchingRow } : { ...row1, sourceColumn: null }; // Include even if no match
     });
-  } else if (joinType[0].toUpperCase() === 'RIGHT') {
-    // RIGHT JOIN: Include all rows from the right table that have a match in the left table
-    joinedRows = table2Rows.map(row2 => {
-      const matchingRow = table1Rows.find(row1 => row1[leftColumn] === row2[rightColumn]);
-      return matchingRow ? { ...matchingRow, ...row2 } : { ...row2, sourceColumn: null }; // Include even if no match
-    });
-  } else if (joinType[0].toUpperCase() === 'FULL') {
-    // FULL JOIN: Only include rows that have a match in either table
-    joinedRows = [
-      ...table1Rows.map(row1 => {
-        const matchingRow = table2Rows.find(row2 => row1[leftColumn] === row2[rightColumn]);
-        return matchingRow ? { ...row1, ...matchingRow } : null;
-      }),
-      ...table2Rows.map(row2 => {
-        const matchingRow = table1Rows.find(row1 => row1[leftColumn] === row2[rightColumn]);
-        return matchingRow ? { ...matchingRow, ...row2 } : null;
-      }),
-    ].filter(row => row !== null); // Remove rows without matches
   }
-
-  // Debugging: Checking the join result
-  console.log("Joined Rows: ", joinedRows);
-
-  // If no rows are joined, display a message
-  if (joinedRows.length === 0) {
-    this.openDialog('No matching rows found for the join condition.');
-    return '';
-  }
-
-  // Construct the final SQL query (assuming it's based on the ANSI SQL provided)
-  let constructedQuery = `${sqlQuery}`;
-
-  // Apply WHERE clause if a filter condition exists
-  if (this.filterByCondition.trim()) {
-    constructedQuery += ` ${this.filterByCondition}`;
-  }
-
-  // Display the final SQL query and the join result
-  this.openDialog(`Join Result:\n${JSON.stringify(joinedRows, null, 2)}`);
-
-  return constructedQuery;
-}
-
-executeAnsiJoin() {
-  const query = this.ansiJoin();
-  if (query) {
-    console.log('Generated SQL Query:', query);
-    this.openDialog(`Generated SQL Query:\n${query}`);
-  }
-}
-
-  // applyFilterByCondition(data: MappingRow[]): MappingRow[] {
-  //   let condition = this.filterByCondition.toLowerCase();
-
-  //   if (!condition) return data;
-
-  //   return data.filter((row) => {
-  //     let rowString = JSON.stringify(row).toLowerCase();
-  //     return rowString.includes(condition);
-  //   });
-  // }
 
   matchText(value: any, searchText: string): boolean {
     if (value && searchText) {
@@ -686,6 +512,32 @@ executeAnsiJoin() {
   isEllipsisActive(element: HTMLElement | null): boolean {
     if (!element) return false;
     return element.offsetWidth < element.scrollWidth;
+  }
+
+  toggleEditAnsi() {
+    if (this.isEditingAnsiJoin) {
+      // If editing, reset values to revert on cancel
+      this.ansiJoinCondition = this.ansiJoinCondition.trim();
+      this.filterByCondition = this.filterByCondition.trim();
+      this.openDialog('Reverted Data Condition Successfully!');
+    }
+    this.isEditingAnsiJoin = !this.isEditingAnsiJoin;
+    // this.openDialog('Edited Data Condition Successfully!');
+  }
+
+  saveCondition() {
+    // localStorage.setItem('ansiJoinCondition', this.ansiJoinCondition);
+    // localStorage.setItem('filterByCondition', this.filterByCondition);
+
+    if (!this.ansiJoinCondition.trim() && !this.filterByCondition.trim()) {
+      this.openDialog(
+        'Please Enter Data in at Least One of the Fields Before Saving'
+      );
+      return;
+    }
+
+    this.isEditingAnsiJoin = false;
+    this.openDialog('Saved Data Condition Successfully!');
   }
 
   async addMap() {

@@ -122,6 +122,16 @@ label[for="filterBy"] {
   font-weight: 500;
 }
 
+.editable-textarea[readonly] {
+  /* background-color: #035493 !important; */
+  cursor: not-allowed;
+}
+
+.savejoin-btn:disabled {
+  background-color: #035493;
+  cursor: not-allowed;
+}
+
 #globalFilter {
   width: 270px;
   padding: 8px;
@@ -353,7 +363,14 @@ th {
   .stacked-buttons button {
     width: 100%;
   }
+
+  .joinbutton-group {
+    flex-direction: column;
+    gap: 5px;
+    width: 100%;
+  }
+
+  .joinbutton-group button {
+    width: 100%;
+  }
 }
-
-
-
